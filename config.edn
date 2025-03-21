@@ -1,0 +1,22 @@
+;;
+;;
+;;
+{:lint-as {clojure.core.async/go-loop clojure.core/loop,
+           clojure.test.check.generators/let clojure.core/let,
+           expectations.clojure.test/defexpect clojure.test/deftest,
+           lambdaisland.ornament/defstyled clojure.core/def},
+ :linters {:clojure-lsp/unused-public-var {:exclude #{dev scripts.build}},
+           :refer-all {:exclude [clojure.repl]},
+           :single-key-in {:level :warning},
+           :unresolved-symbol {:exclude [(expectations.clojure.test/defexpect)
+                                         (honeysql.helpers/defhelper)]},
+           :unresolved-var {:report-duplicates true},
+           :unsorted-required-namespaces {:level :warning},
+           :unused-binding {:exclude-destructured-as true},
+           :unused-namespace {:exclude [config.core]},
+           :unused-referred-var {:exclude {clojure.test [is deftest testing],
+                                           config.core [env],
+                                           expectations.clojure.test
+                                                 [defexpect expect expecting
+                                                  in]}}},
+ :skip-comments true}
