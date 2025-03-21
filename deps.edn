@@ -1,9 +1,12 @@
-{:aliases {:dev {:extra-deps {bamf/config {:local/root "components/config"}},
+{:aliases {:dev {:deps {org.clojure/clojure {:mvn/version "1.12.0"}},
+                 :extra-deps {bamf/config {:local/root "components/config"}},
                  :extra-paths ["development/src"]},
            :poly {:extra-deps {polylith/clj-poly {:mvn/version "0.2.21"}},
                   :main-opts ["-m" "polylith.clj.core.poly-cli.core"]},
-           :test {:extra-paths []}},
+
+           :test {:deps {org.clojure/clojure {:mvn/version "1.12.0"}},
+                  :extra-paths ["components/config/test/clj"
+                                "components/config/test/resources"]}},
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}},
  :mvn/repos {"central" {:url "https://repo0.maven.org/maven2/"},
-             "clojars" {:url "https://clojars.org/repo"}},
- :test {:extra-paths ["components/config/test"]}}
+             "clojars" {:url "https://clojars.org/repo"}}}

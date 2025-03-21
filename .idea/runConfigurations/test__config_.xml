@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="test [config]" type="ClojureTestRunConfiguration" factoryName="clojure.test">
+    <option name="execution" value="DEPS" />
+    <module name="config" />
+    <option name="options" value="-A:test" />
+    <option name="profiles" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/components/config" />
+    <method v="2" />
+  </configuration>
+</component>
