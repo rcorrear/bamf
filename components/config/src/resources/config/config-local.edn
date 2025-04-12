@@ -1,3 +1,1 @@
-{:runtime-config
- {:environment "local" :aleph {:port 9090}} :app-name "bamf"}
 {:runtime-config {:aleph {:port 9090} :app-name "bamf" :environment :local}}

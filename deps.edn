@@ -1,14 +1,25 @@
 {:aliases {:dev {:deps {org.clojure/clojure {:mvn/version "1.12.0"}},
-                 :extra-deps {bamf/api {:local/root "components/api"},
-                              bamf/config {:local/root "components/config"}},
-                 :extra-paths ["development/src"]},
+                 :extra-deps { ;; bases
+                              bamf/rest-api {:local/root "bases/rest-api"},
+
+                              ;; components
+                              bamf/api {:local/root "components/api"},
+                              bamf/config {:local/root "components/config"},
+
+                              ;; development dependencies
+                              party.donut/system {:mvn/version "1.0.255"},
+com.taoensso/telemere {:mvn/version "1.0.0-RC4"}
+                              },
+                 :extra-paths ["development/src/clj"]},
            :poly {:extra-deps {polylith/clj-poly {:mvn/version "0.2.21"}},
                   :main-opts ["-m" "polylith.clj.core.poly-cli.core"]},
            :test {:deps {org.clojure/clojure {:mvn/version "1.12.0"}},
-                  :extra-paths ["components/api/test/clj"
-                                "components/api/test/resources"
+                  :extra-paths ["bases/rest-api/test/clj"
+                                "bases/rest-api/test/resources/rest-api"
+                                "components/api/test/clj"
+                                "components/api/test/resources/api"
                                 "components/config/test/clj"
-                                "components/config/test/resources"]}},
+                                "components/config/test/resources/config"]}},
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}},
  :mvn/repos {"central" {:url "https://repo0.maven.org/maven2/"},
              "clojars" {:url "https://clojars.org/repo"}}}

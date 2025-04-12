@@ -15,12 +15,44 @@
     <option name="dirTypeMappings">
       <set>
         <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/bases/rest-api/src/resources" />
+          <option name="type" value="RESOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/bases/rest-api/test/clj" />
+          <option name="type" value="TEST_SOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/bases/rest-api/test/resources" />
+          <option name="type" value="TEST_RESOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/components/api/src/resources" />
+          <option name="type" value="RESOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/components/api/test/clj" />
+          <option name="type" value="TEST_SOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/components/api/test/resources" />
+          <option name="type" value="TEST_RESOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/components/config/src/resources" />
+          <option name="type" value="RESOURCE" />
+        </FolderState>
+        <FolderState>
           <option name="dirUrl" value="file://$PROJECT_DIR$/components/config/test/clj" />
           <option name="type" value="TEST_SOURCE" />
         </FolderState>
         <FolderState>
           <option name="dirUrl" value="file://$PROJECT_DIR$/components/config/test/resources" />
-          <option name="type" value="TEST_SOURCE" />
+          <option name="type" value="TEST_RESOURCE" />
+        </FolderState>
+        <FolderState>
+          <option name="dirUrl" value="file://$PROJECT_DIR$/development/src/resources" />
+          <option name="type" value="RESOURCE" />
         </FolderState>
       </set>
     </option>

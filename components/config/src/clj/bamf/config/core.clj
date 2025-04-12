@@ -16,11 +16,12 @@
 
 (defn load-config
   [environment]
-  (let [file (str "config/config"
+  (let [file (str "config"
                   (when-not (= :production environment)
                     (str "-" (name environment)))
                   ".edn")]
     (t/log! {:level :info} (format "loading config '%s'." file))
+    (t/log! {:level :info} (format "classpath '%s'." (java.lang.System/getProperty "java.class.path")))
     (->> file
          io/resource
          read-config

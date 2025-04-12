@@ -1,0 +1,14 @@
+{:aliases {:dev {:override-deps {metosin/reitit {:exclusions [metosin/reitit-sieppari],
+                                                 :mvn/version "0.7.2"}}}
+           :test {:extra-paths ["test/clj" "test/resources"]}},
+ :deps {        aleph/aleph {:mvn/version "0.8.3"}
+        com.taoensso/telemere {:mvn/version "1.0.0-RC4"},
+        fi.metosin/muuntaja-charred {:mvn/version "0.6.11"},
+        info.sunng/ring-jetty9-adapter {:mvn/version "0.36.1"},
+        metosin/reitit {:exclusions [metosin/reitit-sieppari
+                                     metosin/reitit-dev],
+                        :mvn/version "0.7.2"},
+        metosin/reitit-ring {:mvn/version "0.7.2"},
+        org.clojure/clojure {:mvn/version "1.12.0"},
+        ring/ring {:mvn/version "1.9.4"}},
+ :paths ["src/clj" "src/resources"]}
