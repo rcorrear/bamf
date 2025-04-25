@@ -16,10 +16,16 @@
   };
 
   outputs =
-    inputs:
+    { self, ... }@inputs:
     inputs.snowfall-lib.mkFlake {
       # You must provide our flake inputs to Snowfall Lib.
       inherit inputs;
+
+      outputs-builder = channels: {
+        packages = {
+          devenv-up = self.devShells.${channels.nixpkgs.system}.default.config.procfileScript;
+        };
+      };
 
       # The `src` must be the root of the flake. See configuration
       # in the next section for information on how you can move your
