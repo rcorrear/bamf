@@ -32,16 +32,15 @@
   []
   (ds/describe-system (ds/system @environment)))
 
-(defn app-config [] (:app-config (::ds/instances state/system)))
+(defn runtime-state [] (:runtime-state (::ds/instances state/system)))
 
-(defn runtime-config [] (:env (::ds/instances state/system)))
+(defn runtime-config [] (:runtime-config (:env (::ds/instances state/system))))
 
 (comment
-  @environment
   (go)
   (stop)
   (restart)
   (status)
-  (app-config)
+  (runtime-state)
   (runtime-config)
   (ds/system @environment))

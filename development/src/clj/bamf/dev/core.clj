@@ -2,28 +2,21 @@
   {:author "Ricardo Correa"}
   (:require [bamf.config.interface :as config]
             [bamf.rest-api.core :as rest-api]
-            [donut.system :as ds]
-            [taoensso.telemere :as t]))
+            [donut.system :as ds]))
 
 (set! *warn-on-reflection* true)
 
 (def ^:private base-system
   {::ds/defs
    {:env        {},
-    :app-config {:rest-api #::ds{:start (fn [{:keys [::ds/config]}]
-                                          (t/log! {:level :info}
-                                                  (format
-                                                   "starting %s :router"
-                                                   (get-in config
-                                                           [:runtime-config
-                                                            :environment])))
-                                          (rest-api/start config)),
-                                 :stop (fn [{:keys [::ds/instance]}]
-                                         (rest-api/stop instance)),
-                                 :config {:runtime-config
-                                          (ds/ref
-                                           [:env
-                                            :runtime-config])}}}}})
+    :runtime-state {:rest-api #::ds{:start (fn [{:keys [::ds/config]}]
+                                     (rest-api/start config)),
+                            :stop (fn [{:keys [::ds/instance]}]
+                                    (rest-api/stop instance)),
+                            :config {:runtime-config
+                                     (ds/ref
+                                      [:env
+                                       :runtime-config])}}}}})
 
 (defmethod ds/named-system :base [_] base-system)
 
@@ -35,5 +28,5 @@
   [_]
   (ds/system :base
              {[:env] (config/load-config :test),
-              [:app-config :rest-api] ::disabled,
-              [:app-config :runtime-config] (ds/ref [:env :runtime-config])}))
+              [:runtime-state :rest-api] ::disabled,
+              [:runtime-state :runtime-config] (ds/ref [:env :runtime-config])}))

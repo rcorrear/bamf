@@ -18,10 +18,10 @@
   (response/not-found {:error "Sorry Dave, I'm afraid I can't do that."}))
 
 (defn ^:private router
-  [app-config routes]
+  [runtime-state routes]
   (ring/router routes
                {:validate rs/validate,
-                :data {:app-config app-config,
+                :data {:runtime-state runtime-state,
                        :muuntaja m/instance,
                        :coercion rcm/coercion,
                        :middleware [muuntaja/format-middleware
@@ -30,19 +30,19 @@
                                     rrc/coerce-response-middleware]}}))
 
 (defn ^:private static-ring-handler
-  [app-config]
-  (ring/ring-handler (router app-config (get-routes))
+  [runtime-state]
+  (ring/ring-handler (router runtime-state (get-routes))
                      (ring/routes (ring/create-resource-handler {:path "/", :not-found-handler (not-found)})
                                   (ring/create-default-handler))))
 
 (defn ^:private repl-friendly-ring-handler
-  [app-config]
-  (fn [request] ((static-ring-handler app-config) request)))
+  [runtime-state]
+  (fn [request] ((static-ring-handler runtime-state) request)))
 
 ;; DONUT LIFECYCLE FUNCTIONS ↓
 
 (defn start
-  [{{:keys [environment aleph]} :runtime-config, :as app-config}]
+  [{{:keys [environment aleph]} :runtime-config, :as config}]
   (http/start-server
    (if (contains? #{:local :development} environment)
      (do
@@ -51,23 +51,17 @@
         (format
          "using reloadable ring handler for handling requests as the environment is '%s'."
          (name environment)))
-       (repl-friendly-ring-handler app-config))
+       (repl-friendly-ring-handler config))
      (do
        (t/log!
         {:level :info}
         (format
          "using static ring handler for handling requests as the environment is '%s'."
          (name environment)))
-       (static-ring-handler app-config)))
+       (static-ring-handler config)))
    (merge {:shutdown-executor? true} aleph)))
 
 (defn stop
   [server]
   (.close server)
   (t/log! {:level :info} "stopped server"))
-
-(comment
-  (def s (start {:runtime-config
-                 {:environment :local :aleph {:port 9090}} :app-name "bamf"}))
-
-  (stop s))
