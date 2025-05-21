@@ -4,3 +4,5 @@
 (set! *warn-on-reflection* true)
 
 (defn load-config [environment] (core/load-config environment))
+
+(defn validate [spec config] (core/validate spec config))

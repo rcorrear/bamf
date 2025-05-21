@@ -1,6 +1,8 @@
 (ns bamf.rest-api.core
   {:author "Ricardo Correa"}
   (:require [aleph.http :as http]
+            [bamf.config.interface :as config]
+            [bamf.config.rest-api.spec :as raspec]
             [bamf.rest-api.routes :refer [get-routes]]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as rcm]
@@ -42,24 +44,28 @@
 ;; DONUT LIFECYCLE FUNCTIONS ↓
 
 (defn start
-  [{{:keys [environment aleph]} :runtime-config, :as config}]
-  (http/start-server
-   (if (contains? #{:local :development} environment)
-     (do
-       (t/log!
-        {:level :info}
-        (format
-         "using reloadable ring handler for handling requests as the environment is '%s'."
-         (name environment)))
-       (repl-friendly-ring-handler config))
-     (do
-       (t/log!
-        {:level :info}
-        (format
-         "using static ring handler for handling requests as the environment is '%s'."
-         (name environment)))
-       (static-ring-handler config)))
-   (merge {:shutdown-executor? true} aleph)))
+  [config]
+  (config/validate (raspec/get-spec) config)
+  (let [aleph (config :aleph)
+        environment (config :environment)]
+
+    (http/start-server
+     (if (contains? #{:local :development} environment)
+       (do
+         (t/log!
+          {:level :info}
+          (format
+           "using reloadable ring handler for handling requests as the environment is '%s'."
+           (name environment)))
+         (repl-friendly-ring-handler config))
+       (do
+         (t/log!
+          {:level :info}
+          (format
+           "using static ring handler for handling requests as the environment is '%s'."
+           (name environment)))
+         (static-ring-handler config)))
+     (merge {:shutdown-executor? true} aleph))))
 
 (defn stop
   [server]

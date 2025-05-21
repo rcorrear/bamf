@@ -9,22 +9,23 @@
 
 (def ^:private Config
   [:map
-   [:runtime-config
-    [:map
-     [:aleph
-      [:map
-       [:port :int]]]
-     [:app-name :string]
-     [:environment {:default :local}
-      [:enum :local :test :development :staging :production]]]]])
+   {:closed false}
+   [:app-name :string]
+   [:environment
+    [:enum :local :test :development :staging :production]]])
+
+(defn get-config
+  []
+  Config)
 
 (defn apply-defaults
   [config]
   (m/decode Config config mt/default-value-transformer))
 
 (defn validate
-  [config]
-  (-> (mu/closed-schema Config)
-      (m/assert config)
-      (me/humanize))
-  config)
+  ([config] (validate Config config))
+  ([spec config]
+   (-> (mu/closed-schema spec)
+       (m/assert config)
+       (me/humanize))
+   config))

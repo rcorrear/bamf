@@ -34,7 +34,7 @@
 
 (defn runtime-state [] (:runtime-state (::ds/instances state/system)))
 
-(defn runtime-config [] (:runtime-config (:env (::ds/instances state/system))))
+(defn config [] (:config (::ds/instances state/system)))
 
 (comment
   (go)
@@ -42,5 +42,5 @@
   (restart)
   (status)
   (runtime-state)
-  (runtime-config)
+  (config)
   (ds/system @environment))
