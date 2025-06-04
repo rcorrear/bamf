@@ -14,8 +14,9 @@
   ...
 }:
 let
-  my = {
-    polylith = pkgs.polylith.override { jdk = pkgs.jdk23; };
+  my = rec {
+    jdk23 = pkgs.jdk23.override { enableJavaFX = true; };
+    polylith = pkgs.polylith.override { jdk = jdk23; };
   };
 in
 
@@ -34,18 +35,18 @@ inputs.devenv.lib.mkShell {
           clojure.enable = true;
           java = {
             enable = true;
-            jdk.package = pkgs.jdk23;
+            jdk.package = my.jdk23;
           };
         };
 
         packages = [
+          my.jdk23
           my.polylith
 
           pkgs.clj-kondo
           pkgs.cljfmt
           pkgs.clojure-lsp
           pkgs.httpie
-          pkgs.jdk23
           pkgs.unzip
         ];
 
