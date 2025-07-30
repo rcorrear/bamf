@@ -5,7 +5,7 @@
             [taoensso.telemere :as t]))
 
 (defn validate
-  ([config] (validate (spec/get-config) config))
+  ([config] (validate (spec/get-spec) config))
   ([spec config]
    (t/log! {:level :info}
            (format "validating '%s' to make sure it's good!" config))

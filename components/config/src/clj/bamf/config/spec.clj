@@ -14,7 +14,7 @@
    [:environment
     [:enum :local :test :development :staging :production]]])
 
-(defn get-config
+(defn get-spec
   []
   Config)
 
