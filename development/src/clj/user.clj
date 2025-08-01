@@ -1,10 +1,11 @@
 (ns user
   {:author "Ricardo Correa"}
-  (:require [bamf.dev.core] ;; required in order to load in the defmulti's that define the donut `named-system`'s.
+  (:require [bamf.dev.core :as core] ;; required in order to load in the defmulti's that define the donut `named-system`'s.
             [donut.system :as ds]
             [donut.system.repl :as dsr]
             [donut.system.repl.state :as state]
-            [taoensso.telemere :as t])
+            ;; [taoensso.telemere :as t]
+            )
   (:import [clojure.lang ExceptionInfo]))
 
 (set! *warn-on-reflection* true)
@@ -14,13 +15,13 @@
 (defmethod ds/named-system ::ds/repl [_] (ds/system @environment))
 
 (defn go
-  ([] (go :local))
+  ([] (go ::core/local))
   ([env]
    (reset! environment env)
-   (try (dsr/start)
+   (try (dsr/start env)
         :ready-to-rock-and-roll
         (catch ExceptionInfo e
-          (t/log! {:level :error} (ex-data e))
+          ;; (t/log! {:level :error} (ex-data e))
           (throw e)
           :bye-bye))))
 
@@ -32,9 +33,9 @@
   []
   (ds/describe-system (ds/system @environment)))
 
-(defn runtime-state [] (:runtime-state (::ds/instances state/system)))
+(defn runtime-state [] (::core/runtime-state (::ds/instances state/system)))
 
-(defn config [] (:config (::ds/instances state/system)))
+(defn config [] (::core/config (::ds/instances state/system)))
 
 (comment
   (go)

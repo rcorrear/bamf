@@ -1,7 +1,7 @@
 {:compact-views #{},
  :default-profile-name "default",
  :interface-ns "interface",
- :projects {"development" {:alias "dev"}},
+ :projects {"development" {:alias "dev"}, "sonarr", {:alias "son"}},
  :tag-patterns {:release "v[0-9]*",
                 :stable "stable-*"},
  :top-namespace "bamf",

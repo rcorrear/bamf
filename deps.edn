@@ -1,32 +1,53 @@
-{:aliases {:dev {:deps {org.clojure/clojure {:mvn/version "1.12.1"}},
-                 :extra-deps {;; bases
-                              bamf/rest-api {:local/root "bases/rest-api"},
+{:aliases
+ {:dev
+  {:extra-deps
+   {;; bases
+    bamf/rest-api {:local/root "bases/rest-api"},
 
-                              ;; components
-                              bamf/api {:local/root "components/api"},
-                              bamf/config {:local/root "components/config"},
+    ;; components
+    bamf/api {:local/root "components/api"},
+    bamf/config {:local/root "components/config"},
+    bamf/movies {:local/root "components/movies"},
 
-                              ;; development dependencies
-                              djblue/portal {:mvn/version "0.59.1"},
-                              com.github.flow-storm/flow-storm-dbg {:mvn/version "4.4.4"},
-                              com.github.flow-storm/clojure {:mvn/version "1.12.1"}
-                              party.donut/system {:mvn/version "1.0.255"},
-                              com.taoensso/telemere {:mvn/version "1.0.0-RC4"}},
-                 :extra-paths ["development/src/clj"]},
-           :flow-storm {;; for disabling the official compiler
-                        :classpath-overrides {org.clojure/clojure nil}
-                        :extra-deps {com.github.flow-storm/clojure {:mvn/version "1.12.1"}
-                                     com.github.flow-storm/flow-storm-dbg {:mvn/version "4.4.4"}}},
-           :poly {:extra-deps {polylith/clj-poly {:mvn/version "0.2.21"}},
-                  :main-opts ["-m" "polylith.clj.core.poly-cli.core"]},
-           :test {:deps {org.clojure/clojure {:mvn/version "1.12.1"}},
-                  :extra-paths ["bases/rest-api/test/clj"
-                                "bases/rest-api/test/resources/rest-api"
-                                "components/api/test/clj"
-                                "components/api/test/resources/api"
-                                "components/config/test/clj"
-                                "components/config/test/resources/config"]}},
- :deps {org.clojure/clojure {:mvn/version "1.12.1"}},
+    ;; development dependencies
+    ;; com.github.flow-storm/flow-storm-dbg {:mvn/version "4.4.4"},
+    ;; com.github.flow-storm/clojure {:mvn/version "1.12.1"}
+    com.taoensso/telemere {:mvn/version "1.0.1"},
+    party.donut/system {:mvn/version "1.0.257"},
+    philoskim/debux {:mvn/version "0.9.1"}}
+
+   :extra-paths ["development/src/clj"],
+   :jvm-opts ["-Xss2m"
+              "-XX:-OmitStackTraceInFastThrow"
+              "-XX:+UnlockDiagnosticVMOptions"
+              "-XX:+DebugNonSafepoints"],
+   :override-deps {metosin/reitit {:exclusions [metosin/reitit-sieppari],
+                                   :mvn/version "0.7.2"} ,
+                   org.slf4j/slf4j-api {:mvn/version "1.7.36"}}},
+  :flow-storm {},
+  ;; :flow-storm {;; for disabling the official compiler
+  ;;              :classpath-overrides {org.clojure/clojure nil}
+  ;;              :extra-deps {com.github.flow-storm/clojure {:mvn/version "1.12.1"}
+  ;;                           com.github.flow-storm/flow-storm-dbg {:mvn/version "4.4.4"}}},
+  :poly {:extra-deps {polylith/clj-poly {:mvn/version "0.2.22"}},
+         :main-opts ["-m" "polylith.clj.core.poly-cli.core"]},
+  :test {:extra-paths ["bases/rest-api/test/clj"
+                       "bases/rest-api/test/resources"
+                       "components/api/test/clj"
+                       "components/api/test/resources"
+                       "components/config/test/clj"
+                       "components/config/test/resources"]}},
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}},
+ :kmono/workspace {;; Add the :nrepl alias from ~/.clojure/deps.edn when running
+                   ;; `kmono repl`
+                   :repl-aliases [:nrepl]
+                   ;; - Include the :dev alias from ~/.clojure/deps.edn
+                   ;; - Include the :local alias defined below
+                   :aliases [:dev :local]
+                   :group dev.bamf
+                   :packages #{"./(bases|components|development)/**"}
+                   ;; Include any `:test` aliases from all (`*`) packages in the workspace
+                   :package-aliases [:*/test]}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"},
              "clojars" {:url "https://clojars.org/repo"},
-             "rpl"     {:url "https://nexus.redplanetlabs.com/repository/maven-public-releases"}}}
+             "rpl" {:url "https://nexus.redplanetlabs.com/repository/maven-public-releases"}}}

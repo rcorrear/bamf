@@ -2,8 +2,8 @@
   {:author "Ricardo Correa"}
   (:require [aleph.http :as http]
             [bamf.config.interface :as config]
-            [bamf.config.rest-api.spec :as raspec]
             [bamf.rest-api.routes :refer [get-routes]]
+            [bamf.rest-api.spec :as raspec]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as rcm]
             [reitit.ring :as ring]
@@ -11,7 +11,8 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.spec :as rs]
             [ring.util.response :as response]
-            [taoensso.telemere :as t]))
+            ;; [taoensso.telemere :as t]
+            ))
 
 (set! *warn-on-reflection* true)
 
@@ -52,22 +53,23 @@
     (http/start-server
      (if (contains? #{:local :development} environment)
        (do
-         (t/log!
-          {:level :info}
-          (format
-           "using reloadable ring handler for handling requests as the environment is '%s'."
-           (name environment)))
+         ;; (t/log!
+         ;;  {:level :info}
+         ;;  (format
+         ;;   "using reloadable ring handler for handling requests as the environment is '%s'."
+         ;;   (name environment)))
          (repl-friendly-ring-handler config))
        (do
-         (t/log!
-          {:level :info}
-          (format
-           "using static ring handler for handling requests as the environment is '%s'."
-           (name environment)))
+         ;; (t/log!
+         ;;  {:level :info}
+         ;;  (format
+         ;;   "using static ring handler for handling requests as the environment is '%s'."
+         ;;   (name environment)))
          (static-ring-handler config)))
      (merge {:shutdown-executor? true} aleph))))
 
 (defn stop
   [server]
   (.close server)
-  (t/log! {:level :info} "stopped server"))
+  ;; (t/log! {:level :info} "stopped server")
+  )

@@ -1,4 +1,4 @@
-(ns bamf.config.rest-api.spec
+(ns bamf.rest-api.spec
   {:author "Ricardo Correa"})
 
 (defn get-spec

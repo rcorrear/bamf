@@ -1,8 +1,6 @@
-{:aliases {:test {:extra-paths ["test/clj" "test/resources/movies"]}},
- :deps {com.rpl/rama {:mvn/version "1.1.0"},
-        com.rpl/rama-helpers {:mvn/version "0.10.0"},
-        com.taoensso/telemere {:mvn/version "1.0.0-RC5"},
-        metosin/malli {:mvn/version "0.17.0"},
-        org.clojure/clojure {:mvn/version "1.12.1"},
-        philoskim/debux {:mvn/version "0.9.1"}},
- :paths ["src/clj" "src/resources/movies"]}
+{:aliases {:test {:extra-paths ["test/clj" "test/resources"]}},
+ :deps {com.github.luben/zstd-jni {:mvn/version "1.5.5-1"},
+
+        com.rpl/rama {:mvn/version "1.1.0"},
+        com.rpl/rama-helpers {:mvn/version "0.10.0"}},
+ :paths ["src/clj" "src/resources"]}

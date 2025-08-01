@@ -27,8 +27,14 @@ inputs.devenv.lib.mkShell {
       { pkgs, config, ... }:
       {
         git-hooks.hooks = {
-          nixfmt-rfc-style.enable = true;
           cljfmt.enable = true;
+          deadnix.enable = true;
+          flake-checker.enable = true;
+          nixfmt-rfc-style.enable = true;
+          shfmt.enable = true;
+          statix.enable = true;
+          trufflehog.enable = true;
+          yamllint.enable = true;
         };
 
         languages = {
