@@ -8,19 +8,11 @@
 (set! *warn-on-reflection* true)
 
 (def ^:private Config
-  [:map
-   {:closed false}
-   [:app-name :string]
-   [:environment
-    [:enum :local :test :development :staging :production]]])
+  [:map {:closed false} [:app-name :string] [:environment [:enum :local :test :development :staging :production]]])
 
-(defn get-config
-  []
-  Config)
+(defn get-spec [] Config)
 
-(defn apply-defaults
-  [config]
-  (m/decode Config config mt/default-value-transformer))
+(defn apply-defaults [config] (m/decode Config config mt/default-value-transformer))
 
 (defn validate
   ([config] (validate Config config))

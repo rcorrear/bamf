@@ -1,6 +1,7 @@
 (ns user
   {:author "Ricardo Correa"}
-  (:require [bamf.dev.core] ;; required in order to load in the defmulti's that define the donut `named-system`'s.
+  (:require [bamf.dev.core] ;; required in order to load in the defmulti's
+                            ;; that define the donut `named-system`'s.
             [donut.system :as ds]
             [donut.system.repl :as dsr]
             [donut.system.repl.state :as state]
@@ -17,20 +18,15 @@
   ([] (go :local))
   ([env]
    (reset! environment env)
-   (try (dsr/start)
+   (try (dsr/start env)
         :ready-to-rock-and-roll
-        (catch ExceptionInfo e
-          (t/log! {:level :error} (ex-data e))
-          (throw e)
-          :bye-bye))))
+        (catch ExceptionInfo e (t/log! {:level :error} (ex-data e)) (throw e) :bye-bye))))
 
 (def stop dsr/stop)
 
 (def restart dsr/restart)
 
-(defn status
-  []
-  (ds/describe-system (ds/system @environment)))
+(defn status ([] (status @environment)) ([env] (ds/describe-system (ds/system env))))
 
 (defn runtime-state [] (:runtime-state (::ds/instances state/system)))
 
@@ -40,7 +36,7 @@
   (go)
   (stop)
   (restart)
-  (status)
+  (status :local)
   (runtime-state)
   (config)
   (ds/system @environment))

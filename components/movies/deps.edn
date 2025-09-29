@@ -1,8 +1,12 @@
-{:aliases {:test {:extra-paths ["test/clj" "test/resources/movies"]}},
- :deps {com.rpl/rama {:mvn/version "1.1.0"},
-        com.rpl/rama-helpers {:mvn/version "0.10.0"},
-        com.taoensso/telemere {:mvn/version "1.0.0-RC5"},
-        metosin/malli {:mvn/version "0.17.0"},
-        org.clojure/clojure {:mvn/version "1.12.1"},
-        philoskim/debux {:mvn/version "0.9.1"}},
- :paths ["src/clj" "src/resources/movies"]}
+{:aliases   {:test {:extra-paths ["test/clj" "test/resources"]}}
+ :deps      {com.github.luben/zstd-jni {:mvn/version "1.5.5-1"}
+             com.rpl/rama              {:mvn/version "1.1.0"}
+             com.rpl/rama-helpers      {:mvn/version "0.10.0"}
+             com.taoensso/telemere     {:mvn/version "1.0.0"}
+             metosin/malli             {:mvn/version "0.19.1"}
+             org.clojure/clojure       {:mvn/version "1.12.0"}
+             org.clojure/data.json     {:mvn/version "2.5.0"}}
+ :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+             "clojars" {:url "https://clojars.org/repo"}
+             "rpl"     {:url "https://nexus.redplanetlabs.com/repository/maven-public-releases"}}
+ :paths     ["src/clj" "src/resources"]}

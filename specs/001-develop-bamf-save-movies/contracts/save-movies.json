@@ -1,0 +1,219 @@
+{
+  "endpoint": "/api/v3/movie",
+  "method": "POST",
+  "description": "Persist a Radarr-style movie payload into Bamf's Rama-backed store.",
+  "request": {
+    "contentType": "application/json",
+    "schema": {
+      "type": "object",
+      "required": [
+        "title",
+        "qualityProfileId",
+        "path",
+        "rootFolderPath",
+        "monitored",
+        "minimumAvailability",
+        "tmdbId"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "qualityProfileId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "path": {
+          "type": "string"
+        },
+        "rootFolderPath": {
+          "type": "string"
+        },
+        "monitored": {
+          "type": "boolean"
+        },
+        "tmdbId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "movieMetadataId": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "movieFileId": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minimumAvailability": {
+          "type": "string",
+          "enum": [
+            "announced",
+            "inCinemas",
+            "released",
+            "tba"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "addOptions": {
+          "type": "object"
+        },
+        "added": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastSearchTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "targetSystem": {
+          "type": "string"
+        },
+        "titleSlug": {
+          "type": "string",
+          "description": "Must equal the string representation of tmdbId when provided."
+        },
+        "imdbId": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "example": {
+      "title": "Dune",
+      "qualityProfileId": 1,
+      "path": "/movies/Dune (2021)",
+      "monitored": true,
+      "movieMetadataId": 12345,
+      "movieFileId": 0,
+      "minimumAvailability": "released",
+      "tags": [
+        "scifi",
+        "4k"
+      ],
+      "addOptions": {
+        "searchForMovie": true
+      },
+      "added": "2025-09-21T12:00:00Z",
+      "lastSearchTime": "2025-09-21T12:05:00Z",
+      "targetSystem": "radarr"
+    }
+  },
+  "responses": {
+    "201": {
+      "description": "Movie persisted successfully",
+      "schema": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "path",
+          "rootFolderPath",
+          "monitored",
+          "qualityProfileId",
+          "minimumAvailability",
+          "tmdbId"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "titleSlug": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "rootFolderPath": {
+            "type": "string"
+          },
+          "monitored": {
+            "type": "boolean"
+          },
+          "qualityProfileId": {
+            "type": "integer"
+          },
+          "minimumAvailability": {
+            "type": "string"
+          },
+          "tmdbId": {
+            "type": "integer"
+          },
+          "movieMetadataId": {
+            "type": "integer"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "addOptions": {
+            "type": "object"
+          },
+          "added": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSearchTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "year": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "400": {
+      "description": "Conflict or validation failure",
+      "schema": {
+        "type": "object",
+        "required": [
+          "message",
+          "errors"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "errors": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

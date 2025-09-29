@@ -1,0 +1,8 @@
+{:aliases {:test {:extra-deps {} :extra-paths []}}
+ :deps    {org.clojure/clojure {:mvn/version "1.12.0"}
+           ;; bases
+           bamf/rest-api       {:local/root "bases/rest-api"}
+           ;; components
+           bamf/api            {:local/root "components/api"}
+           bamf/config         {:local/root "components/config"}
+           bamf/movies         {:local/root "components/movies"}}}
