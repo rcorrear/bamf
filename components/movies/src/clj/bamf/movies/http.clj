@@ -1,0 +1,84 @@
+(ns bamf.movies.http
+  "HTTP handlers, schemas, and route exports for the Movies component."
+  (:require [bamf.movies.persistence :as persistence]
+            [bamf.movies.runtime :as runtime]
+            [ring.util.mime-type :as mime]
+            [taoensso.telemere :as t]))
+
+(def movie-path "/api/v3/movie")
+
+(def json-media-type (mime/default-mime-types "json"))
+
+(def json-media [json-media-type])
+
+(def movie-record
+  [:map {:closed false} [:id pos-int?] [:tmdbId pos-int?] [:title string?] [:path string?]
+   [:minimumAvailability string?] [:monitored boolean?] [:qualityProfileId pos-int?]])
+
+(def movie-create-request
+  [:map {:closed false} [:title string?] [:path string?] [:rootFolderPath string?] [:monitored boolean?]
+   [:qualityProfileId pos-int?] [:minimumAvailability string?] [:tmdbId pos-int?] [:addOptions {:optional true} map?]
+   [:tags {:optional true} [:sequential string?]] [:year {:optional true} pos-int?]])
+
+(def duplicate-body [:map [:error string?] [:field keyword?] [:existing-id pos-int?]])
+
+(def error-body [:map [:errors [:sequential string?]]])
+
+(def list-query-schema
+  [:maybe [:map {:closed false} [:term {:optional true} string?] [:page {:optional true} pos-int?]]])
+
+(defn- safe-payload [request] (or (:body-params request) (:body request) {}))
+
+(defn list-movies "Placeholder handler until listing is implemented." [_] {:status 200 :body {:data []}})
+
+(defn- duplicate->response
+  [{:keys [reason field existing-id]}]
+  {:status 409 :body {:error (or reason "duplicate") :field (or field :unknown) :existing-id existing-id}})
+
+(defn- invalid->response [{:keys [errors]}] {:status 422 :body {:errors (vec (or errors []))}})
+
+(defn- error->response [{:keys [errors]}] {:status 500 :body {:errors (vec (or errors ["unexpected error"]))}})
+
+(defn- stored->response [{:keys [movie]}] {:status 201 :body {:data movie}})
+
+(defn create-movie
+  "Persist a movie payload and translate the component response into HTTP semantics."
+  [request]
+  (let [payload (safe-payload request)
+        env     (runtime/env)
+        result  (persistence/save! env payload)]
+    (case (:status result)
+      :stored    (stored->response result)
+      :duplicate (duplicate->response result)
+      :invalid   (invalid->response result)
+      :error     (error->response result)
+      (do (t/log! {:level   :error
+                   :event   :movies/http-unexpected-status
+                   :details {:status       (:status result)
+                             :payload-keys (-> payload
+                                               keys
+                                               sort
+                                               vec)}}
+                  "movies/save-movie! returned unexpected status")
+          (error->response {:errors [(format "Unexpected status %s" (:status result))]})))))
+
+(defn get-http-api
+  "Return the Movies component HTTP route declarations for aggregation."
+  [_]
+  [[movie-path
+    {:name     :movies/movie
+     :produces json-media
+     :get      {:name       :movies/list
+                :handler    list-movies
+                :parameters {:query list-query-schema}
+                :responses  {200 {:body [:map [:data [:sequential movie-record]]]}}
+                :produces   json-media}
+     :post     {:name       :movies/create
+                :handler    create-movie
+                :parameters {:body movie-create-request}
+                :responses  {201 {:body [:map [:data movie-record]]}
+                             409 {:body duplicate-body}
+                             422 {:body error-body}
+                             500 {:body error-body}}
+                :produces   json-media
+                :consumes   json-media}}]])
