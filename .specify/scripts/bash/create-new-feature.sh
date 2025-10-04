@@ -58,7 +58,15 @@ WORDS=$(echo "$BRANCH_NAME" | tr '-' '\n' | grep -v '^$' | head -3 | tr '\n' '-'
 BRANCH_NAME="${FEATURE_NUM}-${WORDS}"
 
 if [ "$HAS_GIT" = true ]; then
-	git checkout -b "$BRANCH_NAME"
+	if command -v jj >/dev/null 2>&1; then
+		jj edit "$BRANCH_NAME"
+	else
+		if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+			git checkout "$BRANCH_NAME"
+		else
+			git checkout -b "$BRANCH_NAME"
+		fi
+	fi
 else
 	>&2 echo "[specify] Warning: Git repository not detected; skipped branch creation for $BRANCH_NAME"
 fi

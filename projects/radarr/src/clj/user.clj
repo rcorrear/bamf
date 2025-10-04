@@ -4,8 +4,8 @@
 
 (set! *warn-on-reflection* true)
 
-(defmethod system/start :bamf
-  ([runtime] (system/ensure-ns-loaded 'bamf.dev.system) (system/start (assoc runtime :system :go))))
+(defmethod system/start :radarr
+  ([runtime] (system/ensure-ns-loaded 'radarr.dev.system) (system/start (assoc runtime :system :go))))
 
 (defn stop [] (system/stop))
 
@@ -18,7 +18,7 @@
 (defn config [] (system/config))
 
 (comment
-  (system/start {:environment :local :system :bamf})
+  (system/start {:environment :local :system :radarr})
   (stop)
   (restart)
   (status)

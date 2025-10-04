@@ -1,31 +1,39 @@
-{:aliases   {:dev  {:extra-deps    {;; bases
-                                    bamf/rest-api         {:local/root "bases/rest-api"}
-                                    ;; components
-                                    bamf/api              {:local/root "components/api"}
-                                    bamf/config           {:local/root "components/config"}
-                                    bamf/movies           {:local/root "components/movies"}
-                                    ;; development dependencies
-                                    com.rpl/rama          {:mvn/version "1.1.0"}
-                                    com.rpl/rama-helpers  {:mvn/version "0.10.0"}
-                                    com.taoensso/telemere {:mvn/version "1.0.0"}
-                                    party.donut/system    {:mvn/version "1.0.257"}
-                                    philoskim/debux       {:mvn/version "0.9.1"}}
-                    :extra-paths   ["development/src/clj"]
-                    :jvm-opts      ["-Xss2m" "-XX:-OmitStackTraceInFastThrow" "-XX:+UnlockDiagnosticVMOptions"
-                                    "-XX:+DebugNonSafepoints"]
-                    :override-deps {metosin/reitit      {:exclusions [metosin/reitit-sieppari] :mvn/version "0.7.2"}
-                                    org.slf4j/slf4j-api {:mvn/version "1.7.36"}}}
-             :poly {:extra-deps {polylith/clj-poly {:mvn/version "0.2.22"}}
-                    :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}
-             :test {:exec-fn     bamf.test-runner/run
-                    :extra-deps  {bamf/api      {:local/root "components/api"}
-                                  bamf/config   {:local/root "components/config"}
-                                  bamf/movies   {:local/root "components/movies"}
-                                  bamf/rest-api {:local/root "bases/rest-api"}}
-                    :extra-paths ["bases/rest-api/test/clj" "bases/rest-api/test/resources" "components/api/test/clj"
-                                  "components/api/test/resources" "components/config/test/clj"
-                                  "components/config/test/resources" "components/movies/test/clj"
-                                  "components/movies/test/resources"]}}
+{:aliases   {:dev   {:extra-deps    {;; bases
+                                     bamf/rest-api         {:local/root "bases/rest-api"}
+                                     ;; components
+                                     bamf/config           {:local/root "components/config"}
+                                     bamf/movies           {:local/root "components/movies"}
+                                     bamf/system           {:local/root "components/system"}
+                                     ;; development dependencies
+                                     com.rpl/rama          {:mvn/version "1.1.0"}
+                                     com.rpl/rama-helpers  {:mvn/version "0.10.0"}
+                                     com.taoensso/telemere {:mvn/version "1.0.0"}
+                                     party.donut/system    {:mvn/version "1.0.257"}
+                                     philoskim/debux       {:mvn/version "0.9.1"}}
+                     :extra-paths   ["development/src/clj"]
+                     :override-deps {metosin/reitit      {:exclusions [metosin/reitit-sieppari] :mvn/version "0.7.2"}
+                                     org.slf4j/slf4j-api {:mvn/version "1.7.36"}}}
+             :nrepl {;; this allows nrepl to interrupt runaway repl evals
+                     :jvm-opts  ["-Djdk.attach.allowAttachSelf"]
+                     :main-opts ["-m" "nrepl.cmdline" "--port" "7888"]}
+             :poly  {:extra-deps {polylith/clj-poly {:mvn/version "0.2.22"}}
+                     :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}
+             :test  {:exec-args   {}
+                     :exec-fn     kaocha.runner/exec-fn
+                     :extra-deps  {;; bases
+                                   bamf/rest-api         {:local/root "bases/rest-api"}
+                                   ;; components
+                                   bamf/config           {:local/root "components/config"}
+                                   bamf/movies           {:local/root "components/movies"}
+                                   bamf/system           {:local/root "components/system"}
+                                   ;; development dependencies
+                                   lambdaisland/kaocha   {:mvn/version "1.91.1392"}
+                                   com.taoensso/telemere {:mvn/version "1.0.0"}
+                                   party.donut/system    {:mvn/version "1.0.257"}}
+                     :extra-paths ["bases/rest-api/test/clj" "bases/rest-api/test/resources"
+                                   "components/config/test/clj" "components/config/test/resources"
+                                   "components/movies/test/clj" "components/movies/test/resources"
+                                   "components/system/test/clj" "components/system/test/resources"]}}
  :deps      {org.clojure/clojure {:mvn/version "1.12.0"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}

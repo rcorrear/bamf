@@ -3,7 +3,7 @@
 
 ### Custom ###
 .ignore
-.pijul
+/session
 
 .aider*
 .calva/output-window/output.calva-repl
