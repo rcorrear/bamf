@@ -1,8 +1,7 @@
 (ns bamf.rest-api.core
   {:author "Ricardo Correa"}
   (:require [aleph.http :as http]
-            [bamf.config.interface :as config]
-            [bamf.rest-api.api :refer [get-routes]]
+            [bamf.rest-api.routes :as routes]
             [bamf.rest-api.spec :as raspec]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as rcm]
@@ -15,11 +14,32 @@
 
 (set! *warn-on-reflection* true)
 
-(defn ^:private not-found [] (response/not-found {:error "Sorry Dave, I'm afraid I can't do that."}))
+(def ^:private validate-config*
+  (delay
+   (try
+     (requiring-resolve 'bamf.config.interface/validate)
+     (catch Throwable cause
+       (throw
+        (ex-info
+         "bamf.config.interface/validate is unavailable. Ensure your active project includes the bamf/config component when starting the REST API."
+         {:component :bamf/config :missing-var 'bamf.config.interface/validate}
+         cause))))))
 
-(defn ^:private router
-  [runtime-state routes]
-  (ring/router routes
+(defn- validate-config [spec cfg] ((force validate-config*) spec cfg))
+
+(defn get-routes
+  "Return the aggregated Reitit route vector from a catalog map.
+
+  The catalog is expected to come from `bamf.rest-api.routes/aggregate` and contain :routes.
+  When no catalog is supplied, defaults to an empty vector so the router can still be built."
+  ([] (get-routes nil))
+  ([catalog] (vec (:routes catalog []))))
+
+(defn- not-found [] (response/not-found {:error "Sorry Dave, I'm afraid I can't do that."}))
+
+(defn- router
+  [runtime-state catalog]
+  (ring/router (get-routes catalog)
                {:validate rs/validate
                 :data     {:runtime-state runtime-state
                            :muuntaja      m/instance
@@ -27,38 +47,34 @@
                            :middleware    [muuntaja/format-middleware rrc/coerce-exceptions-middleware
                                            rrc/coerce-request-middleware rrc/coerce-response-middleware]}}))
 
-(defn ^:private static-ring-handler
-  [runtime-state]
-  (ring/ring-handler (router runtime-state (get-routes))
+(defn- static-ring-handler
+  [runtime-state catalog]
+  (ring/ring-handler (router runtime-state catalog)
                      (ring/routes (ring/create-resource-handler {:path "/" :not-found-handler (not-found)})
                                   (ring/create-default-handler))))
 
-(defn ^:private repl-friendly-ring-handler [runtime-state] (fn [request] ((static-ring-handler runtime-state) request)))
-
-;; DONUT LIFECYCLE FUNCTIONS ↓
+(defn- repl-friendly-ring-handler
+  [runtime-state catalog]
+  (fn [request] ((static-ring-handler runtime-state catalog) request)))
 
 (defn start
-  [config]
-  (config/validate (raspec/get-spec) config)
-  (let [aleph       (config :aleph)
-        environment (config :environment)]
+  "Start the REST API HTTP server with the provided Donut configuration map."
+  [cfg]
+  (validate-config (raspec/get-spec) cfg)
+  (let [aleph       (cfg :aleph)
+        environment (cfg :environment)
+        catalog     (routes/aggregate {:http-components (cfg :http-components)
+                                       :runtime-state   (cfg :http/runtime-state)})]
     (http/start-server
      (if (contains? #{:local :development} environment)
-       (do
-         (t/log!
-          {:level :info}
-          (format
-           "using reloadable ring handler for handling
-                             requests as the environment is '%s'."
-           (name environment)))
-         (repl-friendly-ring-handler config))
-       (do (t/log!
-            {:level :info}
-            (format
-             "using static ring handler for handling
-                             requests as the environment is '%s'."
-             (name environment)))
-           (static-ring-handler config)))
+       (do (t/log! {:level :info}
+                   (format "using reloadable ring handler for handling requests as the environment is '%s'."
+                           (name environment)))
+           (repl-friendly-ring-handler cfg catalog))
+       (do (t/log! {:level :info}
+                   (format "using static ring handler for handling requests as the environment is '%s'."
+                           (name environment)))
+           (static-ring-handler cfg catalog)))
      (merge {:shutdown-executor? true} aleph))))
 
-(defn stop [server] (.close server) (t/log! {:level :info} "stopped server"))
+(defn stop "Stop the running Aleph server instance." [server] (.close server) (t/log! {:level :info} "stopped server"))

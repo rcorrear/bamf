@@ -16,5 +16,7 @@ jobs:
 
       # Setup Nix
       - uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2c78e21c3ae3edd
+
+      # Run tests
       - name: Run devenv test from the dev environment
         run: nix develop --impure -c devenv test

@@ -2,12 +2,14 @@
   {:author "Ricardo Correa"}
   (:require [bamf.config.interface :as config]
             [bamf.movies.interface :as movies]
-            [bamf.rest-api.core :as rest-api]
+            [bamf.rest-api.api :as rest-api]
             [donut.system :as ds]
             [com.rpl.rama :as r]
             [com.rpl.rama.test :as rtest]))
 
 (set! *warn-on-reflection* true)
+
+(def ^:private http-components {:components/movies {:component/http-api #'movies/get-http-api}})
 
 (def ^:private base-system
   {::ds/defs {:config        {}
@@ -21,7 +23,8 @@
   [_]
   (ds/system
    :base
-   {[:config]                        (config/load-config :local)
+   {[:config]                        (-> (config/load-config :local)
+                                         (assoc :http-components http-components :http/runtime-state {}))
     [:runtime-state :movies/service] #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
                                            :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
                                            :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}
@@ -31,7 +34,8 @@
   [_]
   (ds/system
    :base
-   {[:config]                         (config/load-config :test)
+   {[:config]                         (-> (config/load-config :test)
+                                          (assoc :http-components http-components :http/runtime-state {}))
     [:runtime-state :movies/service]  #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
                                             :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
                                             :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}

@@ -1,6 +1,8 @@
 {:aliases {:test {:extra-paths ["test/clj" "test/resources"]}}
  :deps    {aleph/aleph                 {:mvn/version "0.9.0"}
+           com.taoensso/telemere       {:mvn/version "1.0.0"}
            fi.metosin/muuntaja-charred {:mvn/version "0.6.11"}
+           metosin/malli               {:mvn/version "0.19.1"}
            metosin/reitit              {:exclusions [metosin/reitit-sieppari metosin/reitit-dev] :mvn/version "0.9.1"}
            metosin/reitit-ring         {:mvn/version "0.9.1"}
            org.clojure/clojure         {:mvn/version "1.12.0"}

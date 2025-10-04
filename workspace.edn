@@ -1,7 +1,7 @@
 {:compact-views        #{}
  :default-profile-name "default"
  :interface-ns         "interface"
- :projects             {"radarr" {:alias "rad"}}
+ :projects             {"radarr" {:alias "rdr"} "sonarr" {:alias "snr"}}
  :tag-patterns         {:release "v[0-9]*" :stable "stable-*"}
  :top-namespace        "bamf"
  :vcs                  {:auto-add false :name "git"}}

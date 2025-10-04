@@ -1,8 +1,12 @@
 (ns bamf.rest-api.api
-  (:require [bamf.api.interface :as api]))
+  "Public entry points for the REST API base."
+  (:require [bamf.rest-api.core :as core]))
 
 (defn get-routes
-  []
-  ["/api"
-   {:get {:handler   (fn [req] {:status 200 :body (api/get-api-info req)})
-          :responses {200 {:body {:current string? :deprecated [:sequential string?]}}}}}])
+  "Delegate to `bamf.rest-api.core/get-routes`."
+  ([] (core/get-routes))
+  ([catalog] (core/get-routes catalog)))
+
+(defn start "Delegate to `bamf.rest-api.core/start`." [config] (core/start config))
+
+(defn stop "Delegate to `bamf.rest-api.core/stop`." [server] (core/stop server))

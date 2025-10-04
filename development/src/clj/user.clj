@@ -1,14 +1,28 @@
 (ns user
   {:author "Ricardo Correa"}
-  (:require [bamf.dev.core] ;; required in order to load in the defmulti's
-                            ;; that define the donut `named-system`'s.
-            [donut.system :as ds]
+  (:require [donut.system :as ds]
             [donut.system.repl :as dsr]
             [donut.system.repl.state :as state]
             [taoensso.telemere :as t])
   (:import [clojure.lang ExceptionInfo]))
 
 (set! *warn-on-reflection* true)
+
+(defonce ^:private dev-core-loaded? (atom false))
+
+(defn- ensure-dev-core-loaded
+  []
+  (when-not @dev-core-loaded?
+    (try
+      (require 'bamf.dev.core)
+      (reset! dev-core-loaded? true)
+      (catch java.io.FileNotFoundException cause
+        (throw
+         (ex-info
+          "bamf.dev.core is unavailable. Launch with the :dev alias (or equivalent project profile) so development systems are on the classpath."
+          {:missing-ns 'bamf.dev.core}
+          cause)))
+      (catch Throwable cause (throw cause)))))
 
 (def ^:private environment (atom nil))
 
@@ -17,20 +31,21 @@
 (defn go
   ([] (go :local))
   ([env]
+   (ensure-dev-core-loaded)
    (reset! environment env)
    (try (dsr/start env)
         :ready-to-rock-and-roll
         (catch ExceptionInfo e (t/log! {:level :error} (ex-data e)) (throw e) :bye-bye))))
 
-(def stop dsr/stop)
+(defn stop [] (ensure-dev-core-loaded) (dsr/stop))
 
-(def restart dsr/restart)
+(defn restart [] (ensure-dev-core-loaded) (dsr/restart))
 
-(defn status ([] (status @environment)) ([env] (ds/describe-system (ds/system env))))
+(defn status ([] (status @environment)) ([env] (ensure-dev-core-loaded) (ds/describe-system (ds/system env))))
 
-(defn runtime-state [] (:runtime-state (::ds/instances state/system)))
+(defn runtime-state [] (ensure-dev-core-loaded) (:runtime-state (::ds/instances state/system)))
 
-(defn config [] (:config (::ds/instances state/system)))
+(defn config [] (ensure-dev-core-loaded) (:config (::ds/instances state/system)))
 
 (comment
   (go)
