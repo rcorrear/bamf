@@ -1,30 +1,34 @@
-(ns bamf.dev.core
-  {:author "Ricardo Correa"}
+(ns radarr.dev.system
+  "Radarr-specific Donut system wiring that layers static REST API routes on top of the shared base."
   (:require [bamf.config.interface :as config]
             [bamf.movies.interface :as movies]
             [bamf.rest-api.api :as rest-api]
             [donut.system :as ds]
-            [com.rpl.rama :as r]
+            [radarr.rest-api.static-routes :as static]
             [com.rpl.rama.test :as rtest]))
 
-(set! *warn-on-reflection* true)
+(defn http-components
+  ([] (http-components {}))
+  ([extra]
+   (merge {:components/movies {:component/http-api #'movies/get-http-api}
+           :components/radarr {:component/http-api #'static/get-http-api}}
+          extra)))
 
-(def ^:private http-components {:components/movies {:component/http-api #'movies/get-http-api}})
+(defmethod ds/named-system ::ds/repl [_] (ds/system :local))
 
-(def ^:private base-system
+(defmethod ds/named-system :base
+  [_]
   {::ds/defs {:config        {}
               :runtime-state {:rest-api/server #::ds{:start  (fn [{:keys [::ds/config]}] (rest-api/start config))
                                                      :stop   (fn [{:keys [::ds/instance]}] (rest-api/stop instance))
                                                      :config (ds/ref [:config])}}}})
-
-(defmethod ds/named-system :base [_] base-system)
 
 (defmethod ds/named-system :local
   [_]
   (ds/system
    :base
    {[:config]                        (-> (config/load-config :local)
-                                         (assoc :http-components http-components :http/runtime-state {}))
+                                         (assoc :http-components (http-components) :http/runtime-state {}))
     [:runtime-state :movies/service] #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
                                            :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
                                            :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}
@@ -35,7 +39,7 @@
   (ds/system
    :base
    {[:config]                         (-> (config/load-config :test)
-                                          (assoc :http-components http-components :http/runtime-state {}))
+                                          (assoc :http-components (http-components) :http/runtime-state {}))
     [:runtime-state :movies/service]  #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
                                             :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
                                             :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}

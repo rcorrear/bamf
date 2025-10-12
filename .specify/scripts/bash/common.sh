@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 # (Moved to scripts/bash/) Common functions and variables for all scripts
 
+command_exists() { command -v "$1" >/dev/null 2>&1; }
+
 get_repo_root() { git rev-parse --show-toplevel; }
-get_current_branch() { git rev-parse --abbrev-ref HEAD; }
+
+get_current_branch() {
+	if command_exists jj; then
+		jj bookmark list -r @
+	else
+		git rev-parse --abbrev-ref HEAD
+	fi
+}
 
 check_feature_branch() {
 	local branch="$1"

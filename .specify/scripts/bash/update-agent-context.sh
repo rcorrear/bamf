@@ -44,12 +44,15 @@ set -e
 set -u
 set -o pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
+
 #==============================================================================
 # Configuration and Global Variables
 #==============================================================================
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REPO_ROOT=$(get_repo_root)
+CURRENT_BRANCH=$(get_current_branch)
 FEATURE_DIR="$REPO_ROOT/specs/$CURRENT_BRANCH"
 NEW_PLAN="$FEATURE_DIR/plan.md"
 AGENT_TYPE="${1:-}"

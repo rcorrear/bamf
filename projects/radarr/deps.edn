@@ -3,9 +3,9 @@
              ;; bases
              bamf/rest-api         {:local/root "../../bases/rest-api"}
              ;; components
-             bamf/api              {:local/root "../../components/api"}
              bamf/config           {:local/root "../../components/config"}
              bamf/movies           {:local/root "../../components/movies"}
+             bamf/system           {:local/root "../../components/system"}
              ;; development dependencies
              com.rpl/rama          {:mvn/version "1.1.0"}
              com.rpl/rama-helpers  {:mvn/version "0.10.0"}
@@ -13,4 +13,5 @@
              party.donut/system    {:mvn/version "1.0.257"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo"}
-             "rpl"     {:url "https://nexus.redplanetlabs.com/repository/maven-public-releases"}}}
+             "rpl"     {:url "https://nexus.redplanetlabs.com/repository/maven-public-releases"}}
+ :paths     ["src/clj" "src/resources"]}

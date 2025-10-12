@@ -1,6 +1,6 @@
 # bamf Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2025-09-28
+Auto-generated from all feature plans. Last updated: 2025-10-03
 
 ## Active Technologies
 - Clojure 1.12.0 + Rama (001-develop-bamf-a)
@@ -25,6 +25,7 @@ specs/
 Clojure: Prefer pure functions, leverage namespace-qualified keywords, and document public APIs with docstrings/specs.
 
 ## Recent Changes
+- 003-split-into-systems: Centralized lifecycle component with multimethod start/stop/monitoring (donut-party + Telemere)
 - 002-modular-apis: Implemented component route aggregation with Reitit + Telemere diagnostics (Donut DI)
 - 001-develop-bamf-a: Added Save Movies persistence design (Clojure + Rama)
 
