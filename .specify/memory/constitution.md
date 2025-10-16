@@ -1,47 +1,70 @@
+<!--
+Sync Impact Report
+Version: 0.0.1 → 1.0.0
+Modified Principles:
+- I. Brick independency → P3. Polylith Component Integrity
+- II. API Interface → Quality Standards (HTTP contract enforcement)
+- III. Minimal request processing → P2. Event-Driven Persistence
+- IV. Test-First (NON-NEGOTIABLE) → P5. Tested, Repeatable Delivery
+- V. Integration Testing → P5. Tested, Repeatable Delivery
+Added Sections: Core Principles (rewritten), Delivery Workflow, Quality Standards, Governance (expanded)
+Removed Sections: Additional Constraints, Quality Gates (content merged into principles and standards)
+Templates requiring updates:
+- ✅ .specify/templates/plan-template.md
+- ✅ .specify/templates/spec-template.md
+- ✅ .specify/templates/tasks-template.md
+Follow-up TODOs:
+- TODO(RATIFICATION_DATE): Provide original adoption date.
+-->
+
 # BAMF Constitution
 
 ## Core Principles
 
-### I. Brick independency
-Every brick must be independent; When a brick has functional dependencies on another brick they
-must be shared through the dependency injection framework. Every brick may expose its own APIs
-and these should be available to a central API routes repository which will expose them.
+### P1. Specification-First Delivery
+All feature work MUST begin with an approved specification, plan, and task list under `specs/<feature>/`.
+Specifications MUST articulate user value, prioritized user stories, and acceptance criteria before implementation begins.
+Plans and task lists MUST preserve user-story independence, reference concrete file paths, and document constitution gates prior to coding.
 
-### II. API Interface
-All HTTP API interfaces MUST:
-- Accept JSON as input (via the HTTP request)
-- Produce JSON as output
-- Fully conform to the OpenAPI spec laid out in:
-  - [Radarr V3 OpenAPI Spec](https://raw.githubusercontent.com/Radarr/Radarr/develop/src/Radarr.Api.V3/openapi.json)
-  - [Sonarr V3 OpenAPI Spec](https://raw.githubusercontent.com/Sonarr/Sonarr/refs/heads/v5-develop/src/Sonarr.Api.V3/openapi.json)
+### P2. Event-Driven Persistence
+All persistence in BAMF MUST be modeled and executed as domain events handled by Rama modules.
+Create, update, and delete operations MUST emit explicit events whose payloads capture the persisted record so downstream systems receive the canonical state change.
+Events MUST be idempotent, auditable, and versioned; direct mutable storage writes outside an event flow are prohibited.
+Future persistence work MUST document new events (e.g., `movie-created-event`, `movie-updated-event`) before implementation.
 
-### III. Minimal request processing
-Request handlers should be as small as possible. The handlers will be sufficiently small as to be able to
-send the data to be persisted by a Rama module. Data processing should be done inside Rama modules.
+### P3. Polylith Component Integrity
+Polylith components MUST expose behavior only through their interface namespaces; cross-component calls require interface usage, not direct internals.
+Shared data structures MUST be namespace-qualified keywords or contracts published in `components/*/spec.clj`.
+Dependency injection through `donut-party.system` MUST be used when components collaborate; new components MUST justify their boundaries and own their Rama persistence.
 
-### IV. Test-First (NON-NEGOTIABLE) -->
-TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced.
+### P4. Telemetry-Backed Operations
+Every externally visible action MUST emit structured telemetry using Telemere so lifecycle, performance, and failure modes remain observable.
+Instrumentation MUST accompany new events, HTTP endpoints, background jobs, and persistence handlers, including correlation identifiers for end-to-end tracing.
+Logging MUST remain comprehensive enough to debug asynchronous workflows in production without replaying events manually.
 
-### V. Integration Testing
-Focus areas requiring integration tests: New brick contract tests, Shared schemas.
+### P5. Tested, Repeatable Delivery
+Automated tests MUST cover every user story before feature completion; red-green-refactor remains the default flow.
+Global test coverage MUST stay at or above 80%; no commit may reduce coverage below this threshold.
+`clojure -X:test` and any additional checks named in plans or specs MUST pass before merging or releasing.
 
-## Additional Constraints
-- APIs must have a way to select which system they will target (Sonarr, Radarr, other). This has to be propagated to bricks.
-- All code will be implemented in Clojure following the polylith software architecture. This implies we follow their guidelines:
-  - Building blocks have different purposes:
-    - Bases expose a public API to the outside world. As a result they have an api (api.clj) and an implementation (core.clj).
-    - Components are the main building blocks and encapsulate blocks of code that can be assembled together. Consequently they have an
-      interface (interface.clj) and an implementation (core.clj).
-- All API inputs must be validated, we'll use malli for that.
-- All code is implemented implemented taking event sourcing in mind, this must translate well to persistance related operations.
-- Logging is an important part of observability, since everything is event sourced and mostly async we need good logging to figure out
-  what's happening in the system. We'll use com.taoensso/telemere for that.
-- Bricks will be wired using the donut-party.system dependency injection library.
+## Delivery Workflow
+1. Draft or update the feature specification in `/specs/<feature>/spec.md`, aligning stories with the principles above.
+2. Produce `plan.md` via `/speckit.plan`, documenting constitution gates, component ownership, required events, and telemetry expectations.
+3. Develop `tasks.md` via `/speckit.tasks`, organizing implementation in user-story order with event emission and validation work called out explicitly.
+4. Execute implementation iteratively in Clojure/Polylith, ensuring each completed story can be demonstrated, tested, and deployed independently.
+5. Record configuration updates so APIs can target the correct downstream system (Radarr, Sonarr, or others) through component wiring.
 
-## Quality Gates
-No code should be commited with a coverage rate below 80%. Be as exhaustive as possible.
+## Quality Standards
+- HTTP APIs MUST accept JSON, produce JSON, and remain contract-compatible with the Radarr and Sonarr V3 OpenAPI specifications.
+- Request payloads MUST be validated with Malli schemas before invoking persistence or business logic.
+- Persistence designs MUST catalog the events they emit, the Rama p-states they touch, and replay expectations.
+- Observability work MUST specify metrics, logs, and traces added, along with owners for dashboard updates.
+- Documentation updates (README, quickstarts, contracts) MUST accompany behavior that alters external expectations.
 
 ## Governance
-Constitution supersedes all other practices; Amendments require documentation, approval, migration plan
+The BAMF Constitution supersedes conflicting process guidance within this repository.
+Amendments require documented rationale, migration steps, and a version bump recorded below.
+Compliance is verified during specification review, plan gating, pull-request review, and release readiness checks.
+Version numbers follow semantic rules: MAJOR for breaking principle changes, MINOR for new principles or sections, PATCH for clarifications.
 
-Example: Version: 0.0.1 | Ratified: 2025-09-21 | Last Amended:
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Provide original adoption date. | **Last Amended**: 2025-10-16

@@ -74,6 +74,13 @@
 
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
+- Which event payloads are replayed when duplicate writes occur?
+
+### Event Model *(if feature involves persistence)*
+
+- **Events Emitted**: `[event-name]` (e.g., `movie-created-event`, `movie-updated-event`) — include purpose and triggering operation.
+- **Payload Contract**: `[key fields + validation rules]` — MUST mirror the persisted record.
+- **Idempotency & Replay**: `[approach to dedupe/ordering guarantees]`.
 
 ## Requirements *(mandatory)*
 
@@ -89,11 +96,12 @@
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-006**: System MUST emit `[event-name]` with `[payload fields]` whenever persistence occurs (Constitution P2).
 
 *Example of marking unclear requirements:*
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-007**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
+- **FR-008**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
 ### Key Entities *(include if feature involves data)*
 
@@ -113,4 +121,3 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
-
