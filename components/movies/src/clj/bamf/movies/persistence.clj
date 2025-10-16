@@ -1,7 +1,7 @@
 (ns bamf.movies.persistence
   (:require [bamf.movies.model :as model]
-            [bamf.movies.rama-client.depot :as depot]
-            [bamf.movies.rama-client.pstate :as pstate]
+            [bamf.movies.rama.client.depot :as depot]
+            [bamf.movies.rama.client.pstate :as pstate]
             [taoensso.telemere :as t])
   (:import (java.time Instant)
            (java.time.format DateTimeFormatter)))
@@ -28,12 +28,13 @@
       (let [canonical      (model/normalize movie (clock env))
             metadata-id    (:movieMetadataId canonical)
             path           (:path canonical)
-            duplicate-meta (pstate/movie-by-metadata-id env metadata-id)
+            existing-id    (pstate/movie-id-by-metadata-id env metadata-id)
+            duplicate-meta (when existing-id (pstate/movie-by-id env existing-id))
             duplicate-path (when-not duplicate-meta (pstate/movie-by-path env path))
             movie-depot    (:movie-depot env)]
         (cond duplicate-meta     (let [response (duplicate-response :tmdbId "duplicate-metadata" duplicate-meta)]
                                    (t/log! {:level   :info
-                                            :event   :movies/save-duplicate
+                                            :event   :movies/create-duplicate
                                             :details {:field       (:field response)
                                                       :existing-id (:existing-id response)
                                                       :reason      (:reason response)}}
@@ -41,26 +42,23 @@
                                    response)
               duplicate-path     (let [response (duplicate-response :path "duplicate-path" duplicate-path)]
                                    (t/log! {:level   :info
-                                            :event   :movies/save-duplicate
+                                            :event   :movies/create-duplicate
                                             :details {:field       (:field response)
                                                       :existing-id (:existing-id response)
                                                       :reason      (:reason response)}}
                                            "Duplicate movie detected during save")
                                    response)
               (nil? movie-depot) (do (t/log! {:level   :error
-                                              :event   :movies/save-error
+                                              :event   :movies/create-error
                                               :details {:message "movie-depot handle not provided"}}
                                              "Failed to save movie: missing depot handle")
                                      {:status :error :errors ["movie-depot handle not provided"]})
-              :else              (let [id        (long (pstate/next-id env))
-                                       movie*    (assoc canonical :id id)
-                                       event     (depot/movie-saved-event movie-depot movie*)
-                                       result    (depot/put! event)
-                                       persisted (merge movie* (:movie result))
+              :else              (let [result    (depot/put! {:depot movie-depot :movie canonical})
+                                       persisted (merge canonical (:movie result))
                                        status    (or (:status result) :stored)]
                                    (t/log! {:level   :info
-                                            :event   :movies/save-stored
-                                            :details {:movie-id id
+                                            :event   :movies/create-stored
+                                            :details {:movie-id (:id persisted)
                                                       :tmdbId   (:tmdbId persisted)
                                                       :path     (:path persisted)
                                                       :status   status}}

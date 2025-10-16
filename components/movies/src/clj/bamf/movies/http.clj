@@ -1,7 +1,6 @@
 (ns bamf.movies.http
   "HTTP handlers, schemas, and route exports for the Movies component."
   (:require [bamf.movies.persistence :as persistence]
-            [bamf.movies.runtime :as runtime]
             [ring.util.mime-type :as mime]
             [taoensso.telemere :as t]))
 
@@ -10,6 +9,8 @@
 (def json-media-type (mime/default-mime-types "json"))
 
 (def json-media [json-media-type])
+
+(def ^:private movie-env-key :movies/env)
 
 (def movie-record
   [:map {:closed false} [:id pos-int?] [:tmdbId pos-int?] [:title string?] [:path string?]
@@ -41,11 +42,17 @@
 
 (defn- stored->response [{:keys [movie]}] {:status 201 :body {:data movie}})
 
+(defn- request-env
+  [request]
+  (or (:movies/env request)
+      (get-in request [:reitit.core/match :data movie-env-key])
+      (throw (IllegalStateException. "Movies HTTP route missing :movies/env binding"))))
+
 (defn create-movie
   "Persist a movie payload and translate the component response into HTTP semantics."
   [request]
   (let [payload (safe-payload request)
-        env     (runtime/env)
+        env     (request-env request)
         result  (persistence/save! env payload)]
     (case (:status result)
       :stored    (stored->response result)
@@ -64,21 +71,23 @@
 
 (defn get-http-api
   "Return the Movies component HTTP route declarations for aggregation."
-  [_]
-  [[movie-path
-    {:name     :movies/movie
-     :produces json-media
-     :get      {:name       :movies/list
-                :handler    list-movies
-                :parameters {:query list-query-schema}
-                :responses  {200 {:body [:map [:data [:sequential movie-record]]]}}
-                :produces   json-media}
-     :post     {:name       :movies/create
-                :handler    create-movie
-                :parameters {:body movie-create-request}
-                :responses  {201 {:body [:map [:data movie-record]]}
-                             409 {:body duplicate-body}
-                             422 {:body error-body}
-                             500 {:body error-body}}
-                :produces   json-media
-                :consumes   json-media}}]])
+  [{:keys [runtime-state] :as context}]
+  (let [env (or (:movies/env context) (get runtime-state :movies/env))]
+    [[movie-path
+      {:name         :movies/movie
+       :produces     json-media
+       movie-env-key env
+       :get          {:name       :movies/list
+                      :handler    list-movies
+                      :parameters {:query list-query-schema}
+                      :responses  {200 {:body [:map [:data [:sequential movie-record]]]}}
+                      :produces   json-media}
+       :post         {:name       :movies/create
+                      :handler    create-movie
+                      :parameters {:body movie-create-request}
+                      :responses  {201 {:body [:map [:data movie-record]]}
+                                   409 {:body duplicate-body}
+                                   422 {:body error-body}
+                                   500 {:body error-body}}
+                      :produces   json-media
+                      :consumes   json-media}}]]))

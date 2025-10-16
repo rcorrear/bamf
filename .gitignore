@@ -3,7 +3,7 @@
 
 ### Custom ###
 .ignore
-/session
+.clojure-mcp/
 
 .aider*
 .calva/output-window/output.calva-repl
@@ -38,7 +38,10 @@ pom.xml.asc
 
 ### direnv ###
 .direnv
+.env
+.env.*
 .envrc
+.envrc.local
 
 ### Emacs ###
 # -*- mode: gitignore; -*-

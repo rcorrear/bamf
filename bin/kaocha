@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+clojure -J-Xmx512m -M:dev:test "$@"

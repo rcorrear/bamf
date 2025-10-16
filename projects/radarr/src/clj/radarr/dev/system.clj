@@ -4,8 +4,7 @@
             [bamf.movies.interface :as movies]
             [bamf.rest-api.api :as rest-api]
             [donut.system :as ds]
-            [radarr.rest-api.static-routes :as static]
-            [com.rpl.rama.test :as rtest]))
+            [radarr.rest-api.static-routes :as static]))
 
 (defn http-components
   ([] (http-components {}))
@@ -25,23 +24,13 @@
 
 (defmethod ds/named-system :local
   [_]
-  (ds/system
-   :base
-   {[:config]                        (-> (config/load-config :local)
-                                         (assoc :http-components (http-components) :http/runtime-state {}))
-    [:runtime-state :movies/service] #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
-                                           :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
-                                           :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}
-    [:runtime-state :rama-ipc]       (rtest/create-ipc)}))
+  (ds/system :base
+             {[:config] (-> (config/load-config :local)
+                            (assoc :http-components (http-components) :http/runtime-state {}))}))
 
 (defmethod ds/named-system :test
   [_]
-  (ds/system
-   :base
-   {[:config]                         (-> (config/load-config :test)
-                                          (assoc :http-components (http-components) :http/runtime-state {}))
-    [:runtime-state :movies/service]  #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
-                                            :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
-                                            :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}
-    [:runtime-state :rama-ipc]        (rtest/create-ipc)
-    [:runtime-state :rest-api/server] :disabled}))
+  (ds/system :base
+             {[:config]                         (-> (config/load-config :test)
+                                                    (assoc :http-components (http-components) :http/runtime-state {}))
+              [:runtime-state :rest-api/server] :disabled}))
