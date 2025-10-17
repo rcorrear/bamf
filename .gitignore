@@ -12,6 +12,14 @@
 .devenv
 .lsp/.cache
 
+### Codex ###
+.codex/auth.json
+.codex/config.toml
+.codex/history.jsonl
+.codex/log/*
+.codex/sessions/*
+.codex/version.json
+
 ### Clojure ###
 pom.xml
 pom.xml.asc

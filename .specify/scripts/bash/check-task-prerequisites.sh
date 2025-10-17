@@ -9,7 +9,7 @@ esac done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 eval $(get_feature_paths)
-check_feature_branch "$CURRENT_BRANCH" || exit 1
+check_feature_branch "$CURRENT_BRANCH" "$VCS_TYPE" || exit 1
 if [[ ! -d $FEATURE_DIR ]]; then
 	echo "ERROR: Feature directory not found: $FEATURE_DIR"
 	echo "Run /specify first."
