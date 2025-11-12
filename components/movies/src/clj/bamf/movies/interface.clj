@@ -8,5 +8,9 @@
   [env movie]
   (persistence/save! env movie))
 
-(defn get-http-api "Expose Movies component HTTP routes for aggregation." [context] (http/get-http-api context))
+(defn update-movie!
+  "Apply mutable updates to an existing movie using the Rama environment."
+  [env movie]
+  (persistence/update! env movie))
 
+(defn get-http-api "Expose Movies component HTTP routes for aggregation." [context] (http/get-http-api context))

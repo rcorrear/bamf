@@ -21,9 +21,16 @@
    [:qualityProfileId pos-int?] [:minimumAvailability string?] [:tmdbId pos-int?] [:addOptions {:optional true} map?]
    [:tags {:optional true} [:sequential string?]] [:year {:optional true} pos-int?]])
 
+(def movie-update-request
+  [:map {:closed false} [:monitored {:optional true} boolean?] [:qualityProfileId {:optional true} pos-int?]
+   [:minimumAvailability {:optional true} string?] [:movieMetadataId {:optional true} pos-int?]
+   [:lastSearchTime {:optional true} [:maybe string?]]])
+
 (def duplicate-body [:map [:error string?] [:field keyword?] [:existing-id pos-int?]])
 
 (def error-body [:map [:errors [:sequential string?]]])
+
+(def not-found-body [:map [:errors [:sequential string?]]])
 
 (def list-query-schema
   [:maybe [:map {:closed false} [:term {:optional true} string?] [:page {:optional true} pos-int?]]])
@@ -41,6 +48,12 @@
 (defn- error->response [{:keys [errors]}] {:status 500 :body {:errors (vec (or errors ["unexpected error"]))}})
 
 (defn- stored->response [{:keys [movie]}] {:status 201 :body {:data movie}})
+
+(defn- updated->response [{:keys [movie]}] {:status 200 :body {:data movie}})
+
+(defn- not-found->response
+  [{:keys [movie-id]}]
+  {:status 404 :body {:errors [(if movie-id (format "Movie %s not found" movie-id) "Movie not found")]}})
 
 (defn- request-env
   [request]
@@ -69,6 +82,24 @@
                   "movies/save-movie! returned unexpected status")
           (error->response {:errors [(format "Unexpected status %s" (:status result))]})))))
 
+(defn update-movie
+  "Apply mutations to an existing movie and translate persistence responses to HTTP."
+  [request]
+  (let [payload (safe-payload request)
+        path-id (get-in request [:path-params :id])
+        env     (request-env request)
+        result  (persistence/update! env (assoc payload :id (or (:id payload) path-id)))]
+    (case (:status result)
+      :updated   (updated->response result)
+      :duplicate (duplicate->response result)
+      :invalid   (invalid->response result)
+      :not-found (not-found->response result)
+      :error     (error->response result)
+      (do (t/log!
+           {:level :error :event :movies/http-unexpected-status :details {:status (:status result) :operation :update}}
+           "movies/update-movie! returned unexpected status")
+          (error->response {:errors [(format "Unexpected status %s" (:status result))]})))))
+
 (defn get-http-api
   "Return the Movies component HTTP route declarations for aggregation."
   [{:keys [runtime-state] :as context}]
@@ -86,6 +117,20 @@
                       :handler    create-movie
                       :parameters {:body movie-create-request}
                       :responses  {201 {:body [:map [:data movie-record]]}
+                                   409 {:body duplicate-body}
+                                   422 {:body error-body}
+                                   500 {:body error-body}}
+                      :produces   json-media
+                      :consumes   json-media}}]
+     [(str movie-path "/{id}")
+      {:name         :movies/movie-by-id
+       :produces     json-media
+       movie-env-key env
+       :patch        {:name       :movies/update
+                      :handler    update-movie
+                      :parameters {:path [:map [:id pos-int?]] :body movie-update-request}
+                      :responses  {200 {:body [:map [:data movie-record]]}
+                                   404 {:body not-found-body}
                                    409 {:body duplicate-body}
                                    422 {:body error-body}
                                    500 {:body error-body}}

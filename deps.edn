@@ -1,4 +1,5 @@
-{:aliases   {:dev   {:extra-deps    {;; bases
+{:aliases   {:ci    {:extra-deps {lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}}
+             :dev   {:extra-deps    {;; bases
                                      bamf/rest-api         {:local/root "bases/rest-api"}
                                      ;; components
                                      bamf/config           {:local/root "components/config"}

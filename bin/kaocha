@@ -1,3 +1,27 @@
 #!/usr/bin/env bash
 
-clojure -J-Xmx512m -M:dev:test "$@"
+set -euo pipefail
+
+MODE_ARG="-M:test"
+
+for arg in "$@"; do
+	case "$arg" in
+	-M:test:ci | -M:ci:test)
+		MODE_ARG="$arg"
+		break
+		;;
+	esac
+done
+
+FILTERED_ARGS=()
+for arg in "$@"; do
+	case "$arg" in
+	-M:test | -M:test:ci | -M:ci:test)
+		continue
+		;;
+	esac
+
+	FILTERED_ARGS+=("$arg")
+done
+
+exec clojure "$MODE_ARG" "${FILTERED_ARGS[@]}"

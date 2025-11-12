@@ -23,10 +23,6 @@ inputs.devenv.lib.mkShell {
     (
       { pkgs, ... }:
       {
-        enterTest = ''
-          clj -X:test
-        '';
-
         git-hooks.hooks = {
           deadnix.enable = true;
           nixfmt-rfc-style.enable = true;
@@ -35,7 +31,10 @@ inputs.devenv.lib.mkShell {
           trufflehog.enable = true;
           yamllint.enable = true;
           zizmor.enable = true;
-          zprint.enable = true;
+          zprint = {
+            enable = true;
+            excludes = [ ".clj-kondo" ];
+          };
         };
 
         languages = {

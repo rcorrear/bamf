@@ -7,6 +7,8 @@
 (defmethod system/start :bamf
   ([runtime] (system/ensure-ns-loaded 'bamf.dev.system) (system/start (assoc runtime :system :go))))
 
+(defn start [] (system/start {:environment :local :system :bamf}))
+
 (defn stop [] (system/stop))
 
 (defn restart [] (system/restart))
@@ -18,7 +20,7 @@
 (defn config [] (system/config))
 
 (comment
-  (system/start {:environment :local :system :bamf})
+  (start)
   (stop)
   (restart)
   (status)
