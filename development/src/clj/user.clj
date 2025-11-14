@@ -1,6 +1,7 @@
 (ns user
   {:author "Ricardo Correa"}
-  (:require [bamf.system.interface :as system]))
+  (:require [bamf.system.interface :as system]
+            [taoensso.telemere :as t]))
 
 (set! *warn-on-reflection* true)
 
@@ -20,6 +21,7 @@
 (defn config [] (system/config))
 
 (comment
+  (t/set-min-level! :debug)
   (start)
   (stop)
   (restart)

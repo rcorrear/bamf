@@ -53,8 +53,9 @@
       (let [canonical      (model/normalize movie (clock env))
             metadata-id    (:movieMetadataId canonical)
             path           (:path canonical)
-            existing-id    (pstate/movie-id-by-metadata-id env metadata-id)
-            duplicate-meta (when existing-id (pstate/movie-by-id env existing-id))
+            tmdb-id (:tbdbId canonical)
+            existing-id    (pstate/movie-id-by-metadata-id env metadata-id tmdb-id)
+            duplicate-meta (when existing-id (pstate/movie-by-id env existing-id tmdb-id))
             duplicate-path (when-not duplicate-meta (pstate/movie-by-path env path))
             movie-depot    (:movie-depot env)]
         (cond duplicate-meta     (let [response (duplicate-response :tmdbId "duplicate-metadata" duplicate-meta)]

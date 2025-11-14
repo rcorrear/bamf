@@ -39,7 +39,7 @@
   [runtime]
   (reset! current-runtime runtime)
   (try (dsr/start (:environment runtime))
-       :ready-to-rock-and-roll
+       (t/log! :info :ready-to-rock-and-roll)
        (catch ExceptionInfo e (t/log! {:level :error} (ex-data e)) (throw e) :bye-bye)))
 
 (comment

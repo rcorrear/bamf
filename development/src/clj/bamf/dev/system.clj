@@ -3,13 +3,19 @@
   (:require [bamf.config.interface :as config]
             [bamf.movies.interface :as movies]
             [bamf.rest-api.api :as rest-api]
-            [donut.system :as ds]))
+            [donut.system :as ds]
+            [com.rpl.rama.test :as rtest]))
 
 (set! *warn-on-reflection* true)
 
+(defonce movies-env
+  (let [ipc (rtest/create-ipc)]
+    {:ipc         ipc}))
+
 (defn http-components
   ([] (http-components {}))
-  ([extra] (merge {:components/movies {:component/http-api #'movies/get-http-api}} extra)))
+  ([extra] (merge {:components/movies {:component/http-api #'movies/get-http-api
+                                       :component/context {:movies/env movies-env}}} extra)))
 
 (defmethod ds/named-system ::ds/repl [_] (ds/system :local))
 
@@ -24,7 +30,8 @@
   [_]
   (ds/system :base
              {[:config] (-> (config/load-config :local)
-                            (assoc :http-components (http-components) :http/runtime-state {}))}))
+                            (assoc :http-components (http-components) :http/runtime-state {}))
+              [:runtime-state :rama-ipc]       (rtest/create-ipc)}))
 
 (defmethod ds/named-system :test
   [_]

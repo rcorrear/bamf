@@ -9,6 +9,8 @@
             [reitit.ring.coercion :as rrc]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.spec :as rs]
+            [ring.logger :as logger]
+            [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [ring.util.response :as response]
             [taoensso.telemere :as t]))
 
@@ -16,14 +18,14 @@
 
 (def ^:private validate-config*
   (delay
-   (try
-     (requiring-resolve 'bamf.config.interface/validate)
-     (catch Throwable cause
-       (throw
-        (ex-info
-         "bamf.config.interface/validate is unavailable. Ensure your active project includes the bamf/config component when starting the REST API."
-         {:component :bamf/config :missing-var 'bamf.config.interface/validate}
-         cause))))))
+    (try
+      (requiring-resolve 'bamf.config.interface/validate)
+      (catch Throwable cause
+        (throw
+         (ex-info
+          "bamf.config.interface/validate is unavailable. Ensure your active project includes the bamf/config component when starting the REST API."
+          {:component :bamf/config :missing-var 'bamf.config.interface/validate}
+          cause))))))
 
 (defn- validate-config [spec cfg] ((force validate-config*) spec cfg))
 
@@ -45,7 +47,8 @@
                            :muuntaja      m/instance
                            :coercion      rcm/coercion
                            :middleware    [muuntaja/format-middleware rrc/coerce-exceptions-middleware
-                                           rrc/coerce-request-middleware rrc/coerce-response-middleware]}}))
+                                           rrc/coerce-request-middleware rrc/coerce-response-middleware
+                                           wrap-stacktrace]}}))
 
 (defn- static-ring-handler
   [runtime-state catalog]
@@ -57,6 +60,26 @@
   [runtime-state catalog]
   (fn [request] ((static-ring-handler runtime-state catalog) request)))
 
+(defn- handler
+  [environment cfg catalog]
+  (if (contains? #{:local :development} environment)
+    (do (t/log! {:level :info}
+                (format "using reloadable ring handler for handling requests as the environment is '%s'."
+                        (name environment)))
+        (repl-friendly-ring-handler cfg catalog))
+    (do (t/log! {:level :info}
+                (format "using static ring handler for handling requests as the environment is '%s'."
+                        (name environment)))
+        (static-ring-handler cfg catalog))))
+
+(defn- wrap-with-telemere
+  ([handler] (wrap-with-telemere handler nil))
+  ([handler options]
+   (-> handler
+       (logger/wrap-with-logger (merge options
+                                       {:log-fn (fn [{:keys [level throwable message]}]
+                                                  (if throwable (t/error! throwable) (t/log! level message)))})))))
+
 (defn start
   "Start the REST API HTTP server with the provided Donut configuration map."
   [cfg]
@@ -64,17 +87,9 @@
   (let [aleph       (cfg :aleph)
         environment (cfg :environment)
         catalog     (routes/aggregate {:http-components (cfg :http-components)
-                                       :runtime-state   (cfg :http/runtime-state)})]
-    (http/start-server
-     (if (contains? #{:local :development} environment)
-       (do (t/log! {:level :info}
-                   (format "using reloadable ring handler for handling requests as the environment is '%s'."
-                           (name environment)))
-           (repl-friendly-ring-handler cfg catalog))
-       (do (t/log! {:level :info}
-                   (format "using static ring handler for handling requests as the environment is '%s'."
-                           (name environment)))
-           (static-ring-handler cfg catalog)))
-     (merge {:shutdown-executor? true} aleph))))
+                                       :runtime-state   (cfg :http/runtime-state)})
+        app         (handler environment cfg catalog)
+        handler     (wrap-with-telemere app {:log-exceptions? false})]
+    (http/start-server handler (merge {:shutdown-executor? true} aleph))))
 
 (defn stop "Stop the running Aleph server instance." [server] (.close server) (t/log! {:level :info} "stopped server"))
