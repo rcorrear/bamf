@@ -38,9 +38,13 @@
 (defmethod start :go
   [runtime]
   (reset! current-runtime runtime)
-  (try (dsr/start (:environment runtime))
-       (t/log! :info :ready-to-rock-and-roll)
-       (catch ExceptionInfo e (t/log! {:level :error} (ex-data e)) (throw e) :bye-bye)))
+  (let [environment (:environment runtime)]
+    (try (dsr/start environment)
+         (t/log! {:level :info :reason :system/start-success} "ready-to-rock-and-roll")
+         :ready-to-rock-and-roll
+         (catch ExceptionInfo e
+           (t/log! {:level :error :reason :system/start-failed :details (ex-data e)} "system start failed")
+           (throw e)))))
 
 (comment
   (add-watch current-runtime

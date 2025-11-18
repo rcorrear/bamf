@@ -44,7 +44,7 @@ A search scheduler or reporting tool needs to retrieve consistent movie records 
 
 **Why this priority**: Dependent services must rely on the Rama movie module to avoid duplicating storage or serving stale data.
 
-**Independent Test**: Request movie data by id and by file path from the module and confirm the responses include all schema-aligned fields needed by the scheduler.
+**Independent Test**: Request movie data by id and via the monitored filter from the module and confirm the responses include all schema-aligned fields needed by the scheduler.
 
 **Acceptance Scenarios**:
 
@@ -53,7 +53,6 @@ A search scheduler or reporting tool needs to retrieve consistent movie records 
 
 ### Edge Cases
 
-- Duplicate path submissions should resolve to a single stored movie record, preventing parallel entries for the same file location.
 - Records missing any required schema field (path, monitored, quality profile id, minimum availability, metadata id) must be rejected with a clear validation outcome so upstream systems can correct the payload.
 - Updates where `Monitored` or numeric identifiers are provided as non-numeric strings must be declined to protect data integrity.
 - When search activity has never occurred, the module must persist an explicit “no timestamp” state rather than faking a datetime so schedulers can detect movies that still need an initial search.
@@ -66,7 +65,7 @@ A search scheduler or reporting tool needs to retrieve consistent movie records 
 - **FR-002**: Each stored movie MUST receive a unique identifier sourced from the shared Module Unique ID provider so records remain globally distinct across BAMF modules.
 - **FR-003**: The module MUST accept create requests that include every required field (Path, Monitored, QualityProfileId, MinimumAvailability, MovieMetadataId) and reject submissions missing any required data.
 - **FR-004**: The module MUST expose update operations that let authorized services adjust monitored status, quality profile, availability expectation, metadata id, and last search time without recreating the record.
-- **FR-005**: The module MUST surface read operations that retrieve movies by unique id, by path, and by monitored status so dependent services can plan searches and reporting.
+- **FR-005**: The module MUST surface read operations that retrieve movies by unique id and by monitored status so dependent services can plan searches and reporting.
 - **FR-006**: The module MUST store `LastSearchTime` as optional data, retaining an explicit “not yet searched” state when no timestamp is available.
 - **FR-007**: The module MUST enforce validation that `Monitored`, `QualityProfileId`, `MinimumAvailability`, and `MovieMetadataId` are numeric values aligned with agreed domain ranges to prevent inconsistent data.
 - **FR-008**: The module MUST provide auditable outcomes (success or validation error) for create and update requests so upstream systems can respond without inspecting low-level storage logs.

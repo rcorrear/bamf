@@ -3,6 +3,8 @@
   (:require [aleph.http :as http]
             [bamf.rest-api.routes :as routes]
             [bamf.rest-api.spec :as raspec]
+            [camel-snake-kebab.core :as csk]
+            [clojure.walk :as walk]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as rcm]
             [reitit.ring :as ring]
@@ -10,6 +12,7 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.spec :as rs]
             [ring.logger :as logger]
+            [ring.middleware.params :as rmp]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [ring.util.response :as response]
             [taoensso.telemere :as t]))
@@ -18,14 +21,14 @@
 
 (def ^:private validate-config*
   (delay
-    (try
-      (requiring-resolve 'bamf.config.interface/validate)
-      (catch Throwable cause
-        (throw
-         (ex-info
-          "bamf.config.interface/validate is unavailable. Ensure your active project includes the bamf/config component when starting the REST API."
-          {:component :bamf/config :missing-var 'bamf.config.interface/validate}
-          cause))))))
+   (try
+     (requiring-resolve 'bamf.config.interface/validate)
+     (catch Throwable cause
+       (throw
+        (ex-info
+         "bamf.config.interface/validate is unavailable. Ensure your active project includes the bamf/config component when starting the REST API."
+         {:component :bamf/config :missing-var 'bamf.config.interface/validate}
+         cause))))))
 
 (defn- validate-config [spec cfg] ((force validate-config*) spec cfg))
 
@@ -39,6 +42,37 @@
 
 (defn- not-found [] (response/not-found {:error "Sorry Dave, I'm afraid I can't do that."}))
 
+(defn- format-keys
+  [format-fn data]
+  (letfn [(fmt-key [k]
+            (cond (keyword? k) (-> k
+                                   name
+                                   format-fn
+                                   keyword)
+                  (string? k)  (format-fn k)
+                  :else        k))]
+    (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt-key k) v]) x)) x)) data)))
+
+(defn- ->kebab-keys [data] (format-keys csk/->kebab-case data))
+(defn- ->camel-keys [data] (format-keys csk/->camelCase data))
+
+(defn- wrap->kebab->camel
+  "Convert incoming request maps to kebab-case keywords and response bodies back to camelCase.
+
+  We normalize keys on all standard Ring param slots plus Reitit :parameters/:path-params so that
+  downstream handlers can rely on kebab-case. Responses are camelized for outward-facing JSON."
+  [handler]
+  (fn [request]
+    (let [normalized (-> request
+                         (update :params ->kebab-keys)
+                         (update :body-params ->kebab-keys)
+                         (update :form-params ->kebab-keys)
+                         (update :query-params ->kebab-keys)
+                         (update :path-params ->kebab-keys)
+                         (update :parameters ->kebab-keys))]
+      (-> (handler normalized)
+          (update :body ->camel-keys)))))
+
 (defn- router
   [runtime-state catalog]
   (ring/router (get-routes catalog)
@@ -46,9 +80,9 @@
                 :data     {:runtime-state runtime-state
                            :muuntaja      m/instance
                            :coercion      rcm/coercion
-                           :middleware    [muuntaja/format-middleware rrc/coerce-exceptions-middleware
-                                           rrc/coerce-request-middleware rrc/coerce-response-middleware
-                                           wrap-stacktrace]}}))
+                           :middleware    [muuntaja/format-middleware rrc/coerce-exceptions-middleware rmp/wrap-params
+                                           rrc/coerce-request-middleware wrap->kebab->camel
+                                           rrc/coerce-response-middleware wrap-stacktrace]}}))
 
 (defn- static-ring-handler
   [runtime-state catalog]
@@ -63,11 +97,11 @@
 (defn- handler
   [environment cfg catalog]
   (if (contains? #{:local :development} environment)
-    (do (t/log! {:level :info}
+    (do (t/log! {:level :info :reason :rest-api/using-reloadable-handler}
                 (format "using reloadable ring handler for handling requests as the environment is '%s'."
                         (name environment)))
         (repl-friendly-ring-handler cfg catalog))
-    (do (t/log! {:level :info}
+    (do (t/log! {:level :info :reason :rest-api/using-static-handler}
                 (format "using static ring handler for handling requests as the environment is '%s'."
                         (name environment)))
         (static-ring-handler cfg catalog))))
@@ -78,7 +112,13 @@
    (-> handler
        (logger/wrap-with-logger (merge options
                                        {:log-fn (fn [{:keys [level throwable message]}]
-                                                  (if throwable (t/error! throwable) (t/log! level message)))})))))
+                                                  (if throwable
+                                                    (t/log! {:level   (or level :error)
+                                                             :reason  :rest-api/request-error
+                                                             :details {:exception throwable}}
+                                                            (or message "REST API request error"))
+                                                    (t/log! {:level (or level :info) :reason :rest-api/request-log}
+                                                            (or message "REST API request log"))))})))))
 
 (defn start
   "Start the REST API HTTP server with the provided Donut configuration map."
@@ -92,4 +132,8 @@
         handler     (wrap-with-telemere app {:log-exceptions? false})]
     (http/start-server handler (merge {:shutdown-executor? true} aleph))))
 
-(defn stop "Stop the running Aleph server instance." [server] (.close server) (t/log! {:level :info} "stopped server"))
+(defn stop
+  "Stop the running Aleph server instance."
+  [server]
+  (.close server)
+  (t/log! {:level :info :reason :rest-api/server-stopped} "stopped server"))

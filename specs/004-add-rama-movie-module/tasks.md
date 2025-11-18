@@ -54,36 +54,34 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Cover movie-updated-event merge behaviour in components/movies/test/clj/bamf/movies/persistence_test.clj.
-- [ ] T015 [P] [US2] Add HTTP PATCH translation scenarios to components/movies/test/clj/bamf/movies/http_test.clj.
+- [X] T014 [P] [US2] Cover movie-updated-event merge behaviour in components/movies/test/clj/bamf/movies/persistence_test.clj.
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Add movie-updated-event builder emitting :movie.updated with full payload in components/movies/src/clj/bamf/movies/rama/client/depot.clj.
-- [ ] T017 [US2] Implement update! command with validation, Telemere :movies/update-* logs, and movie-updated-event emission in components/movies/src/clj/bamf/movies/persistence.clj.
-- [ ] T018 [US2] Expose update-movie! facade in components/movies/src/clj/bamf/movies/interface.clj delegating to persistence/update!.
-- [ ] T019 [US2] Implement PATCH /api/v3/movie/{id} route + schema coercion in components/movies/src/clj/bamf/movies/http.clj per contracts/movie-module.json.
+- [X] T015 [US2] Add movie-updated-event builder emitting :movie.updated with full payload in components/movies/src/clj/bamf/movies/rama/client/depot.clj. *(Implemented via common/movie-updated-event + depot/update! wrapper.)*
+- [X] T016 [US2] Implement update! command with validation, Telemere :movies/update-* logs, and movie-updated-event emission in components/movies/src/clj/bamf/movies/persistence.clj.
+- [X] T017 [US2] Expose update-movie! facade in components/movies/src/clj/bamf/movies/interface.clj delegating to persistence/update!.
 
-**Checkpoint**: User Story 2 is independently demonstrable when PATCH updates emit `movie-updated-event` and return updated records.
+**Checkpoint**: User Story 2 is independently demonstrable when update flows emit `movie-updated-event` and return updated records.
 
 ---
 
 ## Phase 5: User Story 3 - Provide Movie Data to Dependents (Priority: P3)
 
-**Goal**: Deliver read APIs to retrieve movies by id, path, and monitored status for schedulers and reporting.
+**Goal**: Deliver read APIs to retrieve movies by id and monitored status for schedulers and reporting.
 
 **Independent Test**: Query by id and monitored status and confirm responses include all Movies schema fields with current lastSearchTime values.
 
 ### Tests for User Story 3
 
-- [ ] T020 [P] [US3] Add read query coverage (by-id, by-path, monitored filter) in components/movies/test/clj/bamf/movies/interface_test.clj.
-- [ ] T021 [P] [US3] Extend GET contract cases for list/detail responses in components/movies/test/clj/bamf/movies/http_test.clj.
+- [X] T018 [P] [US3] Add read query coverage (by-id, monitored filter) in components/movies/test/clj/bamf/movies/interface_test.clj.
+- [X] T019 [P] [US3] Extend GET contract cases for list/detail responses (id + monitored filter) in components/movies/test/clj/bamf/movies/http_test.clj.
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Implement Rama lookup helpers (by-id/path/monitored/target-system) in components/movies/src/clj/bamf/movies/inspection.clj.
-- [ ] T023 [US3] Update GET /api/v3/movie handler in components/movies/src/clj/bamf/movies/http.clj to support monitored filtering and path lookups.
-- [ ] T024 [US3] Expose read API functions from components/movies/src/clj/bamf/movies/interface.clj for downstream consumers.
+- [X] T020 [US3] Implement Rama lookup helpers (by-id/monitored/target-system) in components/movies/src/clj/bamf/movies/inspection.clj.
+- [X] T021 [US3] Update GET /api/v3/movie handler in components/movies/src/clj/bamf/movies/http.clj to support monitored filtering (no path lookup) and detail by id.
+- [X] T022 [US3] Expose read API functions from components/movies/src/clj/bamf/movies/interface.clj for downstream consumers.
 
 **Checkpoint**: User Story 3 is independently demonstrable once GET endpoints return accurate datasets for schedulers/reporting.
 
@@ -93,9 +91,9 @@
 
 **Purpose**: Align documentation, contracts, and verification across stories.
 
-- [ ] T025 [P] Document movie-created-event and movie-updated-event quickstart steps in specs/004-add-rama-movie-module/quickstart.md.
-- [ ] T026 [P] Sync OpenAPI schema changes in specs/004-add-rama-movie-module/contracts/movie-module.json with implemented endpoints.
-- [ ] T027 Update docs/save-movies.md to reflect new Rama events, update workflow, and read capabilities.
+- [X] T023 [P] Document movie-created-event and movie-updated-event quickstart steps in specs/004-add-rama-movie-module/quickstart.md.
+- [X] T024 [P] Sync OpenAPI schema changes in specs/004-add-rama-movie-module/contracts/movie-module.json with implemented endpoints.
+- [X] T025 Update docs/save-movies.md to reflect new Rama events, update workflow, and read capabilities.
 
 ---
 
@@ -103,14 +101,14 @@
 
 - Phase 1 → Phase 2 → User Story phases → Polish; each stage depends on completion of the previous one.
 - User stories follow priority order: US1 (P1) → US2 (P2) → US3 (P3); US2 depends on US1’s persistence scaffolding, US3 depends on foundational Rama lookups.
-- Movie-updated-event implementation (T017–T020) depends on movie-created-event infrastructure (T010–T013).
-- Read endpoints (T022–T024) depend on Rama module indexes defined in T006.
+- Movie-updated-event implementation (T014–T017) depends on movie-created-event infrastructure (T009–T013).
+- Read endpoints (T020–T022) depend on Rama module indexes defined in T006.
 
 ## Parallel Execution Examples
 
 - After Phase 2, T007, T008, and T009 can proceed in parallel since they touch distinct files for US1.
-- Within US2, T014 and T015 can run concurrently while T017 builds on T016.
-- For US3, T020 and T021 can execute in parallel before integrating implementation tasks.
+- Within US2, T014 can proceed while T015–T017 build the update flow.
+- For US3, T018 and T019 can execute in parallel before integrating implementation tasks.
 
 ## Implementation Strategy
 

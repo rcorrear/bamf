@@ -1,17 +1,21 @@
 {:aliases   {:ci    {:extra-deps {lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}}
              :dev   {:extra-deps    {;; bases
-                                     bamf/rest-api         {:local/root "bases/rest-api"}
+                                     bamf/rest-api              {:local/root "bases/rest-api"}
                                      ;; components
-                                     bamf/config           {:local/root "components/config"}
-                                     bamf/movies           {:local/root "components/movies"}
-                                     bamf/system           {:local/root "components/system"}
+                                     bamf/config                {:local/root "components/config"}
+                                     bamf/movies                {:local/root "components/movies"}
+                                     bamf/system                {:local/root "components/system"}
                                      ;; development dependencies
-                                     com.rpl/rama          {:mvn/version "1.1.0"}
-                                     com.rpl/rama-helpers  {:mvn/version "0.10.0"}
-                                     com.taoensso/telemere {:mvn/version "1.0.0"}
-                                     party.donut/system    {:mvn/version "1.0.257"}
-                                     philoskim/debux       {:mvn/version "0.9.1"}}
-                     :extra-paths   ["development/src/clj"]
+                                     com.rpl/rama               {:mvn/version "1.1.0"}
+                                     com.rpl/rama-helpers       {:mvn/version "0.10.0"}
+                                     com.taoensso/telemere      {:mvn/version "1.0.0"}
+                                     org.slf4j/slf4j-simple     {:mvn/version "2.0.17"}
+                                     org.slf4j/log4j-over-slf4j {:mvn/version "2.0.17"}
+                                     org.slf4j/jul-to-slf4j     {:mvn/version "2.0.17"}
+                                     org.slf4j/jcl-over-slf4j   {:mvn/version "2.0.17"}
+                                     party.donut/system         {:mvn/version "1.0.257"}
+                                     philoskim/debux            {:mvn/version "0.9.1"}}
+                     :extra-paths   ["development/src/clj" "development/src/resources"]
                      :override-deps {metosin/reitit      {:exclusions [metosin/reitit-sieppari] :mvn/version "0.7.2"}
                                      org.slf4j/slf4j-api {:mvn/version "1.7.36"}}}
              :nrepl {;; this allows nrepl to interrupt runaway repl evals
@@ -19,7 +23,8 @@
                      :main-opts ["-m" "nrepl.cmdline" "--port" "7888"]}
              :poly  {:extra-deps {polylith/clj-poly {:mvn/version "0.2.22"}}
                      :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}
-             :test  {:extra-deps  {;; bases
+             :test  {:exec-fn     kaocha.runner/exec-fn
+                     :extra-deps  {;; bases
                                    bamf/rest-api         {:local/root "bases/rest-api"}
                                    ;; components
                                    bamf/config           {:local/root "components/config"}

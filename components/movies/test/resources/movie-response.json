@@ -1,0 +1,111 @@
+{
+  "title": "Predator: Badlands",
+  "originalTitle": "Predator: Badlands",
+  "originalLanguage": {
+    "id": 1,
+    "name": "English"
+  },
+  "alternateTitles": [],
+  "secondaryYearSourceId": 0,
+  "sortTitle": "predator badlands",
+  "sizeOnDisk": 0,
+  "status": "inCinemas",
+  "overview": "Cast out from his clan, a young Predator finds an unlikely ally in a damaged android and embarks on a treacherous journey in search of the ultimate adversary.",
+  "inCinemas": "2025-11-05T00:00:00Z",
+  "releaseDate": "2026-02-03T00:00:00Z",
+  "images": [
+    {
+      "coverType": "poster",
+      "url": "/MediaCover/875/poster.jpg",
+      "remoteUrl": "https://image.tmdb.org/t/p/original/pHpq9yNUIo6aDoCXEBzjSolywgz.jpg"
+    },
+    {
+      "coverType": "fanart",
+      "url": "/MediaCover/875/fanart.jpg",
+      "remoteUrl": "https://image.tmdb.org/t/p/original/ebyxeBh56QNXxSJgTnmz7fXAlwk.jpg"
+    }
+  ],
+  "website": "https://www.20thcenturystudios.com/movies/predator-badlands",
+  "year": 2025,
+  "youTubeTrailerId": "9PgcAIgpwPA",
+  "studio": "20th Century Studios",
+  "path": "/media/video/movies/Predator Badlands (2025)",
+  "qualityProfileId": 4,
+  "hasFile": false,
+  "movieFileId": 0,
+  "monitored": true,
+  "minimumAvailability": "released",
+  "isAvailable": false,
+  "folderName": "/media/video/movies/Predator Badlands (2025)",
+  "runtime": 107,
+  "cleanTitle": "predatorbadlands",
+  "imdbId": "tt31227572",
+  "tmdbId": 1242898,
+  "titleSlug": "1242898",
+  "rootFolderPath": "/media/video/movies",
+  "certification": "PG-13",
+  "genres": [
+    "Action",
+    "Science Fiction",
+    "Adventure"
+  ],
+  "keywords": [
+    "alien planet",
+    "arrogant",
+    "condescending",
+    "farcical",
+    "negative",
+    "outcast",
+    "ridiculous",
+    "survival",
+    "team up",
+    "thoughtful"
+  ],
+  "tags": [],
+  "added": "2025-12-14T03:09:54Z",
+  "addOptions": {
+    "searchForMovie": true,
+    "addMethod": "manual",
+    "ignoreEpisodesWithFiles": false,
+    "ignoreEpisodesWithoutFiles": false,
+    "monitor": "movieOnly"
+  },
+  "ratings": {
+    "imdb": {
+      "votes": 48818,
+      "value": 7.5,
+      "type": "user"
+    },
+    "tmdb": {
+      "votes": 617,
+      "value": 7.349,
+      "type": "user"
+    },
+    "metacritic": {
+      "votes": 0,
+      "value": 71,
+      "type": "user"
+    },
+    "rottenTomatoes": {
+      "votes": 0,
+      "value": 85,
+      "type": "user"
+    },
+    "trakt": {
+      "votes": 2774,
+      "value": 7.63482,
+      "type": "user"
+    }
+  },
+  "collection": {
+    "title": "Predator Collection",
+    "tmdbId": 399
+  },
+  "popularity": 156.5647,
+  "statistics": {
+    "movieFileCount": 0,
+    "sizeOnDisk": 0,
+    "releaseGroups": []
+  },
+  "id": 875
+}

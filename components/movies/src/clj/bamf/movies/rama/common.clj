@@ -1,8 +1,8 @@
 (ns bamf.movies.rama.common "Shared Rama constants and helpers for the Movies Rama module.")
 
-(defrecord MoviePayload [id added lastSearchTime imdbId minimumAvailability monitor monitored movieFileId
-                         movieMetadataId qualityProfileId rootFolderPath path searchForMovie tags targetSystem title
-                         titleSlug tmdbId year addOptions])
+(defrecord MoviePayload [id added last-search-time imdb-id minimum-availability monitor monitored movie-file-id
+                         movie-metadata-id quality-profile-id root-folder-path path search-for-movie tags target-system
+                         title title-slug tmdb-id year add-options])
 
 (def module-name "bamf.movies.rama.module/MovieModule")
 (def movies-etl-name "movies")
