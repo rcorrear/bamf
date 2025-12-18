@@ -72,10 +72,11 @@
                                        depot-movie  (:movie result)
                                        depot-id     (:id depot-movie)
                                        canonical-id (:id canonical)
+                                       lookup-id    (or depot-id
+                                                        (pstate/movie-id-by-tmdb-id env tmdb-id)
+                                                        (when (pos? (or canonical-id 0)) canonical-id))
                                        merged       (merge canonical depot-movie)
-                                       persisted    (assoc merged
-                                                           :id
-                                                           (or depot-id (when (pos? (or canonical-id 0)) canonical-id)))
+                                       persisted    (assoc merged :id lookup-id)
                                        status       (or (:status result) :stored)]
                                    (t/log! {:level   :info
                                             :reason  :movies/create-stored

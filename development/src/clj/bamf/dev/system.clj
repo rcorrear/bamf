@@ -3,9 +3,12 @@
   (:require [bamf.config.interface :as config]
             [bamf.movies.interface :as movies]
             [bamf.rest-api.api :as rest-api]
-            [donut.system :as ds]))
+            [donut.system :as ds]
+            [taoensso.telemere :as t]))
 
 (set! *warn-on-reflection* true)
+
+(t/set-min-level! :debug)
 
 (defn http-components
   ([] (http-components {}))
