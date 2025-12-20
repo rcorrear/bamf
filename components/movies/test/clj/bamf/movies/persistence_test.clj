@@ -121,17 +121,19 @@
     (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
                   pstate/movie-id-by-metadata-id (fn [& _] (:id existing))
                   depot/update!                  (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :updated :movie {:id (:id movie)}})]
-      (let [result (persistence/update! {:movie-depot movie-depot}
-                                        {:id               (:id existing)
-                                         :monitored        false
-                                         :last-search-time "2025-10-10T00:00:00Z"
-                                         :tmdb-id          (:tmdb-id existing)})]
+                                                     (reset! captured movie)
+                                                     {:status :updated :movie {:id (:id movie)}})]
+      (let [patch  {:id               (:id existing)
+                    :monitored        false
+                    :last-search-time "2025-10-10T00:00:00Z"
+                    :tmdb-id          (:tmdb-id existing)}
+            result (persistence/update! {:movie-depot movie-depot} patch)
+            expected-captured (select-keys (merge existing patch)
+                                           [:id :tmdb-id :monitored :minimum-availability :quality-profile-id :path :tags])]
         (is (= :updated (:status result)))
         (is (= false (get-in result [:movie :monitored])))
         (is (= "2025-10-10T00:00:00Z" (get-in result [:movie :last-search-time])))
-        (is (= false (:monitored @captured)))))))
+        (is (= expected-captured @captured))))))
 
 (deftest update-merges-existing-fields-into-event-payload
   (let [existing (canonical-existing)
@@ -146,13 +148,14 @@
                   pstate/movie-id-by-metadata-id (fn [_env metadata-id & _]
                                                    (when (= metadata-id (:movie-metadata-id existing)) (:id existing)))
                   depot/update!                  (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :updated :movie {:id (:id movie)}})]
+                                                     (reset! captured movie)
+                                                     {:status :updated :movie {:id (:id movie)}})]
       (let [result   (persistence/update! env patch)
             expected (-> (merge existing patch)
                          (model/normalize (:clock env))
-                         (assoc :id (:id existing)))]
-        (is (= expected @captured))
+                         (assoc :id (:id existing)))
+            expected-depot (select-keys expected [:id :tmdb-id :monitored :minimum-availability :quality-profile-id :path :tags])]
+        (is (= expected-depot @captured))
         (is (= :updated (:status result)))
         (is (= (:minimum-availability expected) (get-in result [:movie :minimum-availability])))
         (is (= (:movie-metadata-id expected) (get-in result [:movie :movie-metadata-id])))

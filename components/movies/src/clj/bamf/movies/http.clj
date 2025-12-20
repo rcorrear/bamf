@@ -20,9 +20,9 @@
    [:title string?] [:original-title {:optional true} [:maybe string?]] [:title-slug {:optional true} string?]
    [:path {:optional true} [:maybe string?]] [:root-folder-path {:optional true} [:maybe string?]]
    [:folder {:optional true} [:maybe string?]] [:folder-name {:optional true} [:maybe string?]]
-   [:minimum-availability string?] [:status {:optional true} string?] [:monitored boolean?]
+  [:minimum-availability string?] [:status {:optional true} [:maybe string?]] [:monitored boolean?]
    [:has-file {:optional true} [:maybe boolean?]] [:is-available {:optional true} boolean?]
-   [:quality-profile-id pos-int?] [:movie-file-id {:optional true} int?] [:runtime {:optional true} int?]
+   [:quality-profile-id pos-int?] [:movie-file-id {:optional true} int?] [:runtime {:optional true} [:maybe int?]]
    [:size-on-disk {:optional true} [:maybe int?]] [:year {:optional true} int?]
    [:secondary-year {:optional true} [:maybe int?]] [:popularity {:optional true} number?]
    [:tags {:optional true} [:sequential [:or int? string?]]] [:add-options {:optional true} map?]])
