@@ -2,15 +2,15 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=clojure,direnv,emacs,intellij+iml,linux,macos,vim,windows
 
 ### Custom ###
-.ignore
-.clojure-mcp/
-
 .aider*
 .calva/output-window/output.calva-repl
 .clj-kondo/.cache/
+.clojure-mcp/
 .cpcache
 .devenv
 .lsp/.cache
+TODO.org
+junit.xml
 
 ### Codex ###
 .codex/auth.json

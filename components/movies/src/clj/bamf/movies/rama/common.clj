@@ -4,7 +4,7 @@
                          movie-metadata-id quality-profile-id root-folder-path path search-for-movie tags target-system
                          title title-slug tmdb-id year add-options])
 
-(def module-name "bamf.movies.rama.module/MovieModule")
+(def module-name "bamf.movies.rama.module.core/MovieModule")
 (def movies-etl-name "movies")
 (def movie-depot-name "*movie-saves-depot")
 (def movie-by-id-pstate-name "$$movies")

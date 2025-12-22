@@ -17,10 +17,10 @@
    (let [ipc    (ensure-ipc env)
          pstate (rama/foreign-pstate ipc common/module-name pstate-name)]
      (if options
-       (do (t/log! {:level :info :reason :pstate/select-one}
+       (do (t/log! {:level :debug :reason :pstate/select-one}
                    (format "executing foreign-select-one %s %s %s" pstate-name k options))
            (rama/foreign-select-one (keypath k) pstate options))
-       (do (t/log! {:level :info :reason :pstate/select-one}
+       (do (t/log! {:level :debug :reason :pstate/select-one}
                    (format "executing foreign-select-one %s %s" pstate-name k))
            (rama/foreign-select-one (keypath k) pstate))))))
 

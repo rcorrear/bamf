@@ -1,1 +1,9 @@
-{:map {:comma? false} :style [:community :justified-original] :width 120}
+;; -*- mode: clojure; -*-
+{;; Base community style retained, Rama-specific formatting adapted from agent-o-rama.
+ :style  [:community :justified-original]
+ :map    {:comma? false}
+ :width  120
+ :fn-map {"<<if"                 "if"
+          "<<with-substitutions" "let"
+          "deframafn"            [:arg1-body {:list {:indent-arg 2} :next-inner {:list {:indent-arg 1}}}]
+          "deframaop"            [:arg1-body {:list {:indent-arg 2} :next-inner {:list {:indent-arg 1}}}]}}

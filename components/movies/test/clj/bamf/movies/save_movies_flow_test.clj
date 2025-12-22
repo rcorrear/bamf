@@ -20,7 +20,7 @@
     (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt k) v]) x)) x)) data)))
 
 (def sample-movie
-  (merge (kebabize-keys (json/read-str (slurp (io/resource "movie-request.json")) :key-fn keyword))
+  (merge (kebabize-keys (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))
          {:path                 "/media/video/movies/Dune (2021)"
           :target-system        "radarr"
           :title                "Dune"
@@ -31,7 +31,7 @@
           :tags                 ["SciFi" "Adventure"]}))
 
 (def sample-response
-  (let [response (kebabize-keys (json/read-str (slurp (io/resource "movie-response.json")) :key-fn keyword))]
+  (let [response (kebabize-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword))]
     (assoc response :movie-metadata-id (or (:movie-metadata-id response) (:tmdb-id response)))))
 
 (deftest save-movies-flow-detects-duplicates
@@ -79,8 +79,8 @@
               via-metadata           (when retrieved-id (pstate/movie-by-id env retrieved-id))]
           (is (= :stored status))
           (is (= 1 (:id movie)))
-          (is (= "2025-12-14T03:09:54Z" (:added movie)))
-          (is (= "2025-09-21T17:00:00Z" (:last-search-time movie)))
+          (is (= "2025-12-29T02:12:56Z" (:added movie)))
+          (is (nil? (:last-search-time movie)))
           (is (= (assoc sample-response :id (:id movie) :movie-metadata-id (:movie-metadata-id movie))
                  (select-keys movie (keys sample-response))))
           (is (= (:id movie) (:id via-metadata)))))

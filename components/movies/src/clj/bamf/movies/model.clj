@@ -1,23 +1,42 @@
 (ns bamf.movies.model
   (:require [camel-snake-kebab.core :as csk]
             [clojure.string :as str]
-            [malli.core :as m])
+            [malli.core :as m]
+            [tick.core :as t])
   (:import (java.time OffsetDateTime ZoneOffset)
-           (java.time.format DateTimeFormatter DateTimeParseException)))
+           (java.time.format DateTimeFormatter DateTimeParseException)
+           (java.time.temporal ChronoUnit)))
 
-(def allowed-availability #{"announced" "inCinemas" "released" "tba"})
+(def allowed-availability #{"announced" "inCinemas" "released" "tba" "deleted"})
 
 (def iso-formatter DateTimeFormatter/ISO_INSTANT)
 
+(def ^:private radarr-sentinel-timestamps
+  "Radarr uses 0001-01-01T00:00:00(Z) as a placeholder for unset instants
+   (see components/movies/test/resources/movie-save-request.json). Treat as nil."
+  #{"0001-01-01T00:00:00" "0001-01-01T00:00:00Z"})
+
+(defn- iso-instant-formatter [dt] (t/format :iso-instant dt))
+
+(defn- format-seconds
+  [dt]
+  (-> dt
+      (t/zoned-date-time)
+      (t/truncate :seconds)
+      (iso-instant-formatter)))
+
 (defn- parse-timestamp
   [value]
-  (try (when (and value (not (#{"0001-01-01T00:00:00" "0001-01-01T00:00:00Z"} (str value))))
+  (try (when (and value (not (radarr-sentinel-timestamps (str value))))
          (-> (if (instance? OffsetDateTime value) value (OffsetDateTime/parse (str value)))
-             (.atZoneSameInstant ZoneOffset/UTC)
-             (.format iso-formatter)))
+             format-seconds))
        (catch DateTimeParseException _ nil)))
 
-(defn ->iso-utc [value fallback] (or (parse-timestamp value) (fallback)))
+(defn ->iso-utc
+  [value fallback]
+  (or (parse-timestamp value)
+      (some-> (fallback)
+              parse-timestamp)))
 
 (defn- external-field-name [field] (csk/->camelCase (name field)))
 
@@ -131,11 +150,11 @@
   [tags]
   (->> (or tags [])
        (keep (fn [tag]
-               (cond (integer? tag)                             (long tag)
+               (cond (integer? tag)                             (str tag)
                      (and (string? tag) (not (str/blank? tag))) (let [trimmed (str/trim tag)]
                                                                   (if (re-matches #"-?\d+" trimmed)
-                                                                    (try (Long/parseLong trimmed)
-                                                                         (catch Exception _ trimmed))
+                                                                    (try (str (Long/parseLong trimmed))
+                                                                         (catch Exception _ (str/lower-case trimmed)))
                                                                     (str/lower-case trimmed)))
                      :else                                      nil)))
        distinct
@@ -151,7 +170,7 @@
   be a 0-argument function returning ISO-8601 UTC string for defaults."
   [movie clock]
   (let [added         (->iso-utc (:added movie) clock)
-        last-search   (->iso-utc (:last-search-time movie) (constantly added))
+        last-search   (->iso-utc (:last-search-time movie) (constantly nil))
         in-cinemas    (->iso-utc (:in-cinemas movie) (constantly nil))
         physical-rel  (->iso-utc (:physical-release movie) (constantly nil))
         digital-rel   (->iso-utc (:digital-release movie) (constantly nil))
@@ -184,8 +203,9 @@
                (some-> (:runtime movie)
                        long))
         (assoc :size-on-disk
-               (some-> (:size-on-disk movie)
-                       long))
+               (or (some-> (:size-on-disk movie)
+                           long)
+                   0))
         (assoc :secondary-year
                (some-> (:secondary-year movie)
                        long))

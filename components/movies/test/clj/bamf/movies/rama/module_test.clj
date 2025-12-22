@@ -2,7 +2,8 @@
   (:use [com.rpl rama] [com.rpl.rama path])
   (:require [bamf.movies.rama.client.pstate :as pstate]
             [bamf.movies.rama.common :as common]
-            [bamf.movies.rama.module :as mm]
+            [bamf.movies.rama.module.core :as mm]
+            [bamf.movies.model :as model]
             [camel-snake-kebab.core :as csk]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
@@ -25,98 +26,270 @@
   [resource-name]
   (let [parsed (kebabize-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
         base   (select-keys parsed
-                            [:add-options :added :imdb-id :minimum-availability :monitored :movie-file-id
-                             :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year])]
+                            [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id
+                             :path :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year])]
     (delay (-> base
-               (assoc :last-search-time  nil
+               (assoc :path              (or (:path base) (:folder-name base) "/media/video/movies/sample")
+                      :last-search-time  nil
                       :monitor           (get-in base [:add-options :monitor])
                       :movie-metadata-id (:tmdb-id parsed)
                       :search-for-movie  (get-in base [:add-options :search-for-movie])
-                      :tags              (set (or (not-empty (:tags base)) #{"tag1" "tag2"}))
+                      :tags              (set (or (:tags base) []))
                       :target-system     "radarr")
-               (dissoc :added :add-options :id :path)
+               (dissoc :added :add-options :id)
                common/map->MoviePayload))))
 
-(def sample-movie-row (movie-payload-from-resource "movie-request.json"))
-(def response-movie-row (movie-payload-from-resource "movie-response.json"))
+(def sample-movie-row (movie-payload-from-resource "movie-save-request.json"))
+(def response-movie-row (movie-payload-from-resource "movie-save-response.json"))
 
-(defn- wait-for-value
-  "Poll the supplied function until it returns a truthy value or times out."
-  [timeout-ms f]
-  (let [deadline (+ (System/currentTimeMillis) timeout-ms)]
-    (loop []
-      (if-let [result (f)]
-        result
-        (do (Thread/sleep 50)
-            (when (> (System/currentTimeMillis) deadline)
-              (throw (ex-info "Timed out waiting for Rama mutation" {:timeout-ms timeout-ms})))
-            (recur))))))
+(def http-shaped-payload
+  (delay (let [parsed (kebabize-keys (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))]
+           (model/normalize (assoc parsed :target-system "radarr") (constantly "2025-12-14T03:09:54Z")))))
 
-(defn- append-with-retry
-  [depot event]
-  (try (foreign-append! depot event :ack)
-       (catch Exception ex (let [data (ex-data ex)] (if (= :ack-timeout (:reason data)) nil (throw ex))))))
-
-(deftest save-movie
+(defn- with-module
+  [f]
   (let [ipc (rtest/create-ipc)]
     (try (rtest/launch-module! ipc mm/MovieModule {:tasks 4 :threads 2})
-         (let [module-name       (get-module-name mm/MovieModule)
-               rama-env          {:movies/env {:ipc ipc}}
-               tmdb-id           (:tmdb-id @sample-movie-row)
-               movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
-               ack-response      (append-with-retry movie-saves-depot (common/movie-created-event @sample-movie-row))
-               ack-movie         (when ack-response (get ack-response common/movies-etl-name))
-               movie-id          (or (get-in ack-movie [:movie :id])
-                                     (wait-for-value 10000 #(pstate/movie-id-by-tmdb-id rama-env tmdb-id)))
-               saved             (wait-for-value 10000 #(pstate/movie-by-id rama-env movie-id))]
-           (is (pos? movie-id))
-           (when ack-movie (is (= :stored (:status ack-movie))) (is (= java.lang.Long (class movie-id))))
-           (is (map? saved))
-           (when ack-movie (is (= movie-id (get-in ack-movie [:movie :id]))))
-           (is (= movie-id (pstate/movie-id-by-tmdb-id rama-env tmdb-id)))
-           (is (= movie-id (pstate/movie-id-by-metadata-id rama-env (:movie-metadata-id @sample-movie-row))))
-           (is (contains? (pstate/movie-ids-by-monitor rama-env (:monitor @sample-movie-row)) movie-id))
-           (is (contains? (pstate/movie-ids-by-target-system rama-env (:target-system @sample-movie-row)) movie-id))
-           (is (contains? (pstate/movie-ids-by-monitored rama-env) movie-id))
-           (doseq [tag (:tags @sample-movie-row)] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id))))
+         (f ipc)
          (finally (try (.close ipc) (catch Exception _))))))
 
+(deftest save-movie
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
+           saved             (pstate/movie-by-id rama-env movie-id)]
+       (is (pos? movie-id))
+       (when ack-movie (is (= :stored (:status ack-movie))) (is (= java.lang.Long (class movie-id))))
+       (is (map? saved))
+       (is (= movie-id (pstate/movie-id-by-tmdb-id rama-env tmdb-id)))
+       (is (= movie-id (pstate/movie-id-by-metadata-id rama-env (:movie-metadata-id @sample-movie-row))))
+       (is (contains? (pstate/movie-ids-by-monitor rama-env (:monitor @sample-movie-row)) movie-id))
+       (is (contains? (pstate/movie-ids-by-target-system rama-env (:target-system @sample-movie-row)) movie-id))
+       (is (contains? (pstate/movie-ids-by-monitored rama-env) movie-id))
+       (doseq [tag (:tags @sample-movie-row)] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))))))
+
+(deftest save-movie-from-http-shaped-payload
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           payload           (assoc @http-shaped-payload :tags ["movie"])
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id])
+                                 (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
+           stored            (pstate/movie-by-id rama-env movie-id)]
+       (is (pos? movie-id))
+       (is (= (:tmdb-id payload) (:tmdb-id stored)))
+       (is (= (:quality-profile-id payload) (:quality-profile-id stored)))
+       (is (= (:monitored payload) (:monitored stored)))
+       (is (= (set (:tags payload)) (set (:tags stored))))
+       (is (contains? (or (pstate/movie-ids-by-target-system rama-env "radarr") #{}) movie-id))
+       (is (contains? (or (pstate/movie-ids-by-tag rama-env "movie") #{}) movie-id))))))
+
+(deftest create-coerces-vector-tags
+  (with-module (fn [ipc]
+                 (let [module-name       (get-module-name mm/MovieModule)
+                       rama-env          {:movies/env {:ipc ipc}}
+                       movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+                       payload           (-> @sample-movie-row
+                                             (assoc :tmdb-id 99001 :movie-metadata-id 99001 :tags ["alpha" "beta"]))
+                       ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
+                       ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+                       movie-id          (or (get-in ack-movie [:movie :id])
+                                             (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
+                       stored            (pstate/movie-by-id rama-env movie-id)]
+                   (is (pos? movie-id))
+                   (is (= #{"alpha" "beta"} (set (:tags stored))))
+                   (is (contains? (or (pstate/movie-ids-by-tag rama-env "alpha") #{}) movie-id))
+                   (is (contains? (or (pstate/movie-ids-by-tag rama-env "beta") #{}) movie-id))))))
+
+(deftest create-accepts-set-tags
+  (with-module (fn [ipc]
+                 (let [module-name       (get-module-name mm/MovieModule)
+                       rama-env          {:movies/env {:ipc ipc}}
+                       movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+                       payload           (-> @sample-movie-row
+                                             (assoc :tmdb-id 99002 :movie-metadata-id 99002 :tags #{"gamma" "delta"}))
+                       ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
+                       ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+                       movie-id          (or (get-in ack-movie [:movie :id])
+                                             (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
+                       stored            (pstate/movie-by-id rama-env movie-id)]
+                   (is (pos? movie-id))
+                   (is (= #{"gamma" "delta"} (set (:tags stored))))
+                   (is (contains? (or (pstate/movie-ids-by-tag rama-env "gamma") #{}) movie-id))
+                   (is (contains? (or (pstate/movie-ids-by-tag rama-env "delta") #{}) movie-id))))))
+
 (deftest update-movie
-  (let [ipc (rtest/create-ipc)]
-    (try (rtest/launch-module! ipc mm/MovieModule {:tasks 4 :threads 2})
-         (let [module-name       (get-module-name mm/MovieModule)
-               rama-env          {:movies/env {:ipc ipc}}
-               tmdb-id           (:tmdb-id @sample-movie-row)
-               original-meta-id  (:movie-metadata-id @sample-movie-row)
-               movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
-               ack-response      (append-with-retry movie-saves-depot (common/movie-created-event @sample-movie-row))
-               ack-movie         (when ack-response (get ack-response common/movies-etl-name))
-               movie-id          (or (get-in ack-movie [:movie :id])
-                                     (wait-for-value 10000 #(pstate/movie-id-by-tmdb-id rama-env tmdb-id)))
-               _ (wait-for-value 10000 #(pstate/movie-by-id rama-env movie-id))
-               new-metadata-id   (+ 100 original-meta-id)
-               update-payload    (assoc @response-movie-row
-                                        :id                movie-id
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           original-meta-id  (:movie-metadata-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
+           existing-before   (pstate/movie-by-id rama-env movie-id)
+           new-metadata-id   (+ 100 original-meta-id)
+           update-payload    (-> @response-movie-row
+                                 (assoc :id                movie-id
                                         :tmdb-id           tmdb-id
                                         :movie-metadata-id new-metadata-id
                                         :monitored         false
-                                        :last-search-time  "2025-10-10T00:00:00Z")
-               update-response   (append-with-retry movie-saves-depot (common/movie-updated-event update-payload))
-               ack-update        (when update-response (get update-response common/movies-etl-name))
-               updated           (wait-for-value 10000 #(pstate/movie-by-id rama-env movie-id))
-               monitored-set     (or (pstate/movie-ids-by-monitored rama-env) #{})]
-           (when ack-update (is (= :updated (:status ack-update))) (is (= movie-id (get-in ack-update [:movie :id]))))
-           (is (= movie-id (pstate/movie-id-by-tmdb-id rama-env tmdb-id)))
-           ;; movieMetadataId should remain unchanged during update
-           (is (= movie-id (pstate/movie-id-by-metadata-id rama-env original-meta-id)))
-           (is (nil? (pstate/movie-id-by-metadata-id rama-env new-metadata-id)))
-           (let [expected-updated (-> @response-movie-row
-                                      (assoc :tmdb-id           tmdb-id
-                                             :movie-metadata-id original-meta-id
-                                             :last-search-time  (java.time.Instant/parse "2025-10-10T00:00:00Z")))
-                 expected-subset  (select-keys expected-updated
-                                               [:minimum-availability :quality-profile-id :root-folder-path :tmdb-id
-                                                :movie-metadata-id :last-search-time])]
-             (is (= expected-subset (select-keys updated (keys expected-subset)))))
-           (is (not (contains? monitored-set movie-id))))
-         (finally (try (.close ipc) (catch Exception _))))))
+                                        :last-search-time  "2025-10-10T00:00:00Z"
+                                        ;; attempt to mutate disallowed fields
+                                        :title             "should-not-change"
+                                        :year              3000
+                                        :imdb-id           "tt0000000"))
+           update-response   (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack)
+           ack-update        (when update-response (get update-response common/movies-etl-name))
+           updated           (pstate/movie-by-id rama-env movie-id)
+           monitored-set     (or (pstate/movie-ids-by-monitored rama-env) #{})]
+       (when ack-update (is (= :updated (:status ack-update))) (is (= movie-id (get-in ack-update [:movie :id]))))
+       (is (= movie-id (pstate/movie-id-by-tmdb-id rama-env tmdb-id)))
+       ;; movieMetadataId should remain unchanged during update
+       (is (= movie-id (pstate/movie-id-by-metadata-id rama-env original-meta-id)))
+       (is (nil? (pstate/movie-id-by-metadata-id rama-env new-metadata-id)))
+       (let [allowed-fields   [:last-search-time :minimum-availability :monitored :path :quality-profile-id
+                               :root-folder-path]
+             expected-updated (-> @response-movie-row
+                                  (assoc :tmdb-id           tmdb-id
+                                         :movie-metadata-id original-meta-id
+                                         :last-search-time  (java.time.Instant/parse "2025-10-10T00:00:00Z")
+                                         :monitored         false)
+                                  (select-keys allowed-fields))
+             expected-allowed expected-updated
+             disallowed-keys  (remove (set allowed-fields) (keys existing-before))]
+         (is (= expected-allowed (select-keys updated (keys expected-allowed))))
+         (doseq [k disallowed-keys] (is (= (get existing-before k) (get updated k)))))
+       (is (not (contains? monitored-set movie-id)))))))
+
+(deftest monitored-index-updates
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))]
+       (is (contains? (pstate/movie-ids-by-monitored rama-env) movie-id))
+       (let [update-payload (-> @response-movie-row
+                                (assoc :id movie-id :monitored false))]
+         (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack))
+       (let [monitored-set (or (pstate/movie-ids-by-monitored rama-env) #{})]
+         (is (not (contains? monitored-set movie-id))))
+       (let [update-payload (-> @response-movie-row
+                                (assoc :id movie-id :monitored true))]
+         (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack))
+       (let [monitored-set (or (pstate/movie-ids-by-monitored rama-env) #{})]
+         (is (contains? monitored-set movie-id)))))))
+
+(deftest tags-index-updates-from-empty-to-non-empty
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
+           original-tags     (:tags ack-movie)
+           new-tags          #{"new-tag"}]
+       ;; original tags indexed on create
+       (doseq [tag original-tags] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))
+       ;; update tags
+       (let [update-payload (-> @response-movie-row
+                                (assoc :id movie-id :tags new-tags))]
+         (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack))
+       ;; old tags removed
+       (doseq [tag original-tags] (is (not (contains? (or (pstate/movie-ids-by-tag rama-env tag) #{}) movie-id))))
+       ;; new tags added
+       (is (contains? (or (pstate/movie-ids-by-tag rama-env "new-tag") #{}) movie-id))
+       ;; movie row contains new tags
+       (is (= new-tags (get (pstate/movie-by-id rama-env movie-id) :tags)))))))
+
+(deftest tags-index-updates-from-empty-to-empty
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
+           original-tags     (:tags ack-movie)
+           new-tags          #{}]
+       ;; original tags indexed on create
+       (doseq [tag original-tags] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))
+       ;; update tags
+       (let [update-payload (-> @response-movie-row
+                                (assoc :id movie-id :tags new-tags))]
+         (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack))
+       ;; movie row contains no tags
+       (is (= #{} (get (pstate/movie-by-id rama-env movie-id) :tags)))))))
+
+(deftest tags-index-updates-from-non-empty-to-non-empty
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot
+                                              (assoc (common/movie-created-event @sample-movie-row) :tags #{"old-tag"})
+                                              :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
+           original-tags     (:tags ack-movie)
+           new-tags          #{"new-tag"}]
+       ;; original tags indexed on create
+       (doseq [tag original-tags] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))
+       ;; update tags
+       (let [update-payload (-> @response-movie-row
+                                (assoc :id movie-id :tags new-tags))]
+         (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack))
+       ;; old tags removed
+       (doseq [tag original-tags] (is (not (contains? (or (pstate/movie-ids-by-tag rama-env tag) #{}) movie-id))))
+       ;; new tags added
+       (is (contains? (or (pstate/movie-ids-by-tag rama-env "new-tag") #{}) movie-id))
+       ;; movie row contains new tags
+       (is (= new-tags (get (pstate/movie-by-id rama-env movie-id) :tags)))))))
+
+(deftest tags-index-updates-from-non-empty-to-empty
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           tmdb-id           (:tmdb-id @sample-movie-row)
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           ack-response      (foreign-append! movie-saves-depot
+                                              (assoc (common/movie-created-event @sample-movie-row) :tags #{"old-tag"})
+                                              :ack)
+           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
+           original-tags     (:tags ack-movie)
+           new-tags          #{}]
+       ;; original tags indexed on create
+       (doseq [tag original-tags] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))
+       ;; update tags
+       (let [update-payload (-> @response-movie-row
+                                (assoc :id movie-id :tags new-tags))]
+         (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack))
+       ;; old tags removed
+       (doseq [tag original-tags] (is (not (contains? (or (pstate/movie-ids-by-tag rama-env tag) #{}) movie-id))))
+       ;; movie row contains no tags
+       (is (= #{} (get (pstate/movie-by-id rama-env movie-id) :tags)))))))

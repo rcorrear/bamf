@@ -8,18 +8,30 @@
   (let [env {:movies :env}]
     (with-redefs [inspection/list-movies
                   (fn [env* query] (is (= env env*)) (is (= {} query)) {:status :ok :movies [{:id 1}]})]
-      (is (= {:status 200 :body [{:id 1}]} (http/list-movies {:movies/env env :parameters {:query {}}}))))))
+      (let [response (http/list-movies {:movies/env env :parameters {:query {}}})]
+        (is (= 200 (:status response)))
+        (is (= [1] (map :id (:body response))))
+        (is (every? #(zero? (:size-on-disk %)) (:body response)))))))
 
 (deftest list-movies-passes-tmdb-filter
   (let [env {:movies :env}]
     (with-redefs [inspection/list-movies
                   (fn [env* query] (is (= env env*)) (is (= {:tmdb-id 42} query)) {:status :ok :movies [{:id 2}]})]
-      (is (= {:status 200 :body [{:id 2}]} (http/list-movies {:movies/env env :parameters {:query {:tmdb-id 42}}}))))))
+      (let [response (http/list-movies {:movies/env env :parameters {:query {:tmdb-id 42}}})]
+        (is (= 200 (:status response)))
+        (is (= [2] (map :id (:body response))))))))
 
 (deftest get-movie-translates-found
   (let [env {:movies :env}]
-    (with-redefs [inspection/get-movie (fn [env* id] (is (= env env*)) (is (= 9 id)) {:status :ok :movie {:id 9}})]
-      (is (= {:status 200 :body {:id 9}} (http/get-movie {:movies/env env :path-params {:id 9}}))))))
+    (with-redefs [inspection/get-movie (fn [env* id]
+                                         (is (= env env*))
+                                         (is (= 9 id))
+                                         {:status :ok :movie {:id 9 :tmdb-id 1 :added "2024-01-01T00:00:00Z"}})]
+      (let [response (http/get-movie {:movies/env env :path-params {:id 9}})]
+        (is (= 200 (:status response)))
+        (is (= 9 (get-in response [:body :id])))
+        (is (nil? (get-in response [:body :last-search-time])))
+        (is (nil? (get-in response [:body :target-system])))))))
 
 (deftest get-movie-translates-not-found
   (let [env {:movies :env}]
@@ -42,10 +54,14 @@
       (f invocation env))))
 
 (deftest create-movie-translates-stored-response
-  (with-save-result {:status :stored :movie {:id 1}}
+  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :target-system "radarr"}}
                     (fn [invocation env]
-                      (is (= {:status 201 :body {:id 1}}
-                             (http/create-movie {:body-params {:title "Foo"} :movies/env env})))
+                      (let [response (http/create-movie {:body-params {:title "Foo"} :movies/env env})]
+                        (is (= 201 (:status response)))
+                        (is (= {:id 1 :movie-metadata-id 77 :size-on-disk 0}
+                               (select-keys (:body response) [:id :movie-metadata-id :size-on-disk])))
+                        (is (not (contains? (:body response) :last-search-time)))
+                        (is (nil? (get-in response [:body :target-system]))))
                       (is (= {:env env :payload {:title "Foo"}} @invocation)))))
 
 (deftest create-movie-translates-duplicate-response
@@ -75,12 +91,15 @@
 
 (deftest update-movie-translates-updated-response
   (with-update-result
-   {:status :updated :movie {:id 9 :monitored false}}
+   {:status :updated :movie {:id 9 :monitored false :last-search-time "2024-01-02T00:00:00Z" :size-on-disk nil}}
    (fn [invocation env]
-     (is (= {:status 200 :body {:id 9 :monitored false}}
-            (http/update-movie
-             {:body-params {:monitored false} :path-params {:id 9} :movies/env env :query-params {:move-files true}})))
-     (is (= {:env env :payload {:monitored false :id 9}} @invocation)))))
+     (let [response
+           (http/update-movie
+            {:body-params {:monitored false} :path-params {:id 9} :movies/env env :query-params {:move-files true}})]
+       (is (= 200 (:status response)))
+       (is (= {:id 9 :monitored false :last-search-time "2024-01-02T00:00:00Z" :size-on-disk 0}
+              (select-keys (:body response) [:id :monitored :last-search-time :size-on-disk]))))
+     (is (= {:env env :payload {:monitored false :id 9 :move-files true}} @invocation)))))
 
 (deftest update-movie-translates-not-found
   (with-update-result

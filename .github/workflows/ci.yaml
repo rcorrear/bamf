@@ -22,9 +22,9 @@ jobs:
 
       # Run tests
       - name: Run tests with kaocha
-        run: bin/kaocha -M:ci:test --plugin kaocha.plugin/junit-xml --junit-xml-file junit.xml --junit-xml-add-location-metadata  # yamllint disable-line rule:line-length
+        run: nix develop --impure --command bin/kaocha -M:ci:test --plugin kaocha.plugin/junit-xml --junit-xml-file junit.xml --junit-xml-add-location-metadata  # yamllint disable-line rule:line-length
       - name: Annotate failure
         if: failure()
-        uses: mikepenz/action-junit-report@41a3188dde10229782fd78cd72fc574884dd7686  # yamllint disable-line rule:line-length
+        uses: mikepenz/action-junit-report@fb8f411a1c1fee06cf3b8a321454b50544761f7a  # yamllint disable-line rule:line-length
         with:
           report_paths: junit.xml

@@ -10,7 +10,7 @@
             [clojure.walk :as walk]))
 
 (def sample-json
-  (-> "movie-request.json"
+  (-> "movie-save-request.json"
       io/resource
       slurp))
 
@@ -26,7 +26,7 @@
     (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt k) v]) x)) x)) data)))
 
 (def sample-response
-  (delay (kebabize-keys (json/read-str (-> "movie-response.json"
+  (delay (kebabize-keys (json/read-str (-> "movie-save-response.json"
                                            io/resource
                                            slurp)
                                        :key-fn
@@ -77,7 +77,7 @@
         (is (= :stored status))
         (is (= 99 (:id movie)))
         (is (= expected-response (select-keys movie (keys expected-response))))
-        (is (= "2025-09-21T17:00:00Z" (:last-search-time movie)))
+        (is (nil? (:last-search-time movie)))
         (is (= ["scifi" "4k"] (:tags @captured)))
         (is (= {} (:add-options @captured)))
         (is (= (:tmdb-id payload) (:movie-metadata-id @captured)))
@@ -95,6 +95,49 @@
         (is (= 7 (:existing-id result)))
         (is (= "duplicate-metadata" (:reason result)))
         (is (= :tmdb-id (:field result)))))))
+
+(deftest trim-path-normalizes-blanks
+  (is (nil? (#'persistence/trim-path nil)))
+  (is (nil? (#'persistence/trim-path "   ")))
+  (is (= "/media/movies" (#'persistence/trim-path "  /media/movies  "))))
+
+(deftest combine-path-respects-absolute-and-normalizes
+  (is (= "/abs/path" (#'persistence/combine-path "/root" "/abs/path")))
+  (is (= "/root/child" (#'persistence/combine-path "/root/" "child")))
+  (is (= "/root/child/grand" (#'persistence/combine-path "/root" "child/../child/grand"))))
+
+(deftest derive-paths-prefers-explicit-path-and-builds-from-folder
+  (let [root     "/media/video"
+        folder   "The Batman (2022)"
+        explicit "/custom/path"]
+    ;; explicit path wins
+    (is (= {:path explicit :root-folder-path "/media/video" :folder-name "/media/video/The Batman (2022)"}
+           (select-keys (#'persistence/derive-paths nil {:path explicit :root-folder-path root :folder folder})
+                        [:path :root-folder-path :folder-name])))
+    ;; build from folder + root
+    (is (= {:path             "/media/video/The Batman (2022)"
+            :root-folder-path "/media/video"
+            :folder-name      "/media/video/The Batman (2022)"}
+           (select-keys (#'persistence/derive-paths nil {:root-folder-path root :folder folder})
+                        [:path :root-folder-path :folder-name])))))
+
+(deftest derive-paths-uses-folder-name-relative-and-absolute
+  (is (= {:path "/root/movies/Rel" :root-folder-path "/root/movies" :folder-name "Rel"}
+         (select-keys (#'persistence/derive-paths nil {:root-folder-path "/root/movies" :folder-name "Rel"})
+                      [:path :root-folder-path :folder-name])))
+  (is (= {:path "/abs/name" :root-folder-path "/root/movies" :folder-name "/abs/name"}
+         (select-keys (#'persistence/derive-paths nil {:root-folder-path "/root/movies" :folder-name "/abs/name"})
+                      [:path :root-folder-path :folder-name]))))
+
+(deftest reconcile-paths-emits-only-changes
+  (let [existing {:path "/media/old" :root-folder-path "/media"}]
+    ;; no changes
+    (is (= {:path nil :root-folder-path nil} (#'persistence/reconcile-paths existing {:path "/media/old"})))
+    ;; path change
+    (is (= {:path "/media/new" :root-folder-path nil} (#'persistence/reconcile-paths existing {:path "/media/new"})))
+    ;; root change via folderName
+    (is (= {:path "/media/video/New" :root-folder-path "/media/video"}
+           (#'persistence/reconcile-paths existing {:root-folder-path "/media/video" :folder-name "New"})))))
 
 (deftest invalid-payload-returns-errors
   (with-redefs [pstate/movie-id-by-tmdb-id     (fn [& _] nil)
@@ -121,15 +164,16 @@
     (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
                   pstate/movie-id-by-metadata-id (fn [& _] (:id existing))
                   depot/update!                  (fn [{:keys [movie]}]
-                                                     (reset! captured movie)
-                                                     {:status :updated :movie {:id (:id movie)}})]
-      (let [patch  {:id               (:id existing)
-                    :monitored        false
-                    :last-search-time "2025-10-10T00:00:00Z"
-                    :tmdb-id          (:tmdb-id existing)}
-            result (persistence/update! {:movie-depot movie-depot} patch)
+                                                   (reset! captured movie)
+                                                   {:status :updated :movie {:id (:id movie)}})]
+      (let [patch             {:id               (:id existing)
+                               :monitored        false
+                               :last-search-time "2025-10-10T00:00:00Z"
+                               :tmdb-id          (:tmdb-id existing)}
+            result            (persistence/update! {:movie-depot movie-depot} patch)
             expected-captured (select-keys (merge existing patch)
-                                           [:id :tmdb-id :monitored :minimum-availability :quality-profile-id :path :tags])]
+                                           [:id :monitored :minimum-availability :quality-profile-id :path
+                                            :root-folder-path :tags])]
         (is (= :updated (:status result)))
         (is (= false (get-in result [:movie :monitored])))
         (is (= "2025-10-10T00:00:00Z" (get-in result [:movie :last-search-time])))
@@ -143,24 +187,43 @@
                   :monitored            false
                   :minimum-availability "inCinemas"
                   :movie-metadata-id    999
-                  :last-search-time     "2025-10-20T12:30:00Z"}]
+                  :last-search-time     "2025-10-20T12:30:00Z"
+                  :tags                 ["new-tag" "another"]}]
     (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
                   pstate/movie-id-by-metadata-id (fn [_env metadata-id & _]
                                                    (when (= metadata-id (:movie-metadata-id existing)) (:id existing)))
                   depot/update!                  (fn [{:keys [movie]}]
-                                                     (reset! captured movie)
-                                                     {:status :updated :movie {:id (:id movie)}})]
-      (let [result   (persistence/update! env patch)
-            expected (-> (merge existing patch)
-                         (model/normalize (:clock env))
-                         (assoc :id (:id existing)))
-            expected-depot (select-keys expected [:id :tmdb-id :monitored :minimum-availability :quality-profile-id :path :tags])]
+                                                   (reset! captured movie)
+                                                   {:status :updated :movie {:id (:id movie)}})]
+      (let [result         (persistence/update! env patch)
+            expected       (-> (merge existing patch)
+                               (model/normalize (:clock env))
+                               (assoc :id (:id existing)))
+            expected-depot (select-keys expected
+                                        [:id :monitored :minimum-availability :quality-profile-id :path
+                                         :root-folder-path :tags])]
         (is (= expected-depot @captured))
         (is (= :updated (:status result)))
         (is (= (:minimum-availability expected) (get-in result [:movie :minimum-availability])))
-        (is (= (:movie-metadata-id expected) (get-in result [:movie :movie-metadata-id])))
+        (is (= (:movie-metadata-id existing) (get-in result [:movie :movie-metadata-id])))
         (is (= (:path expected) (get-in result [:movie :path])))
         (is (= (:tmdb-id expected) (get-in result [:movie :tmdb-id])))))))
+
+(deftest update-updates-tags
+  (let [existing (canonical-existing)
+        captured (atom nil)
+        env      {:clock (constantly "2025-10-21T00:00:00Z") :movie-depot movie-depot}
+        patch    {:id (:id existing) :tmdb-id (:tmdb-id existing) :tags ["new-tag" "other"]}]
+    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/movie-id-by-metadata-id (fn [_env metadata-id & _] (:id existing))
+                  depot/update!                  (fn [{:keys [movie]}]
+                                                   (reset! captured movie)
+                                                   {:status :updated :movie {:id (:id movie)}})]
+      (let [result        (persistence/update! env patch)
+            expected-tags (set (map str (:tags patch)))]
+        (is (= :updated (:status result)))
+        (is (= expected-tags (set (:tags @captured))))
+        (is (= expected-tags (set (get-in result [:movie :tags]))))))))
 
 (deftest update-requires-id
   (with-redefs [pstate/movie-by-id (fn [& _] (throw (ex-info "should not call" {})))]
@@ -172,8 +235,8 @@
   (let [existing (canonical-existing)]
     (with-redefs [pstate/movie-by-id (fn [_env id & _] (when (= (:id existing) id) existing))]
       (let [result (persistence/update! {:movie-depot movie-depot} {:id (:id existing) :tmdb-id (:tmdb-id existing)})]
-        (is (= :invalid (:status result)))
-        (is (= ["At least one mutable field must be provided for updates"] (:errors result)))))))
+        (is (= :updated (:status result)))
+        (is (= existing (:movie result)))))))
 
 (deftest update-returns-not-found
   (with-redefs [pstate/movie-by-id (fn [& _] nil)]
@@ -190,8 +253,9 @@
                                                          :else                                         nil))
                   depot/update!                  (fn [& _] (throw (ex-info "should not write" {})))]
       (let [result (persistence/update! {:movie-depot movie-depot} {:id (:id existing) :movie-metadata-id 999})]
-        (is (= :duplicate (:status result)))
-        (is (= 222 (:existing-id result)))))))
+        ;; movie-metadata-id is not mutable; treat as no-op update
+        (is (= :updated (:status result)))
+        (is (= existing (:movie result)))))))
 
 (deftest update-validates-new-values
   (let [existing (canonical-existing)]

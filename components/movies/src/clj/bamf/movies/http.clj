@@ -20,7 +20,7 @@
    [:title string?] [:original-title {:optional true} [:maybe string?]] [:title-slug {:optional true} string?]
    [:path {:optional true} [:maybe string?]] [:root-folder-path {:optional true} [:maybe string?]]
    [:folder {:optional true} [:maybe string?]] [:folder-name {:optional true} [:maybe string?]]
-  [:minimum-availability string?] [:status {:optional true} [:maybe string?]] [:monitored boolean?]
+   [:minimum-availability string?] [:status {:optional true} [:maybe string?]] [:monitored boolean?]
    [:has-file {:optional true} [:maybe boolean?]] [:is-available {:optional true} boolean?]
    [:quality-profile-id pos-int?] [:movie-file-id {:optional true} int?] [:runtime {:optional true} [:maybe int?]]
    [:size-on-disk {:optional true} [:maybe int?]] [:year {:optional true} int?]
@@ -77,6 +77,16 @@
                                      str)
                              "unknown")))
 
+(defn- response-movie
+  [movie]
+  (let [movie (or movie {})]
+    (-> movie
+        (update :movie-metadata-id #(or % (:tmdb-id movie)))
+        (update :size-on-disk #(if (some? %) % 0))
+        (dissoc :target-system))))
+
+(defn- response-movies [movies] (mapv response-movie (or movies [])))
+
 (defn- duplicate->response
   [{:keys [reason field existing-id]}]
   (let [field-name (external-field-name field)]
@@ -86,9 +96,9 @@
 
 (defn- error->response [{:keys [errors]}] {:status 500 :body {:errors (vec (or errors ["unexpected error"]))}})
 
-(defn- stored->response [{:keys [movie]}] {:status 201 :body movie})
+(defn- stored->response [{:keys [movie]}] {:status 201 :body (response-movie movie)})
 
-(defn- updated->response [{:keys [movie]}] {:status 200 :body movie})
+(defn- updated->response [{:keys [movie]}] {:status 200 :body (response-movie movie)})
 
 (defn- not-found->response
   [{:keys [movie-id]}]
@@ -97,14 +107,15 @@
 (defn list-movies
   "Return movies filtered by the supplied query parameters."
   [request]
-  (let [env   (request-env request)
-        query (or (get-in request [:parameters :query])
-                  (some-> request
-                          :query-params
-                          keywordize-keys)
-                  {})]
+  (let [env              (request-env request)
+        query            (or (get-in request [:parameters :query])
+                             (some-> request
+                                     :query-params
+                                     keywordize-keys)
+                             {})
+        {:keys [movies]} (inspection/list-movies env query)]
     (t/log! :debug {:reason :rest-api/list-movies :query-params query})
-    {:status 200 :body (:movies (inspection/list-movies env query))}))
+    {:status 200 :body (response-movies movies)}))
 
 (defn get-movie
   "Fetch a single movie by id."
@@ -113,7 +124,7 @@
         id     (get-in request [:path-params :id])
         result (inspection/get-movie env id)]
     (case (:status result)
-      :ok        {:status 200 :body (:movie result)}
+      :ok        {:status 200 :body (response-movie (:movie result))}
       :not-found (not-found->response result)
       (do (t/log! {:level   :error
                    :reason  :movies/http-unexpected-status
@@ -145,10 +156,13 @@
 (defn update-movie
   "Apply mutations to an existing movie and translate persistence responses to HTTP."
   [request]
-  (let [payload (safe-payload request)
-        path-id (get-in request [:path-params :id])
-        env     (request-env request)
-        result  (persistence/update! env (assoc payload :id (or (:id payload) path-id)))]
+  (let [payload    (safe-payload request)
+        path-id    (get-in request [:path-params :id])
+        move-files (or (get-in request [:parameters :query :move-files]) (get-in request [:query-params :move-files]))
+        env        (request-env request)
+        result     (persistence/update! env
+                                        (cond-> (assoc payload :id (or (:id payload) path-id))
+                                          (some? move-files) (assoc :move-files move-files)))]
     (case (:status result)
       :updated   (updated->response result)
       :duplicate (duplicate->response result)

@@ -1,7 +1,7 @@
 (ns bamf.movies.rama.runtime
   "Lifecycle helpers for starting and stopping the Rama movie module."
   (:require [bamf.movies.rama.common :as common]
-            [bamf.movies.rama.module :as module]
+            [bamf.movies.rama.module.core :as module]
             [com.rpl.rama :as rama]
             [com.rpl.rama.test :as rt]
             [taoensso.telemere :as t])
