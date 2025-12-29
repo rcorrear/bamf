@@ -17,11 +17,11 @@ Expect failures until implementation completes.
 ```bash
 clojure -M:dev run
 ```
-Ensure the Save Movies endpoint is listening (default `http://localhost:3000`).
+Ensure the Save Movies endpoint is listening (default `http://localhost:9090`).
 
 ## 3. Submit Sample Movie
 ```bash
-curl -X POST http://localhost:3000/api/v3/movie \
+curl -X POST http://localhost:9090/api/v3/movie \
   -H 'Content-Type: application/json' \
   -d '{
     "title": "Dune",

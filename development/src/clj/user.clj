@@ -1,11 +1,14 @@
 (ns user
   {:author "Ricardo Correa"}
-  (:require [bamf.system.interface :as system]))
+  (:require [bamf.system.interface :as system]
+            [taoensso.telemere :as t]))
 
 (set! *warn-on-reflection* true)
 
 (defmethod system/start :bamf
   ([runtime] (system/ensure-ns-loaded 'bamf.dev.system) (system/start (assoc runtime :system :go))))
+
+(defn start [] (system/start {:environment :local :system :bamf}))
 
 (defn stop [] (system/stop))
 
@@ -18,7 +21,8 @@
 (defn config [] (system/config))
 
 (comment
-  (system/start {:environment :local :system :bamf})
+  (t/set-min-level! :debug)
+  (start)
   (stop)
   (restart)
   (status)

@@ -4,8 +4,7 @@
             [bamf.movies.interface :as movies]
             [bamf.rest-api.api :as rest-api]
             [donut.system :as ds]
-            [radarr.rest-api.static-routes :as static]
-            [com.rpl.rama.test :as rtest]))
+            [radarr.rest-api.static-routes :as static]))
 
 (defn http-components
   ([] (http-components {}))
@@ -19,29 +18,28 @@
 (defmethod ds/named-system :base
   [_]
   {::ds/defs {:config        {}
-              :runtime-state {:rest-api/server #::ds{:start  (fn [{:keys [::ds/config]}] (rest-api/start config))
-                                                     :stop   (fn [{:keys [::ds/instance]}] (rest-api/stop instance))
-                                                     :config (ds/ref [:config])}}}})
+              :runtime-state {:movies/env      #::ds{:start (fn [_] (movies/start-runtime!))
+                                                     :stop  (fn [deps] (movies/stop-runtime! (::ds/instance deps)))}
+                              :rest-api/server #::ds{:start      (fn [deps]
+                                                                   (let [system-config (::ds/config deps)
+                                                                         movies-env    (:movies/env deps)
+                                                                         cfg           (assoc system-config
+                                                                                              :http/runtime-state
+                                                                                              {:movies/env movies-env})]
+                                                                     (rest-api/start cfg)))
+                                                     :stop       (fn [deps] (rest-api/stop (::ds/instance deps)))
+                                                     :config     (ds/ref [:config])
+                                                     :movies/env (ds/ref [:runtime-state :movies/env])}}}})
 
 (defmethod ds/named-system :local
   [_]
-  (ds/system
-   :base
-   {[:config]                        (-> (config/load-config :local)
-                                         (assoc :http-components (http-components) :http/runtime-state {}))
-    [:runtime-state :movies/service] #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
-                                           :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
-                                           :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}
-    [:runtime-state :rama-ipc]       (rtest/create-ipc)}))
+  (ds/system :base
+             {[:config] (-> (config/load-config :local)
+                            (assoc :http-components (http-components)))}))
 
 (defmethod ds/named-system :test
   [_]
-  (ds/system
-   :base
-   {[:config]                         (-> (config/load-config :test)
-                                          (assoc :http-components (http-components) :http/runtime-state {}))
-    [:runtime-state :movies/service]  #::ds{:start  (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/start rama-ipc))
-                                            :stop   (fn [{{:keys [rama-ipc]} ::ds/config}] (movies/stop rama-ipc))
-                                            :config {:rama-ipc (ds/ref [:runtime-state :rama-ipc])}}
-    [:runtime-state :rama-ipc]        (rtest/create-ipc)
-    [:runtime-state :rest-api/server] :disabled}))
+  (ds/system :base
+             {[:config]                         (-> (config/load-config :test)
+                                                    (assoc :http-components (http-components)))
+              [:runtime-state :rest-api/server] :disabled}))

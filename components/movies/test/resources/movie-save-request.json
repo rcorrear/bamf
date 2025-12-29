@@ -1,0 +1,191 @@
+{
+  "addOptions": {
+    "monitor": "movieOnly",
+    "searchForMovie": true
+  },
+  "added": "0001-01-01T00:00:00Z",
+  "alternateTitles": [
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "Бэтмен"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "Betmen"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "দ্য ব্যাটম্যান"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "द बैटमैन"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "バットマン"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "Batman: Vạch Trần Sự Thật"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "ザ・バットマン"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "הבאטמן"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "THE BATMAN－ザ・バットマン－：2022"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "الرجل الوطواط"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "الرجل الخفاش"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "Բեթմենը"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "蝙蝠侠8：新蝙蝠侠"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "လင်းနို့လူသား"
+    },
+    {
+      "movieMetadataId": 0,
+      "sourceType": "tmdb",
+      "title": "The Batman"
+    }
+  ],
+  "certification": "PG-13",
+  "cleanTitle": "thebatman",
+  "collection": {
+    "title": "The Batman Collection",
+    "tmdbId": 948485
+  },
+  "digitalRelease": "2022-04-17T00:00:00Z",
+  "folder": "The Batman (2022)",
+  "folderName": "",
+  "genres": [
+    "Crime",
+    "Mystery",
+    "Thriller"
+  ],
+  "id": 0,
+  "images": [
+    {
+      "coverType": "poster",
+      "remoteUrl": "https://image.tmdb.org/t/p/original/74xTEgt7R36Fpooo50r9T25onhq.jpg",
+      "url": "/MediaCoverProxy/97afcd54e9da15938c6f95281fff155decc70b4987bd018cc92b4d06ed7e3a7a/74xTEgt7R36Fpooo50r9T25onhq.jpg"
+    },
+    {
+      "coverType": "fanart",
+      "remoteUrl": "https://image.tmdb.org/t/p/original/rvtdN5XkWAfGX6xDuPL6yYS2seK.jpg",
+      "url": "/MediaCoverProxy/51f762477b091abc1260d58e89bf03f11fa237e3b8f9aaa1025a1d66446cbb6f/rvtdN5XkWAfGX6xDuPL6yYS2seK.jpg"
+    }
+  ],
+  "imdbId": "tt1877830",
+  "inCinemas": "2022-03-01T00:00:00Z",
+  "isAvailable": true,
+  "keywords": [
+    "aftercreditsstinger",
+    "based on comic",
+    "crime fighter",
+    "masked superhero",
+    "mayoral election",
+    "millionaire",
+    "murder investigation",
+    "neo-noir",
+    "nightclub",
+    "organized crime",
+    "police",
+    "political corruption",
+    "politician",
+    "psychopath",
+    "secret identity",
+    "serial killer",
+    "social injustice",
+    "superhero",
+    "urban gothic",
+    "vengeance",
+    "vigilante"
+  ],
+  "minimumAvailability": "released",
+  "monitored": true,
+  "movieFileId": 0,
+  "originalLanguage": {
+    "id": 1,
+    "name": "English"
+  },
+  "originalTitle": "The Batman",
+  "overview": "In his second year of fighting crime, Batman uncovers corruption in Gotham City that connects to his own family while facing a serial killer known as the Riddler.",
+  "physicalRelease": "2022-05-24T00:00:00Z",
+  "popularity": 15.6919,
+  "qualityProfileId": 4,
+  "ratings": {
+    "imdb": {
+      "type": "user",
+      "value": 7.8,
+      "votes": 906591
+    },
+    "metacritic": {
+      "type": "user",
+      "value": 72,
+      "votes": 0
+    },
+    "rottenTomatoes": {
+      "type": "user",
+      "value": 85,
+      "votes": 0
+    },
+    "tmdb": {
+      "type": "user",
+      "value": 7.66,
+      "votes": 11445
+    },
+    "trakt": {
+      "type": "user",
+      "value": 7.68195,
+      "votes": 34825
+    }
+  },
+  "releaseDate": "2022-03-01T00:00:00Z",
+  "remotePoster": "https://image.tmdb.org/t/p/original/74xTEgt7R36Fpooo50r9T25onhq.jpg",
+  "rootFolderPath": "/media/video/movies",
+  "runtime": 177,
+  "secondaryYearSourceId": 0,
+  "sortTitle": "batman",
+  "status": "released",
+  "studio": "6th & Idaho Motion Picture Company",
+  "tags": [],
+  "title": "The Batman",
+  "titleSlug": "414906",
+  "tmdbId": 414906,
+  "website": "https://www.thebatman.com",
+  "year": 2022,
+  "youTubeTrailerId": "vc7_mH2PWHs"
+}

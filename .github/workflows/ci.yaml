@@ -1,7 +1,7 @@
 ---
 name: CI
 on:  # yamllint disable-line rule:truthy
-  [push, pull_request]
+  [pull_request]
 
 jobs:
   test:
@@ -17,6 +17,14 @@ jobs:
       # Setup Nix
       - uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2c78e21c3ae3edd
 
-      # Run tests
-      - name: Run devenv test from the dev environment
+      - name: Run validations
         run: nix develop --impure -c devenv test
+
+      # Run tests
+      - name: Run tests with kaocha
+        run: nix develop --impure --command bin/kaocha -M:ci:test --plugin kaocha.plugin/junit-xml --junit-xml-file junit.xml --junit-xml-add-location-metadata  # yamllint disable-line rule:line-length
+      - name: Annotate failure
+        if: failure()
+        uses: mikepenz/action-junit-report@fb8f411a1c1fee06cf3b8a321454b50544761f7a  # yamllint disable-line rule:line-length
+        with:
+          report_paths: junit.xml
