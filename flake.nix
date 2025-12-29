@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2505.810395";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2511.904506";
 
     devenv.url = "github:cachix/devenv";
 
