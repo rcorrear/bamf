@@ -1,7 +1,4 @@
 {
-  # Snowfall Lib provides a customized `lib` instance with access to your flake's library
-  # as well as the libraries available from your flake's inputs.
-  lib,
   # You also have access to your flake's inputs.
   inputs,
 
@@ -12,8 +9,8 @@
 }:
 let
   my = rec {
-    jdk23 = pkgs.jdk23.override { enableJavaFX = true; };
-    polylith = pkgs.polylith.override { jdk = jdk23; };
+    jdk25 = pkgs.jdk25.override { enableJavaFX = false; };
+    polylith = pkgs.polylith.override { jdk = jdk25; };
   };
 in
 
@@ -41,12 +38,12 @@ inputs.devenv.lib.mkShell {
           clojure.enable = true;
           java = {
             enable = true;
-            jdk.package = my.jdk23;
+            jdk.package = my.jdk25;
           };
         };
 
         packages = [
-          my.jdk23
+          my.jdk25
           my.polylith
 
           pkgs.clj-kondo

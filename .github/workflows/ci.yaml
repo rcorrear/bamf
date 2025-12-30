@@ -21,8 +21,14 @@ jobs:
         run: nix develop --impure -c devenv test
 
       # Run tests
-      - name: Run tests with kaocha
-        run: nix develop --impure --command bin/kaocha -M:ci:test --plugin kaocha.plugin/junit-xml --junit-xml-file junit.xml --junit-xml-add-location-metadata  # yamllint disable-line rule:line-length
+      - name: Run tests with kaocha (coverage)
+        run: nix develop --impure --command bin/kaocha -M:ci:test --plugin kaocha.plugin/cloverage --plugin kaocha.plugin/junit-xml --junit-xml-file junit.xml --junit-xml-add-location-metadata  # yamllint disable-line rule:line-length
+      - name: Upload coverage report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: target/coverage
       - name: Annotate failure
         if: failure()
         uses: mikepenz/action-junit-report@fb8f411a1c1fee06cf3b8a321454b50544761f7a  # yamllint disable-line rule:line-length
