@@ -1,9 +1,15 @@
 #kaocha/v1 {:cloverage/opts {:ns-exclude-regex ["^bamf\\..+\\.rama\\..+$"]}
+            :plugins        [:kaocha.plugin/capture-output :kaocha.plugin/filter :kaocha.plugin/print-invocations
+                             :kaocha.plugin/profiling :kaocha.plugin/randomize]
+            :reporter       [kaocha.report/documentation]
             :tests          [{:id           :unit
                               :ns-patterns  ["-test$"]
-                              :plugins      [:kaocha.plugin/randomize :kaocha.plugin/filter
-                                             :kaocha.plugin/capture-output :kaocha.plugin/profiling]
-                              :reporter     [kaocha.report/dots]
+                              :source-paths ["bases/rest-api/src/clj" "components/config/src/clj"
+                                             "components/movies/src/clj" "components/system/src/clj"]
+                              :test-paths   ["bases/rest-api/test/clj" "components/config/test/clj"
+                                             "components/movies/test/clj" "components/system/test/clj"]}
+                             {:id           :integration
+                              :ns-patterns  ["-integration$"]
                               :source-paths ["bases/rest-api/src/clj" "components/config/src/clj"
                                              "components/movies/src/clj" "components/system/src/clj"]
                               :test-paths   ["bases/rest-api/test/clj" "components/config/test/clj"

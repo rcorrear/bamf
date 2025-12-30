@@ -1,4 +1,4 @@
-(ns bamf.movies.rama.module-test
+(ns bamf.movies.rama.module-integration
   (:use [com.rpl rama] [com.rpl.rama path])
   (:require [bamf.movies.rama.client.pstate :as pstate]
             [bamf.movies.rama.common :as common]

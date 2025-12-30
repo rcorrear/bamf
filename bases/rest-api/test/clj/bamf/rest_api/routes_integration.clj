@@ -1,4 +1,4 @@
-(ns bamf.rest-api.routes-integration-test
+(ns bamf.rest-api.routes-integration
   (:require [bamf.rest-api.test-support :as ts]
             [clojure.test :refer [deftest is testing]]
             [reitit.ring :as ring]))
