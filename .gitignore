@@ -34,6 +34,7 @@ pom.xml.asc
 .lein-plugins/
 .lein-failures
 .nrepl-port
+.nrepl.edn
 .cpcache/
 
 ### direnv ###

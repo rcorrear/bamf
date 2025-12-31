@@ -1,22 +1,26 @@
 # bamf Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2025-10-03
+Auto-generated from all feature plans. Last updated: 2025-12-31
 
 ## Active Technologies
-- Clojure 1.12.0 + Rama (001-develop-bamf-a)
-- Clojure 1.12.0 + Rama (module + p-states), donut-party.system, Telemere (004-add-rama-movie-module)
-- Rama Movies p-state backed by ModuleUniqueIdPState id generation (004-add-rama-movie-module)
+- Clojure 1.12.0 with Polylith workspace layout
+- Donut System lifecycle management
+- Reitit + Aleph HTTP stack with Muuntaja/Charred and Malli validation
+- Ring middleware
+- Rama persistence with Telemere instrumentation
 
 ## Project Structure
 ```
 bases/
   rest-api/
 components/
-  api/
   config/
   movies/
+  system/
 development/
 docs/
+projects/
+  radarr/
 specs/
 ```
 
