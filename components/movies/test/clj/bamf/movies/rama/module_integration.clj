@@ -2,6 +2,7 @@
   (:use [com.rpl rama] [com.rpl.rama path])
   (:require [bamf.movies.rama.client.pstate :as pstate]
             [bamf.movies.rama.common :as common]
+            [bamf.movies.rama.module.constants :refer [movies-etl-name]]
             [bamf.movies.rama.module.core :as mm]
             [bamf.movies.model :as model]
             [camel-snake-kebab.core :as csk]
@@ -61,7 +62,7 @@
            tmdb-id           (:tmdb-id @sample-movie-row)
            movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
            saved             (pstate/movie-by-id rama-env movie-id)]
        (is (pos? movie-id))
@@ -82,7 +83,7 @@
            movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
            payload           (assoc @http-shaped-payload :tags ["movie"])
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id])
                                  (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
            stored            (pstate/movie-by-id rama-env movie-id)]
@@ -102,7 +103,7 @@
                        payload           (-> @sample-movie-row
                                              (assoc :tmdb-id 99001 :movie-metadata-id 99001 :tags ["alpha" "beta"]))
                        ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
-                       ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+                       ack-movie         (when ack-response (get ack-response movies-etl-name))
                        movie-id          (or (get-in ack-movie [:movie :id])
                                              (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
                        stored            (pstate/movie-by-id rama-env movie-id)]
@@ -119,7 +120,7 @@
                        payload           (-> @sample-movie-row
                                              (assoc :tmdb-id 99002 :movie-metadata-id 99002 :tags #{"gamma" "delta"}))
                        ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
-                       ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+                       ack-movie         (when ack-response (get ack-response movies-etl-name))
                        movie-id          (or (get-in ack-movie [:movie :id])
                                              (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
                        stored            (pstate/movie-by-id rama-env movie-id)]
@@ -137,7 +138,7 @@
            original-meta-id  (:movie-metadata-id @sample-movie-row)
            movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
            existing-before   (pstate/movie-by-id rama-env movie-id)
            new-metadata-id   (+ 100 original-meta-id)
@@ -152,7 +153,7 @@
                                         :year              3000
                                         :imdb-id           "tt0000000"))
            update-response   (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack)
-           ack-update        (when update-response (get update-response common/movies-etl-name))
+           ack-update        (when update-response (get update-response movies-etl-name))
            updated           (pstate/movie-by-id rama-env movie-id)
            monitored-set     (or (pstate/movie-ids-by-monitored rama-env) #{})]
        (when ack-update (is (= :updated (:status ack-update))) (is (= movie-id (get-in ack-update [:movie :id]))))
@@ -182,7 +183,7 @@
            tmdb-id           (:tmdb-id @sample-movie-row)
            movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))]
        (is (contains? (pstate/movie-ids-by-monitored rama-env) movie-id))
        (let [update-payload (-> @response-movie-row
@@ -204,7 +205,7 @@
            tmdb-id           (:tmdb-id @sample-movie-row)
            movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
            original-tags     (:tags ack-movie)
            new-tags          #{"new-tag"}]
@@ -229,7 +230,7 @@
            tmdb-id           (:tmdb-id @sample-movie-row)
            movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
            original-tags     (:tags ack-movie)
            new-tags          #{}]
@@ -252,7 +253,7 @@
            ack-response      (foreign-append! movie-saves-depot
                                               (assoc (common/movie-created-event @sample-movie-row) :tags #{"old-tag"})
                                               :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
            original-tags     (:tags ack-movie)
            new-tags          #{"new-tag"}]
@@ -279,7 +280,7 @@
            ack-response      (foreign-append! movie-saves-depot
                                               (assoc (common/movie-created-event @sample-movie-row) :tags #{"old-tag"})
                                               :ack)
-           ack-movie         (when ack-response (get ack-response common/movies-etl-name))
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
            original-tags     (:tags ack-movie)
            new-tags          #{}]

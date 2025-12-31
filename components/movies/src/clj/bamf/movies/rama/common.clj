@@ -5,7 +5,6 @@
                          title title-slug tmdb-id year add-options])
 
 (def module-name "bamf.movies.rama.module.core/MovieModule")
-(def movies-etl-name "movies")
 (def movie-depot-name "*movie-saves-depot")
 (def movie-by-id-pstate-name "$$movies")
 (def movies-id-by-metadata-id-pstate-name "$$movies-id-by-metadata-id")
