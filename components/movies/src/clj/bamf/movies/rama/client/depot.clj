@@ -1,5 +1,6 @@
 (ns bamf.movies.rama.client.depot
   (:require [bamf.movies.rama.common :as common]
+            [bamf.movies.rama.module.constants :refer [movies-etl-name]]
             [com.rpl.rama :refer [foreign-append!]]))
 
 (defn- ensure-depot [depot] (when-not depot (throw (IllegalStateException. "Missing Rama movie depot handle"))) depot)
@@ -9,7 +10,7 @@
   Extract the inner payload but fall back to the original map for callers that
   already stub the final structure."
   [ack]
-  (when (map? ack) (or (get ack common/movies-etl-name) (get ack (keyword common/movies-etl-name)) ack)))
+  (when (map? ack) (or (get ack movies-etl-name) (get ack (keyword movies-etl-name)) ack)))
 
 (defn put!
   "Wrap the provided movie payload in a movie-created-event envelope and append it to the depot.

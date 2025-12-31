@@ -2,7 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=clojure,direnv,emacs,intellij+iml,linux,macos,vim,windows
 
 ### Custom ###
-.aider*
 .calva/output-window/output.calva-repl
 .clj-kondo/.cache/
 .clojure-mcp/
@@ -11,6 +10,7 @@
 .lsp/.cache
 TODO.org
 junit.xml
+target/
 
 ### Codex ###
 .codex/auth.json
