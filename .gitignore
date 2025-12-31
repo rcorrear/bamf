@@ -5,10 +5,13 @@
 .calva/output-window/output.calva-repl
 .clj-kondo/.cache/
 .clojure-mcp/
-.cpcache
-.devenv
+.codex/
+.cpcache/
+.devenv/
 .lsp/.cache
+.opencode/
 TODO.org
+clj-kondo.exports
 junit.xml
 target/
 
@@ -34,6 +37,7 @@ pom.xml.asc
 .lein-plugins/
 .lein-failures
 .nrepl-port
+.nrepl.edn
 .cpcache/
 
 ### direnv ###
