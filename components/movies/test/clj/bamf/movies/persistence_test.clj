@@ -1,39 +1,27 @@
 (ns bamf.movies.persistence-test
-  (:require [bamf.movies.model :as model]
+  (:require [bamf.casing :as casing]
+            [bamf.movies.model :as model]
             [bamf.movies.persistence :as persistence]
             [bamf.movies.rama.client.depot :as depot]
             [bamf.movies.rama.client.pstate :as pstate]
-            [camel-snake-kebab.core :as csk]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [clojure.test :refer [deftest is]]
-            [clojure.walk :as walk]))
+            [clojure.test :refer [deftest is]]))
 
 (def sample-json
   (-> "movie-save-request.json"
       io/resource
       slurp))
 
-(defn- kebabize-keys
-  [data]
-  (letfn [(fmt [k]
-            (cond (keyword? k) (-> k
-                                   name
-                                   csk/->kebab-case
-                                   keyword)
-                  (string? k)  (csk/->kebab-case k)
-                  :else        k))]
-    (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt k) v]) x)) x)) data)))
-
 (def sample-response
-  (delay (kebabize-keys (json/read-str (-> "movie-save-response.json"
-                                           io/resource
-                                           slurp)
-                                       :key-fn
-                                       keyword))))
+  (delay (casing/->kebab-keys (json/read-str (-> "movie-save-response.json"
+                                                 io/resource
+                                                 slurp)
+                                             :key-fn
+                                             keyword))))
 
 (def sample-payload
-  (delay (merge (kebabize-keys (json/read-str sample-json :key-fn keyword))
+  (delay (merge (casing/->kebab-keys (json/read-str sample-json :key-fn keyword))
                 {:path                 "/media/video/movies/Dune (2021)"
                  :target-system        "radarr"
                  :tmdb-id              438631

@@ -1,31 +1,19 @@
 (ns bamf.movies.rama.module-integration
   (:use [com.rpl rama] [com.rpl.rama path])
-  (:require [bamf.movies.rama.client.pstate :as pstate]
+  (:require [bamf.casing :as casing]
+            [bamf.movies.rama.client.pstate :as pstate]
             [bamf.movies.rama.common :as common]
             [bamf.movies.rama.module.constants :refer [movies-etl-name]]
             [bamf.movies.rama.module.core :as mm]
             [bamf.movies.model :as model]
-            [camel-snake-kebab.core :as csk]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
             [clojure.test :refer [deftest is]]
-            [com.rpl.rama.test :as rtest]
-            [clojure.walk :as walk]))
-
-(defn- kebabize-keys
-  [data]
-  (letfn [(fmt [k]
-            (cond (keyword? k) (-> k
-                                   name
-                                   csk/->kebab-case
-                                   keyword)
-                  (string? k)  (csk/->kebab-case k)
-                  :else        k))]
-    (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt k) v]) x)) x)) data)))
+            [com.rpl.rama.test :as rtest]))
 
 (defn- movie-payload-from-resource
   [resource-name]
-  (let [parsed (kebabize-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
+  (let [parsed (casing/->kebab-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
         base   (select-keys parsed
                             [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id
                              :path :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year])]
@@ -44,7 +32,8 @@
 (def response-movie-row (movie-payload-from-resource "movie-save-response.json"))
 
 (def http-shaped-payload
-  (delay (let [parsed (kebabize-keys (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))]
+  (delay (let [parsed (casing/->kebab-keys
+                       (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))]
            (model/normalize (assoc parsed :target-system "radarr") (constantly "2025-12-14T03:09:54Z")))))
 
 (defn- with-module
