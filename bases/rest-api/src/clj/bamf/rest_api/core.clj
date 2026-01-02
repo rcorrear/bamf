@@ -1,10 +1,9 @@
 (ns bamf.rest-api.core
   {:author "Ricardo Correa"}
   (:require [aleph.http :as http]
+            [bamf.casing :as casing]
             [bamf.rest-api.routes :as routes]
             [bamf.rest-api.spec :as raspec]
-            [camel-snake-kebab.core :as csk]
-            [clojure.walk :as walk]
             [muuntaja.core :as m]
             [reitit.coercion.malli :as rcm]
             [reitit.ring :as ring]
@@ -42,37 +41,6 @@
 
 (defn- not-found [] (response/not-found {:error "Sorry Dave, I'm afraid I can't do that."}))
 
-(defn- format-keys
-  [format-fn data]
-  (letfn [(fmt-key [k]
-            (cond (keyword? k) (-> k
-                                   name
-                                   format-fn
-                                   keyword)
-                  (string? k)  (format-fn k)
-                  :else        k))]
-    (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt-key k) v]) x)) x)) data)))
-
-(defn- ->kebab-keys [data] (format-keys csk/->kebab-case data))
-(defn- ->camel-keys [data] (format-keys csk/->camelCase data))
-
-(defn- wrap->kebab->camel
-  "Convert incoming request maps to kebab-case keywords and response bodies back to camelCase.
-
-  We normalize keys on all standard Ring param slots plus Reitit :parameters/:path-params so that
-  downstream handlers can rely on kebab-case. Responses are camelized for outward-facing JSON."
-  [handler]
-  (fn [request]
-    (let [normalized (-> request
-                         (update :params ->kebab-keys)
-                         (update :body-params ->kebab-keys)
-                         (update :form-params ->kebab-keys)
-                         (update :query-params ->kebab-keys)
-                         (update :path-params ->kebab-keys)
-                         (update :parameters ->kebab-keys))]
-      (-> (handler normalized)
-          (update :body ->camel-keys)))))
-
 (defn- router
   [runtime-state catalog]
   (ring/router (get-routes catalog)
@@ -81,7 +49,7 @@
                            :muuntaja      m/instance
                            :coercion      rcm/coercion
                            :middleware    [muuntaja/format-middleware rrc/coerce-exceptions-middleware rmp/wrap-params
-                                           rrc/coerce-request-middleware wrap->kebab->camel
+                                           rrc/coerce-request-middleware casing/wrap->kebab->camel
                                            rrc/coerce-response-middleware wrap-stacktrace]}}))
 
 (defn- static-ring-handler

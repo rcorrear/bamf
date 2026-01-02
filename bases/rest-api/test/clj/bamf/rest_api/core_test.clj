@@ -1,5 +1,6 @@
 (ns bamf.rest-api.core-test
-  (:require [bamf.rest-api.core :as core]
+  (:require [bamf.casing :as casing]
+            [bamf.rest-api.core :as core]
             [bamf.rest-api.routes :as routes]
             [bamf.rest-api.spec :as raspec]
             [clojure.test :refer [deftest is testing]]
@@ -15,7 +16,7 @@
         handler  (fn [req]
                    (reset! captured req)
                    {:status 200 :body {:movie-id 42 :nested-response {:next-action "go"}}})
-        wrapped  (#'core/wrap->kebab->camel handler)
+        wrapped  (casing/wrap->kebab->camel handler)
         response (wrapped {:params       {"movieId" 1 "deepValue" {"innerValue" 2}}
                            :body-params  {"pathValue" "x"}
                            :form-params  {"movieId" 2}

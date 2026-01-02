@@ -3,6 +3,7 @@
              ;; bases
              bamf/rest-api         {:local/root "../../bases/rest-api"}
              ;; components
+             bamf/casing           {:local/root "../../components/casing"}
              bamf/config           {:local/root "../../components/config"}
              bamf/movies           {:local/root "../../components/movies"}
              bamf/system           {:local/root "../../components/system"}

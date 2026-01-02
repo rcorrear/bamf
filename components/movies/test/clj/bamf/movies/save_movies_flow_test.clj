@@ -1,26 +1,14 @@
 (ns bamf.movies.save-movies-flow-test
-  (:require [bamf.movies.persistence :as persistence]
+  (:require [bamf.casing :as casing]
+            [bamf.movies.persistence :as persistence]
             [bamf.movies.rama.client.depot :as depot]
             [bamf.movies.rama.client.pstate :as pstate]
-            [camel-snake-kebab.core :as csk]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [clojure.test :refer [deftest is testing]]
-            [clojure.walk :as walk]))
-
-(defn- kebabize-keys
-  [data]
-  (letfn [(fmt [k]
-            (cond (keyword? k) (-> k
-                                   name
-                                   csk/->kebab-case
-                                   keyword)
-                  (string? k)  (csk/->kebab-case k)
-                  :else        k))]
-    (walk/postwalk (fn [x] (if (map? x) (into {} (map (fn [[k v]] [(fmt k) v]) x)) x)) data)))
+            [clojure.test :refer [deftest is testing]]))
 
 (def sample-movie
-  (merge (kebabize-keys (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))
+  (merge (casing/->kebab-keys (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))
          {:path                 "/media/video/movies/Dune (2021)"
           :target-system        "radarr"
           :title                "Dune"
@@ -31,7 +19,7 @@
           :tags                 ["SciFi" "Adventure"]}))
 
 (def sample-response
-  (let [response (kebabize-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword))]
+  (let [response (casing/->kebab-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword))]
     (assoc response :movie-metadata-id (or (:movie-metadata-id response) (:tmdb-id response)))))
 
 (deftest save-movies-flow-detects-duplicates
