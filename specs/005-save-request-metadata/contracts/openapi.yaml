@@ -1,0 +1,402 @@
+---
+openapi: 3.0.4
+info:
+  title: Bamf Movies API
+  description: Contracts for save request metadata handling.
+  version: 0.1.0
+paths:
+  /api/v3/movie:
+    post:
+      summary: Create a movie record
+      tags:
+        - Movies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieSaveRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieResource'
+        '409':
+          description: Duplicate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v3/movie/{id}:
+    get:
+      summary: Fetch a movie by id
+      tags:
+        - Movies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieResource'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update a movie record
+      tags:
+        - Movies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieResource'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    MovieSaveRequest:
+      type: object
+      additionalProperties: true
+      description: Core movie fields plus MovieMetadata fields at top level.
+      properties:
+        id:
+          type: integer
+          format: int32
+        tmdbId:
+          type: integer
+          format: int32
+        imdbId:
+          type: string
+        title:
+          type: string
+        sortTitle:
+          type: string
+        cleanTitle:
+          type: string
+        originalTitle:
+          type: string
+        cleanOriginalTitle:
+          type: string
+        originalLanguage:
+          $ref: '#/components/schemas/OriginalLanguage'
+        status:
+          $ref: '#/components/schemas/MovieStatus'
+        lastInfoSync:
+          type: string
+          format: date-time
+        runtime:
+          type: integer
+          format: int32
+        inCinemas:
+          type: string
+          format: date-time
+        physicalRelease:
+          type: string
+          format: date-time
+        digitalRelease:
+          type: string
+          format: date-time
+        year:
+          type: integer
+          format: int32
+        secondaryYear:
+          type: integer
+          format: int32
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageResource'
+        genres:
+          type: array
+          items:
+            type: string
+        ratings:
+          $ref: '#/components/schemas/RatingMap'
+        recommendations:
+          type: string
+        certification:
+          type: string
+        youTubeTrailerId:
+          type: string
+        studio:
+          type: string
+        overview:
+          type: string
+        website:
+          type: string
+        popularity:
+          type: number
+          format: float
+        collection:
+          $ref: '#/components/schemas/MovieCollection'
+    MovieUpdateRequest:
+      type: object
+      additionalProperties: true
+      description: Partial movie update; metadata updates only via PUT.
+      properties:
+        id:
+          type: integer
+          format: int32
+        tmdbId:
+          type: integer
+          format: int32
+        imdbId:
+          type: string
+        title:
+          type: string
+        sortTitle:
+          type: string
+        cleanTitle:
+          type: string
+        originalTitle:
+          type: string
+        cleanOriginalTitle:
+          type: string
+        originalLanguage:
+          $ref: '#/components/schemas/OriginalLanguage'
+        status:
+          $ref: '#/components/schemas/MovieStatus'
+        lastInfoSync:
+          type: string
+          format: date-time
+        runtime:
+          type: integer
+          format: int32
+        inCinemas:
+          type: string
+          format: date-time
+        physicalRelease:
+          type: string
+          format: date-time
+        digitalRelease:
+          type: string
+          format: date-time
+        year:
+          type: integer
+          format: int32
+        secondaryYear:
+          type: integer
+          format: int32
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageResource'
+        genres:
+          type: array
+          items:
+            type: string
+        ratings:
+          $ref: '#/components/schemas/RatingMap'
+        recommendations:
+          type: string
+        certification:
+          type: string
+        youTubeTrailerId:
+          type: string
+        studio:
+          type: string
+        overview:
+          type: string
+        website:
+          type: string
+        popularity:
+          type: number
+          format: float
+        collection:
+          $ref: '#/components/schemas/MovieCollection'
+    MovieResource:
+      type: object
+      additionalProperties: true
+      # yamllint disable-line rule:line-length
+      description: Stored movie record with MovieMetadata fields merged at top level; metadata keys not stored are omitted.
+      properties:
+        id:
+          type: integer
+          format: int32
+        tmdbId:
+          type: integer
+          format: int32
+        imdbId:
+          type: string
+        title:
+          type: string
+        sortTitle:
+          type: string
+        cleanTitle:
+          type: string
+        originalTitle:
+          type: string
+        cleanOriginalTitle:
+          type: string
+        originalLanguage:
+          $ref: '#/components/schemas/OriginalLanguage'
+        status:
+          $ref: '#/components/schemas/MovieStatus'
+        lastInfoSync:
+          type: string
+          format: date-time
+        runtime:
+          type: integer
+          format: int32
+        inCinemas:
+          type: string
+          format: date-time
+        physicalRelease:
+          type: string
+          format: date-time
+        digitalRelease:
+          type: string
+          format: date-time
+        year:
+          type: integer
+          format: int32
+        secondaryYear:
+          type: integer
+          format: int32
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageResource'
+        genres:
+          type: array
+          items:
+            type: string
+        ratings:
+          $ref: '#/components/schemas/RatingMap'
+        recommendations:
+          type: string
+        certification:
+          type: string
+        youTubeTrailerId:
+          type: string
+        studio:
+          type: string
+        overview:
+          type: string
+        website:
+          type: string
+        popularity:
+          type: number
+          format: float
+        collection:
+          $ref: '#/components/schemas/MovieCollection'
+    MovieCollection:
+      type: object
+      properties:
+        tmdbId:
+          type: integer
+          format: int32
+        title:
+          type: string
+      additionalProperties: false
+    OriginalLanguage:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+      additionalProperties: false
+    ImageResource:
+      type: object
+      additionalProperties: true
+      properties:
+        coverType:
+          type: string
+        url:
+          type: string
+        remoteUrl:
+          type: string
+    RatingMap:
+      type: object
+      additionalProperties: true
+    MovieStatus:
+      type: string
+      enum:
+        - deleted
+        - tba
+        - announced
+        - inCinemas
+        - released
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    DuplicateResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        field:
+          type: string
+        existingId:
+          type: integer
+          format: int32
+      additionalProperties: false
