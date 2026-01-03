@@ -3,7 +3,7 @@
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.codex/prompts/speckit.plan.md` for the execution workflow.
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
@@ -31,18 +31,13 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- [ ] **Specification Assets**: Confirm `spec.md`, `plan.md`, and `tasks.md` will exist under `specs/[###-feature-name]/` before implementation starts (P1).
-- [ ] **Event-Driven Persistence**: Document the events (create/update/delete) emitted by this work and how Rama modules consume them (P2).
-- [ ] **Component Boundaries**: Identify owning Polylith component(s), required interface calls, and any `donut-party.system` wiring changes (P3).
-- [ ] **Telemetry Coverage**: Outline Telemere metrics/logs/traces added for new events, HTTP endpoints, or background jobs (P4).
-- [ ] **Testing & Coverage**: Define the automated test strategy that keeps coverage ≥80% and list the suites that must pass (`clojure -X:test`, contract, integration, etc.) (P5).
-- [ ] **HTTP Contract Alignment**: Note any HTTP or config changes that must remain compatible with Radarr/Sonarr JSON contracts and multi-system routing.
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
-```
+```text
 specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
@@ -60,7 +55,7 @@ specs/[###-feature]/
   not include Option labels.
 -->
 
-```
+```text
 # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
@@ -101,7 +96,7 @@ directories captured above]
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|

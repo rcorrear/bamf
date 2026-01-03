@@ -31,10 +31,8 @@ specs/
 Clojure: Prefer pure functions, leverage namespace-qualified keywords, and document public APIs with docstrings/specs.
 
 ## Recent Changes
+- 005-save-request-metadata: Persist metadata fields on movie saves and updates
 - 004-add-rama-movie-module: Added Clojure 1.12.0 + Rama (module + p-states), donut-party.system, Telemere
-- 003-split-into-systems: Centralized lifecycle component with multimethod start/stop/monitoring (donut-party + Telemere)
-- 002-modular-apis: Implemented component route aggregation with Reitit + Telemere diagnostics (Donut DI)
-- 001-develop-bamf-a: Added Save Movies persistence design (Clojure + Rama)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
