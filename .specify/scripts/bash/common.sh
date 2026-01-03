@@ -1,84 +1,71 @@
 #!/usr/bin/env bash
 # Common functions and variables for all scripts
 
-command_exists() {
-	command -v "$1" >/dev/null 2>&1
+# Check if we have git available
+has_git() {
+	command -v git >/dev/null 2>&1 && git rev-parse --show-toplevel >/dev/null 2>&1
 }
 
-detect_vcs_type() {
-	if command_exists jj && jj root >/dev/null 2>&1; then
+# Check if we have jj available and are in a jj repo
+has_jj() {
+	command -v jj >/dev/null 2>&1 && jj root >/dev/null 2>&1
+}
+
+get_vcs_type() {
+	if has_jj; then
 		echo "jj"
-		return 0
+		return
 	fi
 
-	if command_exists git && git rev-parse --show-toplevel >/dev/null 2>&1; then
+	if has_git; then
 		echo "git"
-		return 0
+		return
 	fi
 
 	echo "none"
 }
 
-get_current_branch_jj() {
-	local branch_list first_line branch_name status_output branch_line branches
-
-	if branch_list=$(jj branch list --revisions @ 2>/dev/null); then
-		first_line=$(echo "$branch_list" | head -n1 | sed 's/^[[:space:]]*//')
-		if [[ -n $first_line ]]; then
-			branch_name=$(echo "$first_line" | awk '{print $1}')
-			if [[ -n $branch_name && $branch_name != "(no" && $branch_name != "@" ]]; then
-				echo "$branch_name"
-				return 0
-			fi
-		fi
-	fi
-
-	if status_output=$(jj status 2>/dev/null); then
-		branch_line=$(echo "$status_output" | grep '^Branches:' | head -n1)
-		if [[ -n $branch_line ]]; then
-			branches=${branch_line#Branches:}
-			branches=$(echo "$branches" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-			if [[ -n $branches && $branches != "(empty)" ]]; then
-				branches=$(echo "$branches" | tr ',' ' ')
-				for branch_name in $branches; do
-					case "$branch_name" in
-					@ | tracking | origin/* | \(*)
-						continue
-						;;
-					*)
-						echo "$branch_name"
-						return 0
-						;;
-					esac
-				done
-			fi
-		fi
-	fi
-
-	return 1
-}
-
-# Get repository root, with fallback for non-git repositories
+# Get repository root, with fallback for non-vcs repositories
 get_repo_root() {
 	local vcs_type
-	vcs_type=$(detect_vcs_type)
-
-	if [[ $vcs_type == "git" ]]; then
-		git rev-parse --show-toplevel
-		return
-	fi
+	vcs_type=$(get_vcs_type)
 
 	if [[ $vcs_type == "jj" ]]; then
 		jj root
-		return
+	elif [[ $vcs_type == "git" ]]; then
+		git rev-parse --show-toplevel
 	else
-		# Fall back to script location for non-git repos
-		local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+		# Fall back to script location for non-vcs repos
+		local script_dir="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 		(cd "$script_dir/../../.." && pwd)
 	fi
 }
 
-# Get current branch, with fallback for non-git repositories
+# Get current branch/bookmark, with fallback for non-vcs repositories
+get_jj_current_bookmark() {
+	local bookmarks raw_bookmarks
+	raw_bookmarks=$(jj bookmark list --revisions @ 2>/dev/null || true)
+	bookmarks=$(printf '%s\n' "$raw_bookmarks" | sed 's/^[[:space:]]*//; s/:.*//; s/[[:space:]].*//; s/@.*//' | sed '/^$/d')
+
+	if [[ -z $bookmarks ]]; then
+		local status_line raw_status
+		raw_status=$(jj status --color never 2>/dev/null || true)
+		status_line=$(printf '%s\n' "$raw_status" | sed -n 's/^Bookmarks:[[:space:]]*//p')
+		if [[ -n $status_line ]]; then
+			bookmarks=$(printf '%s\n' "$status_line" | tr ',' '\n' | sed 's/^ *//; s/ *$//; s/@.*//')
+		fi
+	fi
+
+	local match
+	match=$(printf '%s\n' "$bookmarks" | awk '/^[0-9]{3}-/ {print; exit}')
+	if [[ -n $match ]]; then
+		echo "$match"
+		return
+	fi
+
+	printf '%s\n' "$bookmarks" | awk 'NF {print; exit}'
+}
+
 get_current_branch() {
 	# First check if SPECIFY_FEATURE environment variable is set
 	if [[ -n ${SPECIFY_FEATURE:-} ]]; then
@@ -87,25 +74,24 @@ get_current_branch() {
 	fi
 
 	local vcs_type
-	vcs_type=$(detect_vcs_type)
+	vcs_type=$(get_vcs_type)
+
+	if [[ $vcs_type == "jj" ]]; then
+		local current_bookmark
+		current_bookmark=$(get_jj_current_bookmark)
+		if [[ -n $current_bookmark ]]; then
+			echo "$current_bookmark"
+			return
+		fi
+	fi
 
 	# Then check git if available
-	if [[ $vcs_type == "git" ]]; then
+	if [[ $vcs_type == "git" ]] && git rev-parse --abbrev-ref HEAD >/dev/null 2>&1; then
 		git rev-parse --abbrev-ref HEAD
 		return
 	fi
 
-	if [[ $vcs_type == "jj" ]]; then
-		local jj_branch
-		if jj_branch=$(get_current_branch_jj); then
-			if [[ -n $jj_branch ]]; then
-				echo "$jj_branch"
-				return
-			fi
-		fi
-	fi
-
-	# For non-git repos, try to find the latest feature directory
+	# For non-vcs repos, try to find the latest feature directory
 	local repo_root=$(get_repo_root)
 	local specs_dir="$repo_root/specs"
 
@@ -136,30 +122,32 @@ get_current_branch() {
 	echo "main" # Final fallback
 }
 
-# Check if we have a supported VCS available
-has_git() {
-	[[ "$(detect_vcs_type)" != "none" ]]
-}
-
 check_feature_branch() {
 	local branch="$1"
-	local vcs_type="${2:-}"
+	local vcs_type="$2"
 
-	if [[ -z $vcs_type ]]; then
-		vcs_type=$(detect_vcs_type)
+	# Backwards compatibility: accept boolean values
+	if [[ $vcs_type == "true" ]]; then
+		vcs_type="git"
+	elif [[ $vcs_type == "false" || -z $vcs_type ]]; then
+		vcs_type="none"
 	fi
 
-	# For non-git repos, we can't enforce branch naming but still provide output
+	# For non-vcs repos, we can't enforce branch naming but still provide output
 	if [[ $vcs_type == "none" ]]; then
-		echo "[specify] Warning: Version control repository not detected; skipped branch validation" >&2
+		echo "[specify] Warning: No VCS detected; skipped feature validation" >&2
 		return 0
 	fi
 
 	if [[ ! $branch =~ ^[0-9]{3}- ]]; then
-		local noun="branch"
-		[[ $vcs_type == "jj" ]] && noun="bookmark"
-		echo "ERROR: Not on a feature branch. Current $noun: $branch" >&2
-		echo "Feature $noun names should be like: 001-feature-name" >&2
+		if [[ $vcs_type == "jj" ]]; then
+			echo "ERROR: Not on a feature bookmark. Current feature: $branch" >&2
+			echo "Feature bookmarks should be named like: 001-feature-name" >&2
+			echo "Tip: run 'jj bookmark create -r @ 001-feature-name' or set SPECIFY_FEATURE" >&2
+		else
+			echo "ERROR: Not on a feature branch. Current branch: $branch" >&2
+			echo "Feature branches should be named like: 001-feature-name" >&2
+		fi
 		return 1
 	fi
 
@@ -212,21 +200,13 @@ find_feature_dir_by_prefix() {
 get_feature_paths() {
 	local repo_root=$(get_repo_root)
 	local current_branch=$(get_current_branch)
-	local vcs_type=$(detect_vcs_type)
+	local vcs_type
+	vcs_type=$(get_vcs_type)
 	local has_git_repo="false"
-	local has_jj_repo="false"
-	local has_vcs_repo="false"
 
-	case "$vcs_type" in
-	git)
+	if [[ $vcs_type == "git" ]]; then
 		has_git_repo="true"
-		has_vcs_repo="true"
-		;;
-	jj)
-		has_jj_repo="true"
-		has_vcs_repo="true"
-		;;
-	esac
+	fi
 
 	# Use prefix-based lookup to support multiple branches per spec
 	local feature_dir=$(find_feature_dir_by_prefix "$repo_root" "$current_branch")
@@ -234,10 +214,8 @@ get_feature_paths() {
 	cat <<EOF
 REPO_ROOT='$repo_root'
 CURRENT_BRANCH='$current_branch'
-HAS_GIT='$has_git_repo'
-HAS_VCS='$has_vcs_repo'
-HAS_JJ='$has_jj_repo'
 VCS_TYPE='$vcs_type'
+HAS_GIT='$has_git_repo'
 FEATURE_DIR='$feature_dir'
 FEATURE_SPEC='$feature_dir/spec.md'
 IMPL_PLAN='$feature_dir/plan.md'
