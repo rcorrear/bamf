@@ -17,6 +17,16 @@
         (is (= 1 (:tmdb-id (:payload payload))))
         (is (= "Dune" (:title (:payload payload))))))))
 
+(deftest put!-includes-metadata-fields
+  (let [captured (atom nil)
+        movie    {:tmdb-id 1 :title "Dune" :genres ["SciFi"] :runtime 120 :status "released"}]
+    (with-redefs [com.rpl.rama/foreign-append!
+                  (fn [depot payload mode] (reset! captured payload) {:status :stored :movie {:id 42}})]
+      (depot/put! {:depot ::movie-depot :movie movie})
+      (is (= ["SciFi"] (get-in @captured [:payload :genres])))
+      (is (= 120 (get-in @captured [:payload :runtime])))
+      (is (= "released" (get-in @captured [:payload :status]))))))
+
 (deftest put!-defaults-when-missing-ack
   (with-redefs [com.rpl.rama/foreign-append! (fn [& _] nil)]
     (is (= {:status :stored :movie {}} (depot/put! {:depot ::movie-depot :movie {:tmdb-id 2}})))))

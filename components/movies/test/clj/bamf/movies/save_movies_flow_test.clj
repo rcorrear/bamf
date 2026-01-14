@@ -22,8 +22,19 @@
   (let [response (casing/->kebab-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword))]
     (assoc response :movie-metadata-id (or (:movie-metadata-id response) (:tmdb-id response)))))
 
+(def ^:private metadata-keys
+  [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
+   :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
+   :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection])
+
+(defn- metadata-from
+  [movie]
+  (->> (select-keys movie metadata-keys)
+       (remove (comp nil? val))
+       (into {})))
+
 (deftest save-movies-flow-detects-duplicates
-  (let [state  (atom {:by-id {} :id-by-metadata {} :ids-by-tag {} :ids-by-target {} :id-by-tmdb {}})
+  (let [state  (atom {:by-id {} :id-by-metadata {} :ids-by-tag {} :ids-by-target {} :id-by-tmdb {} :metadata-by-id {}})
         id-seq (atom 0)
         env    {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot ::movie-depot}]
     (with-redefs [pstate/movie-id-by-metadata-id    (fn [_env metadata-id & _]
@@ -36,6 +47,7 @@
                                                           (some (fn [[id movie]] (when (= tmdb-id (:tmdb-id movie)) id))
                                                                 (:by-id @state))))
                   pstate/movie-by-id                (fn [_env id & _] (get-in @state [:by-id id]))
+                  pstate/metadata-by-movie-id       (fn [_env movie-id & _] (get-in @state [:metadata-by-id movie-id]))
                   pstate/movie-ids-by-tag           (fn [_env tag] (or (get-in @state [:ids-by-tag tag]) #{}))
                   pstate/movie-ids-by-target-system (fn [_env system] (or (get-in @state [:ids-by-target system]) #{}))
                   depot/put!                        (fn [{:keys [depot movie]}]
@@ -44,6 +56,7 @@
                                                             with-id  (assoc movie :id new-id)
                                                             tags     (set (or (:tags with-id) []))
                                                             meta-id  (:movie-metadata-id with-id)
+                                                            metadata (metadata-from with-id)
                                                             response (assoc sample-response
                                                                             :id                new-id
                                                                             :movie-metadata-id meta-id)]
@@ -56,6 +69,12 @@
                                                                  (assoc-in [:by-id new-id] with-id)
                                                                  (assoc-in [:id-by-metadata meta-id] new-id)
                                                                  (assoc-in [:id-by-tmdb (:tmdb-id with-id)] new-id)
+                                                                 (cond-> (seq metadata)    (assoc-in [:metadata-by-id
+                                                                                                      new-id]
+                                                                                            metadata)
+                                                                         (empty? metadata) (update :metadata-by-id
+                                                                                                   dissoc
+                                                                                                   new-id))
                                                                  (update-in [:ids-by-target (:target-system with-id)]
                                                                             (fnil conj #{})
                                                                             new-id))
@@ -73,11 +92,15 @@
                  (select-keys movie (keys sample-response))))
           (is (= (:id movie) (:id via-metadata)))))
       (testing "duplicate submission returns conflict metadata"
-        (let [{:keys [status existing-id reason field]} (persistence/save! env sample-movie)]
+        (let [original-metadata                         (pstate/metadata-by-movie-id env 1)
+              duplicate-payload                         (assoc sample-movie :genres ["Mystery"] :status "tba")
+              {:keys [status existing-id reason field]} (persistence/save! env duplicate-payload)]
           (is (= :duplicate status))
           (is (= 1 existing-id))
           (is (= "duplicate-metadata" reason))
-          (is (= :tmdb-id field))))
+          (is (= :tmdb-id field))
+          (is (seq original-metadata))
+          (is (= original-metadata (pstate/metadata-by-movie-id env 1)))))
       (testing "indexes expose stored movie"
         (let [by-target (pstate/movie-ids-by-target-system env "radarr")
               by-tag    (pstate/movie-ids-by-tag env "scifi")]

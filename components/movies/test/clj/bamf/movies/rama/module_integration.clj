@@ -13,10 +13,14 @@
 
 (defn- movie-payload-from-resource
   [resource-name]
-  (let [parsed (casing/->kebab-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
-        base   (select-keys parsed
-                            [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id
-                             :path :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year])]
+  (let [parsed        (casing/->kebab-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
+        core-keys     [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id :path
+                       :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year]
+        metadata-keys [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language
+                       :status :last-info-sync :runtime :in-cinemas :physical-release :digital-release :secondary-year
+                       :ratings :recommendations :certification :you-tube-trailer-id :studio :overview :website
+                       :popularity :collection]
+        base          (merge (select-keys parsed core-keys) (select-keys parsed metadata-keys))]
     (delay (-> base
                (assoc :path              (or (:path base) (:folder-name base) "/media/video/movies/sample")
                       :last-search-time  nil
@@ -35,6 +39,11 @@
   (delay (let [parsed (casing/->kebab-keys
                        (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))]
            (model/normalize (assoc parsed :target-system "radarr") (constantly "2025-12-14T03:09:54Z")))))
+
+(def ^:private metadata-keys
+  [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
+   :last-info-sync :runtime :in-cinemas :physical-release :digital-release :secondary-year :ratings :recommendations
+   :certification :you-tube-trailer-id :studio :overview :website :popularity :collection :year])
 
 (defn- with-module
   [f]
@@ -63,6 +72,23 @@
        (is (contains? (pstate/movie-ids-by-target-system rama-env (:target-system @sample-movie-row)) movie-id))
        (is (contains? (pstate/movie-ids-by-monitored rama-env) movie-id))
        (doseq [tag (:tags @sample-movie-row)] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))))))
+
+(deftest save-movie-persists-metadata
+  (with-module (fn [ipc]
+                 (let [module-name       (get-module-name mm/MovieModule)
+                       rama-env          {:movies/env {:ipc ipc}}
+                       movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+                       payload           @sample-movie-row
+                       ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
+                       ack-movie         (when ack-response (get ack-response movies-etl-name))
+                       movie-id          (or (get-in ack-movie [:movie :id])
+                                             (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
+                       stored            (pstate/metadata-by-movie-id rama-env movie-id)
+                       expected          (->> (select-keys payload metadata-keys)
+                                              (remove (comp nil? val))
+                                              (into {}))]
+                   (is (pos? movie-id))
+                   (is (= expected stored))))))
 
 (deftest save-movie-from-http-shaped-payload
   (with-module

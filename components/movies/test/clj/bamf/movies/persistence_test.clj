@@ -71,6 +71,21 @@
         (is (= (:tmdb-id payload) (:movie-metadata-id @captured)))
         (is (= "2025-09-21T17:00:00Z" (:added @captured)))))))
 
+(deftest save-includes-metadata-in-depot-payload
+  (let [captured      (atom nil)
+        env           {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}
+        metadata-keys [:images :genres :status :ratings :collection :runtime :in-cinemas :physical-release
+                       :digital-release :overview :studio :website :popularity]]
+    (with-redefs [pstate/movie-id-by-tmdb-id     (fn [& _] nil)
+                  pstate/movie-id-by-metadata-id (fn [& _] nil)
+                  pstate/movie-by-id             (fn [& _] nil)
+                  depot/put!                     (fn [{:keys [movie]}]
+                                                   (reset! captured movie)
+                                                   {:status :stored
+                                                    :movie  {:id 99 :movie-metadata-id (:movie-metadata-id movie)}})]
+      (persistence/save! env @sample-payload)
+      (is (= (select-keys @sample-payload metadata-keys) (select-keys @captured metadata-keys))))))
+
 (deftest duplicate-detected-by-metadata
   (let [existing {:id 7 :movie-metadata-id 42 :path "/movies/foo.mkv"}
         payload  (assoc @sample-payload :tmdb-id 42 :title-slug "42" :movie-metadata-id 0 :path "/movies/foo.mkv")]
