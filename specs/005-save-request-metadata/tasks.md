@@ -14,7 +14,7 @@
 
 **Purpose**: Prepare fixtures and test inputs for metadata flows.
 
-- [ ] T001 [P] Add invalid metadata fixture (bad types + invalid status values) in `bamf/components/movies/test/resources/movie-save-request-invalid-metadata.json`
+- [X] T001 [P] Add invalid metadata fixture (bad types + invalid status values) in `bamf/components/movies/test/resources/movie-save-request-invalid-metadata.json`
 Use existing fixtures `components/movies/test/resources/movie-save-request.json` and `components/movies/test/resources/movie-update-request.json` for valid metadata payloads.
 
 ---
@@ -23,10 +23,10 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 **Purpose**: Shared event payload and storage scaffolding required by all stories.
 
-- [ ] T002 Extend movie event payload with MovieMetadata fields in `bamf/components/movies/src/clj/bamf/movies/rama/common.clj`
-- [ ] T003 Add `metadata-by-movie-id` PState schema and declaration in `bamf/components/movies/src/clj/bamf/movies/rama/module/state.clj`
-- [ ] T004 Add `metadata-by-movie-id` lookup helpers in `bamf/components/movies/src/clj/bamf/movies/rama/client/pstate.clj`
-- [ ] T005 Run `clojure -X:test` after Rama module/state/pstate scaffolding changes (T002–T004).
+- [X] T002 Extend movie event payload with MovieMetadata fields in `bamf/components/movies/src/clj/bamf/movies/rama/common.clj`
+- [X] T003 Add `metadata-by-movie-id` PState schema and declaration in `bamf/components/movies/src/clj/bamf/movies/rama/module/state.clj`
+- [X] T004 Add `metadata-by-movie-id` lookup helpers in `bamf/components/movies/src/clj/bamf/movies/rama/client/pstate.clj`
+- [X] T005 Run `clojure -X:test` after Rama module/state/pstate scaffolding changes (T002–T004).
 
 **Checkpoint**: Foundation ready—metadata payload and PState scaffolding are in place.
 
@@ -39,17 +39,17 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 ### Tests for User Story 1 (required)
 
-- [ ] T006 [P] [US1] Add persistence test ensuring save! stores metadata in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
-- [ ] T007 [P] [US1] Add flow test ensuring duplicate POST does not mutate metadata in `bamf/components/movies/test/clj/bamf/movies/save_movies_flow_test.clj`
-- [ ] T008 [P] [US1] Add Rama depot client test asserting `foreign-append!` receives the full create payload (including MovieMetadata fields, not only movie PState fields) in `bamf/components/movies/test/clj/bamf/movies/rama/client/depot_test.clj`
-- [ ] T009 [P] [US1] Add Rama module integration test asserting `foreign-append!` receives the full create payload (including MovieMetadata fields) in `bamf/components/movies/test/clj/bamf/movies/rama/module_integration.clj`
+- [X] T006 [P] [US1] Add persistence test ensuring save! stores metadata in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
+- [X] T007 [P] [US1] Add flow test ensuring duplicate POST does not mutate metadata in `bamf/components/movies/test/clj/bamf/movies/save_movies_flow_test.clj`
+- [X] T008 [P] [US1] Add Rama depot client test asserting `foreign-append!` receives the full create payload (including MovieMetadata fields, not only movie PState fields) in `bamf/components/movies/test/clj/bamf/movies/rama/client/depot_test.clj`
+- [X] T009 [P] [US1] Add Rama module integration test asserting `foreign-append!` receives the full create payload (including MovieMetadata fields) in `bamf/components/movies/test/clj/bamf/movies/rama/module_integration.clj`
 
 ### Implementation for User Story 1
 
 - [ ] T010 [US1] Persist MovieMetadata fields on create using a `def/ramaop` in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` (NFR-001); no-op when metadata map is empty
-- [ ] T011 Run `clojure -X:test` after Rama module create changes (T010).
-- [ ] T012 [US1] Capture MovieMetadata fields from payload and pass to Rama depot in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
-- [ ] T013 Run `clojure -X:test` after US1 persistence changes (T012).
+- [X] T011 Run `clojure -X:test` after Rama module create changes (T010).
+- [X] T012 [US1] Capture MovieMetadata fields from payload and pass to Rama depot in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
+- [X] T013 Run `clojure -X:test` after US1 persistence changes (T012).
 
 **Checkpoint**: User Story 1 independently testable.
 

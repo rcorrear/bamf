@@ -1,0 +1,15 @@
+{
+  "title": "Example Movie",
+  "tmdbId": 123,
+  "qualityProfileId": 1,
+  "minimumAvailability": "released",
+  "monitored": true,
+  "images": "not-a-list",
+  "genres": "Action",
+  "runtime": "two-hours",
+  "ratings": ["bad"],
+  "status": "notAStatus",
+  "collection": "not-an-object",
+  "originalLanguage": "English",
+  "popularity": "high"
+}
