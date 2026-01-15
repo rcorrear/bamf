@@ -3,13 +3,142 @@
             [clojure.string :as str]
             [malli.core :as m]
             [tick.core :as t])
-  (:import (java.time OffsetDateTime ZoneOffset)
-           (java.time.format DateTimeFormatter DateTimeParseException)
-           (java.time.temporal ChronoUnit)))
+  (:import (java.time OffsetDateTime)
+           (java.time.format DateTimeParseException)))
 
 (def allowed-availability #{"announced" "inCinemas" "released" "tba" "deleted"})
 
-(def iso-formatter DateTimeFormatter/ISO_INSTANT)
+(def ^:private metadata-status-tokens ["deleted" "tba" "announced" "inCinemas" "released"])
+
+(def ^:private metadata-status-token-by-input
+  (into {} (map (fn [token] [(str/lower-case token) token]) metadata-status-tokens)))
+
+(def ^:private metadata-status-namespace "bamf.movies.metadata-status")
+
+(def ^:private metadata-status-by-token
+  (into {} (map (fn [token] [token (keyword metadata-status-namespace token)]) metadata-status-tokens)))
+
+(def ^:private metadata-status-token-by-keyword (into {} (map (fn [[token kw]] [kw token]) metadata-status-by-token)))
+
+(def ^:private metadata-status-requirement (format "must be one of %s" (str/join ", " metadata-status-tokens)))
+
+(def ^:private metadata-status-message (str "status " metadata-status-requirement))
+
+(def metadata-fields
+  "MovieMetadata field keys in kebab-case."
+  #{:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
+    :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
+    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection})
+
+(def ^:private metadata-fields-camel
+  (->> metadata-fields
+       (map (comp csk/->camelCase name))
+       set))
+
+(defn- metadata-key->kebab
+  [k]
+  (cond (keyword? k) (when (contains? metadata-fields k) k)
+        (string? k)  (when (contains? metadata-fields-camel k) (keyword (csk/->kebab-case k)))
+        :else        nil))
+
+(defn extract-metadata
+  "Return only recognized metadata keys from a payload. Supports camelCase strings
+   and kebab-case keywords without accepting aliases."
+  [movie]
+  (reduce-kv (fn [acc k v]
+               (if-let [k* (metadata-key->kebab k)]
+                 (assoc acc k* v)
+                 acc))
+             {}
+             (or movie {})))
+
+(defn- metadata-status-token
+  [value]
+  (cond (nil? value)     nil
+        (keyword? value) (get metadata-status-token-by-keyword value)
+        (string? value)  (some-> value
+                                 str/trim
+                                 str/lower-case
+                                 metadata-status-token-by-input)
+        :else            nil))
+
+(defn normalize-metadata-status
+  "Normalize status values to namespaced keywords for internal storage."
+  [value]
+  (cond (nil? value)     nil
+        (keyword? value) (when (contains? metadata-status-token-by-keyword value) value)
+        (string? value)  (when-let [token (metadata-status-token value)] (get metadata-status-by-token token))
+        :else            nil))
+
+(defn- normalize-metadata-value
+  [k v]
+  (case k
+    :status         (normalize-metadata-status v)
+    :year           (some-> v
+                            int)
+    :secondary-year (some-> v
+                            int)
+    v))
+
+(defn normalize-metadata
+  "Normalize metadata values for internal storage."
+  [metadata]
+  (reduce-kv (fn [acc k v] (assoc acc k (normalize-metadata-value k v))) {} (or metadata {})))
+
+(defn serialize-metadata
+  "Prepare metadata values for HTTP responses (string tokens, no nils)."
+  [metadata]
+  (let [metadata (reduce-kv (fn [acc k v]
+                              (let [value (if (= k :status) (metadata-status-token v) v)]
+                                (if (nil? value) acc (assoc acc k value))))
+                            {}
+                            (or metadata {}))]
+    (when (seq metadata) metadata)))
+
+(defn- metadata-status? [value] (boolean (normalize-metadata-status value)))
+
+(declare external-field-name)
+
+(defn- metadata-field-error [field message] (format "%s %s" (external-field-name field) message))
+
+(def ^:private metadata-field-specs
+  {:images               {:pred    #(or (nil? %) (and (sequential? %) (every? map? %)))
+                          :message "must be a list of objects"}
+   :genres               {:pred    #(or (nil? %) (and (sequential? %) (every? string? %)))
+                          :message "must be a list of strings"}
+   :sort-title           {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :clean-title          {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :original-title       {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :clean-original-title {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :original-language    {:pred #(or (nil? %) (map? %)) :message "must be an object"}
+   :status               {:pred #(or (nil? %) (metadata-status? %)) :message metadata-status-requirement}
+   :last-info-sync       {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :runtime              {:pred #(or (nil? %) (integer? %)) :message "must be an integer"}
+   :in-cinemas           {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :physical-release     {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :digital-release      {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :year                 {:pred #(or (nil? %) (integer? %)) :message "must be an integer"}
+   :secondary-year       {:pred #(or (nil? %) (integer? %)) :message "must be an integer"}
+   :ratings              {:pred #(or (nil? %) (map? %)) :message "must be an object"}
+   :recommendations      {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :certification        {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :you-tube-trailer-id  {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :studio               {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :overview             {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :website              {:pred #(or (nil? %) (string? %)) :message "must be a string"}
+   :popularity           {:pred #(or (nil? %) (number? %)) :message "must be a number"}
+   :collection           {:pred #(or (nil? %) (map? %)) :message "must be an object"}})
+
+(defn validate-metadata
+  "Return validation errors for metadata fields or an empty vector."
+  [metadata]
+  (let [metadata (extract-metadata metadata)]
+    (->> metadata
+         (keep (fn [[field value]]
+                 (when-let [{:keys [pred message]} (get metadata-field-specs field)]
+                   (when-not (pred value) (metadata-field-error field message)))))
+         distinct
+         vec)))
 
 (def ^:private radarr-sentinel-timestamps
   "Radarr uses 0001-01-01T00:00:00(Z) as a placeholder for unset instants
@@ -77,9 +206,8 @@
     [:and [:fn {:error/message (missing-field-error :minimum-availability)} #(not (nil? %))]
      [:fn {:error/message (format "minimumAvailability must be one of %s" allowed-availability)}
       #(or (nil? %) (allowed-availability %))]]]
-   [:status {:optional true :error/message (format "status must be one of %s" allowed-availability)}
-    [:fn {:error/message (format "status must be one of %s" allowed-availability)}
-     #(or (nil? %) (allowed-availability %))]]
+   [:status {:optional true :error/message metadata-status-message}
+    [:fn {:error/message metadata-status-message} #(or (nil? %) (metadata-status? %))]]
    [:tmdb-id {:optional false :error/message (missing-field-error :tmdb-id)}
     [:and [:fn {:error/message (missing-field-error :tmdb-id)} #(not (nil? %))]
      [:fn {:error/message (positive-int-error :tmdb-id)} #(or (nil? %) (positive-integer? %))]]]
@@ -89,8 +217,6 @@
    [:movie-file {:optional true} [:maybe map?]] [:collection {:optional true} [:maybe map?]]
    [:statistics {:optional true} [:maybe map?]] [:ratings {:optional true} [:maybe map?]]
    [:media-info {:optional true} [:maybe map?]]
-   [:movie-metadata-id {:optional true}
-    [:fn {:error/message (non-negative-int-error :movie-metadata-id)} #(or (nil? %) (non-negative-integer? %))]]
    [:size-on-disk {:optional true}
     [:fn {:error/message (non-negative-int-error :size-on-disk)} #(or (nil? %) (non-negative-integer? %))]]
    [:target-system {:optional true}
@@ -175,10 +301,6 @@
         physical-rel  (->iso-utc (:physical-release movie) (constantly nil))
         digital-rel   (->iso-utc (:digital-release movie) (constantly nil))
         release-date  (->iso-utc (:release-date movie) (constantly nil))
-        raw-metadata  (:movie-metadata-id movie)
-        metadata-src  (if (and (integer? raw-metadata) (pos? raw-metadata)) raw-metadata (:tmdb-id movie))
-        metadata-id   (some-> metadata-src
-                              long)
         target-system (let [ts (:target-system movie)]
                         (if (and (string? ts) (not (str/blank? ts)))
                           (-> ts
@@ -208,17 +330,16 @@
                    0))
         (assoc :secondary-year
                (some-> (:secondary-year movie)
-                       long))
+                       int))
         (assoc :id
                (some-> (:id movie)
                        long))
-        (assoc :movie-metadata-id metadata-id)
         (assoc :tmdb-id
                (some-> (:tmdb-id movie)
                        long))
         (assoc :year
                (some-> (:year movie)
-                       long))
+                       int))
         (assoc :minimum-availability (:minimum-availability movie))
         (assoc :status (:status movie))
         (assoc :added added)

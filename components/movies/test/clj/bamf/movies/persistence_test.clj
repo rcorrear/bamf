@@ -48,27 +48,23 @@
                         :added            "2025-09-21T12:00:00-05:00"
                         :last-search-time nil)
         env      {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}]
-    (with-redefs [pstate/movie-id-by-tmdb-id     (fn [& _] nil)
-                  pstate/movie-id-by-metadata-id (fn [& _] nil)
-                  pstate/movie-by-id             (fn [& _] nil)
-                  depot/put!                     (fn [{:keys [depot movie]}]
-                                                   (reset! captured (dissoc movie :id))
-                                                   (is (= movie-depot depot))
-                                                   {:status :stored
-                                                    :movie  (assoc @sample-response
-                                                                   :id                99
-                                                                   :movie-metadata-id (:movie-metadata-id movie))})]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  pstate/movie-by-id         (fn [& _] nil)
+                  depot/put!                 (fn [{:keys [depot movie]}]
+                                               (reset! captured (dissoc movie :id))
+                                               (is (= movie-depot depot))
+                                               {:status :stored :movie (assoc @sample-response :id 99)})]
       (let [{:keys [status movie]} (persistence/save! env payload)
-            expected-response      (assoc @sample-response
-                                          :id                (:id movie)
-                                          :movie-metadata-id (:movie-metadata-id movie))]
+            expected-metadata      (or (model/serialize-metadata (model/extract-metadata payload)) {})
+            expected-response      (-> @sample-response
+                                       (assoc :id (:id movie))
+                                       (merge expected-metadata))]
         (is (= :stored status))
         (is (= 99 (:id movie)))
         (is (= expected-response (select-keys movie (keys expected-response))))
         (is (nil? (:last-search-time movie)))
         (is (= ["scifi" "4k"] (:tags @captured)))
         (is (= {} (:add-options @captured)))
-        (is (= (:tmdb-id payload) (:movie-metadata-id @captured)))
         (is (= "2025-09-21T17:00:00Z" (:added @captured)))))))
 
 (deftest save-includes-metadata-in-depot-payload
@@ -76,23 +72,21 @@
         env           {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}
         metadata-keys [:images :genres :status :ratings :collection :runtime :in-cinemas :physical-release
                        :digital-release :overview :studio :website :popularity]]
-    (with-redefs [pstate/movie-id-by-tmdb-id     (fn [& _] nil)
-                  pstate/movie-id-by-metadata-id (fn [& _] nil)
-                  pstate/movie-by-id             (fn [& _] nil)
-                  depot/put!                     (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :stored
-                                                    :movie  {:id 99 :movie-metadata-id (:movie-metadata-id movie)}})]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  pstate/movie-by-id         (fn [& _] nil)
+                  depot/put!                 (fn [{:keys [movie]}]
+                                               (reset! captured movie)
+                                               {:status :stored :movie {:id 99}})]
       (persistence/save! env @sample-payload)
-      (is (= (select-keys @sample-payload metadata-keys) (select-keys @captured metadata-keys))))))
+      (let [expected (select-keys (model/normalize-metadata (model/extract-metadata @sample-payload)) metadata-keys)]
+        (is (= expected (select-keys @captured metadata-keys)))))))
 
-(deftest duplicate-detected-by-metadata
-  (let [existing {:id 7 :movie-metadata-id 42 :path "/movies/foo.mkv"}
-        payload  (assoc @sample-payload :tmdb-id 42 :title-slug "42" :movie-metadata-id 0 :path "/movies/foo.mkv")]
-    (with-redefs [pstate/movie-id-by-tmdb-id     (fn [_env tmdb-id & _] (when (= 42 tmdb-id) (:id existing)))
-                  pstate/movie-id-by-metadata-id (fn [_env metadata-id & _] (when (= 42 metadata-id) (:id existing)))
-                  pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  depot/put!                     (fn [& _] (throw (ex-info "should not write" {})))]
+(deftest duplicate-detected-by-tmdb
+  (let [existing {:id 7 :path "/movies/foo.mkv"}
+        payload  (assoc @sample-payload :tmdb-id 42 :title-slug "42" :path "/movies/foo.mkv")]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [_env tmdb-id & _] (when (= 42 tmdb-id) (:id existing)))
+                  pstate/movie-by-id         (fn [_env id & _] (when (= (:id existing) id) existing))
+                  depot/put!                 (fn [& _] (throw (ex-info "should not write" {})))]
       (let [result (persistence/save! {:movie-depot movie-depot} payload)]
         (is (= :duplicate (:status result)))
         (is (= 7 (:existing-id result)))
@@ -143,19 +137,33 @@
            (#'persistence/reconcile-paths existing {:root-folder-path "/media/video" :folder-name "New"})))))
 
 (deftest invalid-payload-returns-errors
-  (with-redefs [pstate/movie-id-by-tmdb-id     (fn [& _] nil)
-                pstate/movie-id-by-metadata-id (fn [& _] nil)
-                pstate/movie-by-id             (fn [& _] nil)
-                depot/put!                     (fn [& _] (throw (ex-info "should not write" {})))]
+  (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                pstate/movie-by-id         (fn [& _] nil)
+                depot/put!                 (fn [& _] (throw (ex-info "should not write" {})))]
     (let [result (persistence/save! {:movie-depot movie-depot} (dissoc @sample-payload :title))]
       (is (= :invalid (:status result)))
       (is (some #{"title is required"} (:errors result))))))
 
+(deftest invalid-metadata-rejected
+  (let [payload (casing/->kebab-keys
+                 (json/read-str (slurp (io/resource "movie-save-request-invalid-metadata.json")) :key-fn keyword))
+        writes  (atom 0)]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  pstate/movie-by-id         (fn [& _] nil)
+                  depot/put!                 (fn [& _] (swap! writes inc) {:status :stored :movie {}})]
+      (let [result (persistence/save! {:movie-depot movie-depot} payload)
+            errors (set (:errors result))]
+        (is (= :invalid (:status result)))
+        (is (contains? errors "images must be a list of objects"))
+        (is (contains? errors "genres must be a list of strings"))
+        (is (contains? errors "runtime must be an integer"))
+        (is (contains? errors "status must be one of deleted, tba, announced, inCinemas, released"))
+        (is (zero? @writes))))))
+
 (deftest title-slug-must-match-tmdb-id
-  (with-redefs [pstate/movie-id-by-tmdb-id     (fn [& _] nil)
-                pstate/movie-id-by-metadata-id (fn [& _] nil)
-                pstate/movie-by-id             (fn [& _] nil)
-                depot/put!                     (fn [& _] (throw (ex-info "should not write" {})))]
+  (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                pstate/movie-by-id         (fn [& _] nil)
+                depot/put!                 (fn [& _] (throw (ex-info "should not write" {})))]
     (let [result (persistence/save! {:movie-depot movie-depot}
                                     (assoc @sample-payload :title-slug "mismatch" :tmdb-id 66126))]
       (is (= :invalid (:status result)))
@@ -164,11 +172,11 @@
 (deftest update-valid-movie-persists-fields
   (let [existing (canonical-existing)
         captured (atom nil)]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [& _] (:id existing))
-                  depot/update!                  (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :updated :movie {:id (:id movie)}})]
+    (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/metadata-by-movie-id (fn [& _] nil)
+                  depot/update!               (fn [{:keys [movie]}]
+                                                (reset! captured movie)
+                                                {:status :updated :movie {:id (:id movie)}})]
       (let [patch             {:id               (:id existing)
                                :monitored        false
                                :last-search-time "2025-10-10T00:00:00Z"
@@ -189,15 +197,13 @@
         patch    {:id                   (:id existing)
                   :monitored            false
                   :minimum-availability "inCinemas"
-                  :movie-metadata-id    999
                   :last-search-time     "2025-10-20T12:30:00Z"
                   :tags                 ["new-tag" "another"]}]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [_env metadata-id & _]
-                                                   (when (= metadata-id (:movie-metadata-id existing)) (:id existing)))
-                  depot/update!                  (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :updated :movie {:id (:id movie)}})]
+    (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/metadata-by-movie-id (fn [& _] nil)
+                  depot/update!               (fn [{:keys [movie]}]
+                                                (reset! captured movie)
+                                                {:status :updated :movie {:id (:id movie)}})]
       (let [result         (persistence/update! env patch)
             expected       (-> (merge existing patch)
                                (model/normalize (:clock env))
@@ -208,25 +214,26 @@
         (is (= expected-depot @captured))
         (is (= :updated (:status result)))
         (is (= (:minimum-availability expected) (get-in result [:movie :minimum-availability])))
-        (is (= (:movie-metadata-id existing) (get-in result [:movie :movie-metadata-id])))
         (is (= (:path expected) (get-in result [:movie :path])))
         (is (= (:tmdb-id expected) (get-in result [:movie :tmdb-id])))))))
 
 (deftest update-merges-metadata
   (let [existing          (canonical-existing)
-        existing-metadata {:status "released" :genres ["Drama"] :overview "Old" :popularity 1.2}
+        existing-metadata (model/normalize-metadata
+                           {:status "released" :genres ["Drama"] :overview "Old" :popularity 1.2})
         captured          (atom nil)
         env               {:clock (constantly "2025-10-21T00:00:00Z") :movie-depot movie-depot}]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [& _] (:id existing))
-                  pstate/metadata-by-movie-id    (fn [_env id & _] (when (= (:id existing) id) existing-metadata))
-                  depot/update!                  (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :updated :movie {:id (:id movie)}})]
+    (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/metadata-by-movie-id (fn [_env id & _] (when (= (:id existing) id) existing-metadata))
+                  depot/update!               (fn [{:keys [movie]}]
+                                                (reset! captured movie)
+                                                {:status :updated :movie {:id (:id movie)}})]
       (let [patch
             {:id (:id existing) :tmdb-id (:tmdb-id existing) :genres ["Mystery"] :overview nil :studio "New Studio"}
             result (persistence/update! env patch)
-            expected-metadata {:status "released" :genres ["Mystery"] :studio "New Studio" :popularity 1.2}]
+            expected-metadata (-> existing-metadata
+                                  (assoc :genres ["Mystery"] :studio "New Studio")
+                                  (dissoc :overview))]
         (is (= :updated (:status result)))
         (is (= expected-metadata (:metadata @captured)))
         (is (= ["Mystery"] (:genres @captured)))
@@ -238,11 +245,11 @@
         captured (atom nil)
         env      {:clock (constantly "2025-10-21T00:00:00Z") :movie-depot movie-depot}
         patch    {:id (:id existing) :tmdb-id (:tmdb-id existing) :tags ["new-tag" "other"]}]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [_env metadata-id & _] (:id existing))
-                  depot/update!                  (fn [{:keys [movie]}]
-                                                   (reset! captured movie)
-                                                   {:status :updated :movie {:id (:id movie)}})]
+    (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/metadata-by-movie-id (fn [& _] nil)
+                  depot/update!               (fn [{:keys [movie]}]
+                                                (reset! captured movie)
+                                                {:status :updated :movie {:id (:id movie)}})]
       (let [result        (persistence/update! env patch)
             expected-tags (set (map str (:tags patch)))]
         (is (= :updated (:status result)))
@@ -257,7 +264,8 @@
 
 (deftest update-requires-mutable-fields
   (let [existing (canonical-existing)]
-    (with-redefs [pstate/movie-by-id (fn [_env id & _] (when (= (:id existing) id) existing))]
+    (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/metadata-by-movie-id (fn [& _] nil)]
       (let [result (persistence/update! {:movie-depot movie-depot} {:id (:id existing) :tmdb-id (:tmdb-id existing)})]
         (is (= :updated (:status result)))
         (is (= existing (:movie result)))))))
@@ -268,23 +276,9 @@
       (is (= :not-found (:status result)))
       (is (= 123 (:movie-id result))))))
 
-(deftest update-detects-duplicate-metadata
-  (let [existing (canonical-existing)]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [_env metadata-id & _]
-                                                   (cond (= metadata-id (:movie-metadata-id existing)) (:id existing)
-                                                         (= metadata-id 999)                           222
-                                                         :else                                         nil))
-                  depot/update!                  (fn [& _] (throw (ex-info "should not write" {})))]
-      (let [result (persistence/update! {:movie-depot movie-depot} {:id (:id existing) :movie-metadata-id 999})]
-        ;; movie-metadata-id is not mutable; treat as no-op update
-        (is (= :updated (:status result)))
-        (is (= existing (:movie result)))))))
-
 (deftest update-validates-new-values
   (let [existing (canonical-existing)]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [& _] (:id existing))]
+    (with-redefs [pstate/movie-by-id (fn [_env id & _] (when (= (:id existing) id) existing))]
       (let [result (persistence/update! {:movie-depot movie-depot}
                                         {:id (:id existing) :quality-profile-id -1 :tmdb-id (:tmdb-id existing)})]
         (is (= :invalid (:status result)))
@@ -292,8 +286,8 @@
 
 (deftest update-requires-depot
   (let [existing (canonical-existing)]
-    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
-                  pstate/movie-id-by-metadata-id (fn [& _] (:id existing))]
+    (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/metadata-by-movie-id (fn [& _] nil)]
       (let [result (persistence/update! {} {:id (:id existing) :monitored false :tmdb-id (:tmdb-id existing)})]
         (is (= :error (:status result)))
         (is (= ["movie-depot handle not provided"] (:errors result)))))))

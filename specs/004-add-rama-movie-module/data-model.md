@@ -6,14 +6,13 @@
 - **monitored** (`boolean`, required): Operational flag for scheduler; treated as integer `1/0` for backwards compatibility when exposed to Rama.
 - **qualityProfileId** (`long`, required): Radarr-aligned profile identifier.
 - **minimumAvailability** (`enum`, required): One of `announced`, `inCinemas`, `released`, `tba`.
-- **movieMetadataId** (`long`, required): Canonical metadata identifier (tmdbId fallback) for dedupe and joins.
 - **lastSearchTime** (`instant`, optional): ISO-8601 UTC timestamp; `null` represents "never searched".
 - **added** (`instant`, required): First persist timestamp, also used as default for `lastSearchTime`.
 - **targetSystem** (`string`, optional): Lower-cased routing target (`radarr` default).
 - **title/titleSlug/rootFolderPath/tmdbId/movieFileId/addOptions/tags/year**: Mirrored from Radarr schema per `components/movies/model.clj` canonicalization.
 
 **Relationships & Constraints**
-- Unique indexes on `movieMetadataId` and `path`; duplicates rejected at persistence boundary.
+- Unique indexes on `tmdbId` and `path`; duplicates rejected at persistence boundary.
 - `monitored` + `lastSearchTime` drive search scheduling (User Story 3).
 - Records emitted on every create/update event to keep downstream caches in sync.
 
@@ -22,7 +21,7 @@
 - **Indexes**:
   - `by-id`: lookup for read-by-id flows (`inspection.clj`).
   - `by-path`: dedupe + read by filesystem path.
-  - `by-metadata-id`: dedupe + metadata joins.
+  - `by-tmdb-id`: dedupe + metadata joins.
   - `by-monitored`: selection for scheduler queries.
   - `by-target-system`: routing for multi-system support.
 - **State transitions**:
@@ -45,7 +44,7 @@
   - `movie.updated` published on monitored/profile/availability/metadata/lastSearchTime changes; emits full record for idempotent consumers.
 
 ## UpdateCommand
-- **Input shape**: Partial map containing `id` and any mutable fields (`monitored`, `qualityProfileId`, `minimumAvailability`, `movieMetadataId`, `lastSearchTime`).
+- **Input shape**: Partial map containing `id` and any mutable fields (`monitored`, `qualityProfileId`, `minimumAvailability`, `lastSearchTime`).
 - **Validation**: Requires positive `id`; numeric fields remain positive integers; `lastSearchTime` accepts ISO string or `null`.
 - **State transition**: Applies to MoviesPState entry identified by `id`; emits `movie.updated-event`.
 

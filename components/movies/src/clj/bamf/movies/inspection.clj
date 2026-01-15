@@ -1,15 +1,19 @@
 (ns bamf.movies.inspection
   "Query helpers that read movie data from Rama p-states."
-  (:require [bamf.movies.rama.client.pstate :as pstate]
+  (:require [bamf.movies.model :as model]
+            [bamf.movies.rama.client.pstate :as pstate]
             [taoensso.telemere :as t]))
 
 (defn- fetch-movie
   [env monitored-ids movie-id]
   (when-let [movie (pstate/movie-by-id env movie-id)]
-    (let [monitored
-          (if monitored-ids (boolean (or (:monitored movie) (contains? monitored-ids movie-id))) (:monitored movie))]
+    (let [monitored (if monitored-ids
+                      (boolean (or (:monitored movie) (contains? monitored-ids movie-id)))
+                      (:monitored movie))
+          metadata  (model/serialize-metadata (pstate/metadata-by-movie-id env movie-id))]
       (-> movie
           (assoc :id movie-id)
+          (cond-> metadata (merge metadata))
           (cond-> (or monitored-ids (some? (:monitored movie))) (assoc :monitored (boolean monitored)))))))
 
 (defn- fetch-movies

@@ -18,7 +18,6 @@ but are not surfaced as HTTP PATCH/PUT.
   "rootFolderPath": "/movies",
   "monitored": true,
   "tmdbId": 12345,
-  "movieMetadataId": 0,
   "movieFileId": 0,
   "minimumAvailability": "released",
   "tags": ["scifi", "4k"],
@@ -40,7 +39,6 @@ but are not surfaced as HTTP PATCH/PUT.
     "qualityProfileId": 1,
     "minimumAvailability": "released",
     "tmdbId": 12345,
-    "movieMetadataId": 12345,
     "tags": ["scifi", "4k"],
     "addOptions": {"searchForMovie": true},
     "added": "2025-09-21T12:00:00Z",
@@ -51,14 +49,12 @@ but are not surfaced as HTTP PATCH/PUT.
 
 - Tags are normalized to lowercase and de-duplicated but remain JSON arrays.
 - `added`/`lastSearchTime` timestamps are converted to ISO 8601 UTC strings.
-- Incoming `movieMetadataId` values of `0` are replaced with the provided `tmdbId`
-  so Rama indexes can enforce uniqueness without exposing Bamf-specific fields.
 - When `titleSlug` is supplied it must match the stringified `tmdbId`; mismatches
   trigger a validation error.
 
 ## Duplicate Handling
 
-Submissions with an existing `tmdbId`/`movieMetadataId` return `409`:
+Submissions with an existing `tmdbId` return `409`:
 ```json
 {
   "error": "duplicate-metadata",

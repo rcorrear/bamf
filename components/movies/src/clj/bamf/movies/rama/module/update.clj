@@ -15,7 +15,6 @@
   (identity (get *existing-movie-row :minimum-availability) :> *existing-minimum-availability)
   (identity (get *existing-movie-row :monitored) :> *existing-monitored)
   (identity (get *existing-movie-row :movie-file-id) :> *movie-file-id)
-  (identity (get *existing-movie-row :movie-metadata-id) :> *existing-movie-metadata-id)
   (identity (get *existing-movie-row :tmdb-id) :> *existing-tmdb-id)
   (identity (get *existing-movie-row :path) :> *maybe-path)
   (<<if (nil? *maybe-path) (identity "" :> *resolved-path) (else>) (identity *maybe-path :> *resolved-path))
@@ -85,7 +84,6 @@
        :minimum-availability *resolved-minimum-availability
        :monitored            *resolved-monitored
        :movie-file-id        *movie-file-id
-       :movie-metadata-id    *existing-movie-metadata-id
        :tmdb-id              *existing-tmdb-id
        :path                 *resolved-path
        :quality-profile-id   *resolved-quality-profile-id
@@ -115,12 +113,11 @@
 (deframaop movie-update
   [{:keys [*id *last-search-time *metadata *minimum-availability *monitored *path *quality-profile-id *root-folder-path
            *tags]}]
-  (<<with-substitutions [$$movies                   (this-module-pobject-task-global "$$movies")
-                         $$metadata-by-movie-id     (this-module-pobject-task-global "$$metadata-by-movie-id")
-                         $$movies-id-by-tmdb-id     (this-module-pobject-task-global "$$movies-id-by-tmdb-id")
-                         $$movies-id-by-metadata-id (this-module-pobject-task-global "$$movies-id-by-metadata-id")
-                         $$movies-ids-by-monitored  (this-module-pobject-task-global "$$movies-ids-by-monitored")
-                         $$movies-ids-by-tag        (this-module-pobject-task-global "$$movies-ids-by-tag")]
+  (<<with-substitutions [$$movies                  (this-module-pobject-task-global "$$movies")
+                         $$metadata-by-movie-id    (this-module-pobject-task-global "$$metadata-by-movie-id")
+                         $$movies-id-by-tmdb-id    (this-module-pobject-task-global "$$movies-id-by-tmdb-id")
+                         $$movies-ids-by-monitored (this-module-pobject-task-global "$$movies-ids-by-monitored")
+                         $$movies-ids-by-tag       (this-module-pobject-task-global "$$movies-ids-by-tag")]
     (helpers/print-event :debug
                          :movie/update :incoming
                          :payload      {:id                   *id
@@ -141,7 +138,6 @@
       (helpers/print-event :debug :movie/update :found-movie-row :movie *existing-movie-row)
       (<<if (not (nil? *existing-movie-row))
         (identity (get *existing-movie-row :tmdb-id) :> *existing-tmdb-id)
-        (identity (get *existing-movie-row :movie-metadata-id) :> *existing-metadata-id)
         (identity (get *existing-movie-row :tags) :> *existing-tags-set)
         (<<shadowif *existing-tags-set nil? #{})
         (identity *monitored :> *incoming-monitored)
@@ -176,8 +172,6 @@
         ;; ensure id indexes stay consistent
         (|hash$$ $$movies-id-by-tmdb-id *existing-tmdb-id)
         (local-transform> [(keypath *existing-tmdb-id) (termval *id)] $$movies-id-by-tmdb-id)
-        (|hash$$ $$movies-id-by-metadata-id *existing-metadata-id)
-        (local-transform> [(keypath *existing-metadata-id) (termval *id)] $$movies-id-by-metadata-id)
         (<<if (not (nil? *incoming-monitored))
           (|hash$$ $$movies-ids-by-monitored true)
           (local-select> (keypath true) $$movies-ids-by-monitored :> *monitored-set)

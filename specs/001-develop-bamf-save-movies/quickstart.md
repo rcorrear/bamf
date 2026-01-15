@@ -31,7 +31,6 @@ curl -X POST http://localhost:9090/api/v3/movie \
     "rootFolderPath": "/movies",
     "monitored": true,
     "tmdbId": 12345,
-    "movieMetadataId": 0,
     "movieFileId": 0,
     "minimumAvailability": "released",
     "tags": ["scifi", "4k"],
@@ -47,7 +46,7 @@ You should receive `201 Created` with persisted identifiers.
   ```
 - Query pstate for record:
   ```bash
-  rama query movie/by-metadata-id --key 12345
+  rama query movie/by-tmdb-id --key 12345
   ```
 
 ## 5. Duplicate Submission Check

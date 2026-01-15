@@ -30,8 +30,6 @@
 
 (defn metadata-by-movie-id [env movie-id] (select-one env common/metadata-by-movie-id-pstate-name movie-id))
 
-(defn movie-id-by-metadata-id [env metadata-id] (lookup-id env common/movies-id-by-metadata-id-pstate-name metadata-id))
-
 (defn movie-id-by-tmdb-id [env tmdb-id] (lookup-id env common/movies-id-by-tmdb-id-pstate-name tmdb-id))
 
 (defn movie-ids-by-tag

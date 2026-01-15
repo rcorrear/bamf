@@ -1,5 +1,6 @@
 (ns bamf.movies.save-movies-flow-test
   (:require [bamf.casing :as casing]
+            [bamf.movies.model :as model]
             [bamf.movies.persistence :as persistence]
             [bamf.movies.rama.client.depot :as depot]
             [bamf.movies.rama.client.pstate :as pstate]
@@ -19,8 +20,7 @@
           :tags                 ["SciFi" "Adventure"]}))
 
 (def sample-response
-  (let [response (casing/->kebab-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword))]
-    (assoc response :movie-metadata-id (or (:movie-metadata-id response) (:tmdb-id response)))))
+  (casing/->kebab-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword)))
 
 (def ^:private metadata-keys
   [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
@@ -34,15 +34,10 @@
        (into {})))
 
 (deftest save-movies-flow-detects-duplicates
-  (let [state  (atom {:by-id {} :id-by-metadata {} :ids-by-tag {} :ids-by-target {} :id-by-tmdb {} :metadata-by-id {}})
+  (let [state  (atom {:by-id {} :ids-by-tag {} :ids-by-target {} :id-by-tmdb {} :metadata-by-id {}})
         id-seq (atom 0)
         env    {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot ::movie-depot}]
-    (with-redefs [pstate/movie-id-by-metadata-id    (fn [_env metadata-id & _]
-                                                      (or (get-in @state [:id-by-metadata metadata-id])
-                                                          (some (fn [[id movie]]
-                                                                  (when (= metadata-id (:movie-metadata-id movie)) id))
-                                                                (:by-id @state))))
-                  pstate/movie-id-by-tmdb-id        (fn [_env tmdb-id & _]
+    (with-redefs [pstate/movie-id-by-tmdb-id        (fn [_env tmdb-id & _]
                                                       (or (get-in @state [:id-by-tmdb tmdb-id])
                                                           (some (fn [[id movie]] (when (= tmdb-id (:tmdb-id movie)) id))
                                                                 (:by-id @state))))
@@ -55,11 +50,8 @@
                                                       (let [new-id   (swap! id-seq inc)
                                                             with-id  (assoc movie :id new-id)
                                                             tags     (set (or (:tags with-id) []))
-                                                            meta-id  (:movie-metadata-id with-id)
                                                             metadata (metadata-from with-id)
-                                                            response (assoc sample-response
-                                                                            :id                new-id
-                                                                            :movie-metadata-id meta-id)]
+                                                            response (assoc sample-response :id new-id)]
                                                         (swap! state
                                                           (fn [acc]
                                                             (reduce
@@ -67,7 +59,6 @@
                                                                (update-in m [:ids-by-tag tag] (fnil conj #{}) new-id))
                                                              (-> acc
                                                                  (assoc-in [:by-id new-id] with-id)
-                                                                 (assoc-in [:id-by-metadata meta-id] new-id)
                                                                  (assoc-in [:id-by-tmdb (:tmdb-id with-id)] new-id)
                                                                  (cond-> (seq metadata)    (assoc-in [:metadata-by-id
                                                                                                       new-id]
@@ -82,15 +73,15 @@
                                                         {:status :stored :movie response}))]
       (testing "first save persists movie"
         (let [{:keys [status movie]} (persistence/save! env sample-movie)
-              retrieved-id           (pstate/movie-id-by-metadata-id env (:movie-metadata-id movie))
-              via-metadata           (when retrieved-id (pstate/movie-by-id env retrieved-id))]
+              expected-metadata      (or (model/serialize-metadata (model/extract-metadata sample-movie)) {})
+              expected-response      (-> sample-response
+                                         (assoc :id (:id movie))
+                                         (merge expected-metadata))]
           (is (= :stored status))
           (is (= 1 (:id movie)))
           (is (= "2025-12-29T02:12:56Z" (:added movie)))
           (is (nil? (:last-search-time movie)))
-          (is (= (assoc sample-response :id (:id movie) :movie-metadata-id (:movie-metadata-id movie))
-                 (select-keys movie (keys sample-response))))
-          (is (= (:id movie) (:id via-metadata)))))
+          (is (= expected-response (select-keys movie (keys expected-response))))))
       (testing "duplicate submission returns conflict metadata"
         (let [original-metadata                         (pstate/metadata-by-movie-id env 1)
               duplicate-payload                         (assoc sample-movie :genres ["Mystery"] :status "tba")
