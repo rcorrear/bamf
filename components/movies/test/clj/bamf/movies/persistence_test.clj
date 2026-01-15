@@ -212,6 +212,27 @@
         (is (= (:path expected) (get-in result [:movie :path])))
         (is (= (:tmdb-id expected) (get-in result [:movie :tmdb-id])))))))
 
+(deftest update-merges-metadata
+  (let [existing          (canonical-existing)
+        existing-metadata {:status "released" :genres ["Drama"] :overview "Old" :popularity 1.2}
+        captured          (atom nil)
+        env               {:clock (constantly "2025-10-21T00:00:00Z") :movie-depot movie-depot}]
+    (with-redefs [pstate/movie-by-id             (fn [_env id & _] (when (= (:id existing) id) existing))
+                  pstate/movie-id-by-metadata-id (fn [& _] (:id existing))
+                  pstate/metadata-by-movie-id    (fn [_env id & _] (when (= (:id existing) id) existing-metadata))
+                  depot/update!                  (fn [{:keys [movie]}]
+                                                   (reset! captured movie)
+                                                   {:status :updated :movie {:id (:id movie)}})]
+      (let [patch
+            {:id (:id existing) :tmdb-id (:tmdb-id existing) :genres ["Mystery"] :overview nil :studio "New Studio"}
+            result (persistence/update! env patch)
+            expected-metadata {:status "released" :genres ["Mystery"] :studio "New Studio" :popularity 1.2}]
+        (is (= :updated (:status result)))
+        (is (= expected-metadata (:metadata @captured)))
+        (is (= ["Mystery"] (:genres @captured)))
+        (is (nil? (:overview @captured)))
+        (is (not (contains? (:metadata @captured) :overview)))))))
+
 (deftest update-updates-tags
   (let [existing (canonical-existing)
         captured (atom nil)

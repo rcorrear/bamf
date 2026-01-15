@@ -46,7 +46,7 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Persist MovieMetadata fields on create using a `def/ramaop` in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` (NFR-001); no-op when metadata map is empty
+- [X] T010 [US1] Persist MovieMetadata fields on create using a `def/ramaop` in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` (NFR-001); no-op when metadata map is empty
 - [X] T011 Run `clojure -X:test` after Rama module create changes (T010).
 - [X] T012 [US1] Capture MovieMetadata fields from payload and pass to Rama depot in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
 - [X] T013 Run `clojure -X:test` after US1 persistence changes (T012).
@@ -62,18 +62,18 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 ### Tests for User Story 2 (required)
 
-- [ ] T014 [P] [US2] Add persistence test for partial metadata merge + `null` key removal in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
-- [ ] T015 [P] [US2] Add Rama depot client test asserting `foreign-append!` receives the full update payload (including MovieMetadata fields, not only movie PState fields) in `bamf/components/movies/test/clj/bamf/movies/rama/client/depot_test.clj`
-- [ ] T016 [P] [US2] Add Rama module integration test asserting `foreign-append!` receives the full update payload (including MovieMetadata fields) in `bamf/components/movies/test/clj/bamf/movies/rama/module_integration.clj`
+- [X] T014 [P] [US2] Add persistence test for partial metadata merge + `null` key removal in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
+- [X] T015 [P] [US2] Add Rama depot client test asserting `foreign-append!` receives the full update payload (including MovieMetadata fields, not only movie PState fields) in `bamf/components/movies/test/clj/bamf/movies/rama/client/depot_test.clj`
+- [X] T016 [P] [US2] Add Rama module integration test asserting `foreign-append!` receives the full update payload (including MovieMetadata fields) in `bamf/components/movies/test/clj/bamf/movies/rama/module_integration.clj`
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Persist metadata updates using a `def/ramaop` in `bamf/components/movies/src/clj/bamf/movies/rama/module/update.clj` (NFR-001); no-op when metadata map is empty
-- [ ] T018 [P] Add Telemere `print-event` log for `hashing-by-movie-id` in metadata Rama ops in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` and `bamf/components/movies/src/clj/bamf/movies/rama/module/update.clj`
-- [ ] T019 [P] Add Telemere `print-event` log for `saving-metadata` in metadata Rama ops in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` and `bamf/components/movies/src/clj/bamf/movies/rama/module/update.clj`
-- [ ] T020 Run `clojure -X:test` after Rama module update/telemetry changes (T017–T019).
-- [ ] T021 [US2] Apply metadata merge rules on PUT (replace provided keys, keep unspecified; `null` removes keys) in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
-- [ ] T022 Run `clojure -X:test` after US2 persistence changes (T021).
+- [X] T017 [US2] Persist metadata updates using a `def/ramaop` in `bamf/components/movies/src/clj/bamf/movies/rama/module/update.clj` (NFR-001); no-op when metadata map is empty
+- [X] T018 [P] Add Telemere `print-event` log for `hashing-by-movie-id` in metadata Rama ops in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` and `bamf/components/movies/src/clj/bamf/movies/rama/module/update.clj`
+- [X] T019 [P] Add Telemere `print-event` log for `saving-metadata` in metadata Rama ops in `bamf/components/movies/src/clj/bamf/movies/rama/module/create.clj` and `bamf/components/movies/src/clj/bamf/movies/rama/module/update.clj`
+- [X] T020 Run `clojure -X:test` after Rama module update/telemetry changes (T017–T019).
+- [X] T021 [US2] Apply metadata merge rules on PUT (replace provided keys, keep unspecified; `null` removes keys) in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
+- [X] T022 Run `clojure -X:test` after US2 persistence changes (T021).
 
 **Checkpoint**: User Stories 1 and 2 independently testable.
 

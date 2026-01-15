@@ -90,6 +90,32 @@
                    (is (pos? movie-id))
                    (is (= expected stored))))))
 
+(deftest update-movie-updates-metadata
+  (with-module
+   (fn [ipc]
+     (let [module-name       (get-module-name mm/MovieModule)
+           rama-env          {:movies/env {:ipc ipc}}
+           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           payload           @sample-movie-row
+           ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
+           ack-movie         (when ack-response (get ack-response movies-etl-name))
+           movie-id          (or (get-in ack-movie [:movie :id])
+                                 (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
+           existing          (pstate/metadata-by-movie-id rama-env movie-id)
+           patch             {:genres ["Mystery"] :overview nil}
+           expected          (-> existing
+                                 (assoc :genres ["Mystery"])
+                                 (dissoc :overview))
+           update-payload    (-> @response-movie-row
+                                 (assoc :id movie-id :metadata expected)
+                                 (merge patch))]
+       (is (pos? movie-id))
+       (is (seq existing))
+       (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack)
+       (is (= expected (pstate/metadata-by-movie-id rama-env movie-id)))
+       (foreign-append! movie-saves-depot (common/movie-updated-event {:id movie-id :metadata {}}) :ack)
+       (is (nil? (pstate/metadata-by-movie-id rama-env movie-id)))))))
+
 (deftest save-movie-from-http-shaped-payload
   (with-module
    (fn [ipc]
