@@ -5,7 +5,7 @@
                          title title-slug tmdb-id year add-options images genres sort-title clean-title original-title
                          clean-original-title original-language status last-info-sync runtime in-cinemas
                          physical-release digital-release secondary-year ratings recommendations certification
-                         you-tube-trailer-id studio overview website popularity collection])
+                         you-tube-trailer-id studio overview website popularity collection metadata])
 
 (def module-name "bamf.movies.rama.module.core/MovieModule")
 (def movie-depot-name "*movie-saves-depot")

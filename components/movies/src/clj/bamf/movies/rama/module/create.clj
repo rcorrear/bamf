@@ -79,7 +79,9 @@
                 :>
                 *metadata)
       (<<if (seq *metadata)
+        (helpers/print-event :debug :movie/save :hashing-by-movie-id)
         (|hash$$ $$metadata-by-movie-id *new-movie-id)
+        (helpers/print-event :debug :movie/save :saving-metadata {:movie-id *new-movie-id} *metadata)
         (local-transform> [(keypath *new-movie-id) (termval *metadata)] $$metadata-by-movie-id))
       (|hash$$ $$movies-id-by-metadata-id *movie-metadata-id)
       (helpers/print-event :debug

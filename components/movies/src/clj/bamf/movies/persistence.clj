@@ -27,6 +27,11 @@
   pushing nullable or unnecessary data. id is used by the Rama module to locate the row."
   #{:id :minimum-availability :monitored :path :quality-profile-id :root-folder-path :tags})
 
+(def ^:private metadata-fields
+  #{:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
+    :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
+    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection})
+
 (def ^:private missing-id-error "id must be a positive integer")
 
 (defn- parse-long*
@@ -162,16 +167,30 @@
         (cond-> root-change (assoc :root-folder-path root-folder-path))
         not-empty)))
 
+(defn- metadata-patch [movie] (let [patch (select-keys movie metadata-fields)] (when (seq patch) patch)))
+
+(defn- merge-metadata
+  [existing patch]
+  (let [existing (or existing {})
+        removals (->> patch
+                      (filter (comp nil? val))
+                      (map key))
+        updates  (into {} (remove (comp nil? val) patch))
+        merged   (merge (apply dissoc existing removals) updates)]
+    (if (seq merged) merged {})))
+
 (defn- persist-update
   "Send minimal payload to depot and merge any depot-provided fields into the response."
-  [env movie-id movie]
+  [env movie-id movie metadata-patch metadata-update]
   (if (nil? (:movie-depot env))
     (do (t/log! {:level   :error
                  :reason  :movies/update-error
                  :details {:movie-id movie-id :message "movie-depot handle not provided"}}
                 "Failed to update movie: missing depot handle")
         {:status :error :errors ["movie-depot handle not provided"]})
-    (let [depot-payload (select-keys movie depot-update-fields)
+    (let [depot-payload (cond-> (select-keys movie depot-update-fields)
+                          metadata-patch (merge metadata-patch)
+                          metadata-patch (assoc :metadata metadata-update))
           result        (depot/update! {:depot (:movie-depot env) :movie depot-payload})
           depot-movie   (:movie result)
           depot-id      (:id depot-movie)
@@ -195,25 +214,31 @@
 (defn- apply-update
   "Validate, check conflicts, and persist an update for an existing movie."
   [env movie-id existing movie]
-  (let [patch (update-patch existing movie)]
-    (cond (nil? patch) (do (t/log! {:level :info :reason :movies/update-noop :details {:movie-id movie-id}}
-                                   "Ignoring movie update: no mutable changes provided")
-                           {:status :updated :movie existing})
-          :else        (let [{:keys [errors movie]} (prepare-update movie-id existing patch (clock env))
-                             conflict               (conflict-response-if-needed env movie-id movie)]
-                         (cond (seq errors) (do (t/log! {:level   :warn
-                                                         :reason  :movies/update-invalid
-                                                         :details {:movie-id movie-id :errors errors}}
-                                                        "Rejecting movie update: validation failed")
-                                                {:status :invalid :errors errors})
-                               conflict     (do (t/log! {:level   :info
-                                                         :reason  :movies/update-duplicate
-                                                         :details {:movie-id    movie-id
-                                                                   :field       (:field conflict)
-                                                                   :existing-id (:existing-id conflict)}}
-                                                        "Duplicate movie detected during update")
-                                                conflict)
-                               :else        (persist-update env movie-id movie))))))
+  (let [patch          (update-patch existing movie)
+        metadata-patch (metadata-patch movie)]
+    (cond (and (nil? patch) (nil? metadata-patch))
+          (do (t/log! {:level :info :reason :movies/update-noop :details {:movie-id movie-id}}
+                      "Ignoring movie update: no mutable changes provided")
+              {:status :updated :movie existing})
+          :else (let [patch                  (or patch {})
+                      {:keys [errors movie]} (prepare-update movie-id existing patch (clock env))
+                      conflict               (conflict-response-if-needed env movie-id movie)
+                      metadata-update        (when metadata-patch
+                                               (merge-metadata (pstate/metadata-by-movie-id env movie-id)
+                                                               metadata-patch))]
+                  (cond (seq errors) (do (t/log! {:level   :warn
+                                                  :reason  :movies/update-invalid
+                                                  :details {:movie-id movie-id :errors errors}}
+                                                 "Rejecting movie update: validation failed")
+                                         {:status :invalid :errors errors})
+                        conflict     (do (t/log! {:level   :info
+                                                  :reason  :movies/update-duplicate
+                                                  :details {:movie-id    movie-id
+                                                            :field       (:field conflict)
+                                                            :existing-id (:existing-id conflict)}}
+                                                 "Duplicate movie detected during update")
+                                         conflict)
+                        :else        (persist-update env movie-id movie metadata-patch metadata-update))))))
 
 (defn save!
   "Validate, normalize and persist the incoming movie payload.

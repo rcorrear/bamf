@@ -1,7 +1,8 @@
 (ns bamf.movies.rama.module.update
   (:use [com.rpl.rama] [com.rpl.rama.path])
   (:require [bamf.movies.rama.module.helpers :as helpers]
-            [bamf.movies.rama.module.state :refer [$$movies $$movies-ids-by-monitored $$movies-ids-by-tag]]
+            [bamf.movies.rama.module.state :refer
+             [$$metadata-by-movie-id $$movies $$movies-ids-by-monitored $$movies-ids-by-tag]]
             [clojure.set :as set]
             [com.rpl.rama.ops :as ops]))
 
@@ -112,8 +113,10 @@
       (local-transform> [(keypath *tag-to-add) NONE-ELEM (termval *id)] $$movies-ids-by-tag))))
 
 (deframaop movie-update
-  [{:keys [*id *last-search-time *minimum-availability *monitored *path *quality-profile-id *root-folder-path *tags]}]
+  [{:keys [*id *last-search-time *metadata *minimum-availability *monitored *path *quality-profile-id *root-folder-path
+           *tags]}]
   (<<with-substitutions [$$movies                   (this-module-pobject-task-global "$$movies")
+                         $$metadata-by-movie-id     (this-module-pobject-task-global "$$metadata-by-movie-id")
                          $$movies-id-by-tmdb-id     (this-module-pobject-task-global "$$movies-id-by-tmdb-id")
                          $$movies-id-by-metadata-id (this-module-pobject-task-global "$$movies-id-by-metadata-id")
                          $$movies-ids-by-monitored  (this-module-pobject-task-global "$$movies-ids-by-monitored")
@@ -160,6 +163,16 @@
         (identity (assoc *movie-row-base :tags *resolved-tags) :> *movie-row)
         (helpers/print-event :debug :movie/update :resolved-update {:id *id} *movie-row)
         (local-transform> [(keypath *id) (termval *movie-row)] $$movies)
+        (<<if (nil? *metadata)
+          (identity nil)
+          (else>)
+          (helpers/print-event :debug :movie/update :hashing-by-movie-id)
+          (|hash$$ $$metadata-by-movie-id *id)
+          (helpers/print-event :debug :movie/update :saving-metadata {:movie-id *id} *metadata)
+          (<<if (empty? *metadata)
+            (local-transform> [(keypath *id) (termval nil)] $$metadata-by-movie-id)
+            (else>)
+            (local-transform> [(keypath *id) (termval *metadata)] $$metadata-by-movie-id)))
         ;; ensure id indexes stay consistent
         (|hash$$ $$movies-id-by-tmdb-id *existing-tmdb-id)
         (local-transform> [(keypath *existing-tmdb-id) (termval *id)] $$movies-id-by-tmdb-id)
