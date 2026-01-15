@@ -55,7 +55,6 @@
       (is (= "2024-01-01T00:00:00Z" (:added normalized)))
       (is (nil? (:last-search-time normalized)))
       (is (= 42 (:tmdb-id normalized)))
-      (is (= 42 (:movie-metadata-id normalized)))
       (is (= "/media/movies/Dune" (:path normalized)))
       (is (= "radarr" (:target-system normalized)))
       (is (= #{"scifi" "7"} (set (:tags normalized))))

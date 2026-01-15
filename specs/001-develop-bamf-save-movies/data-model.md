@@ -11,25 +11,24 @@
 - **AddOptions** (`map`, optional) – Nested map mirroring Radarr `addOptions`; defaults to empty map.
 - **MovieFileId** (`long`, optional) – Identifier referencing current file version (0 when not yet downloaded per Radarr contract); must be ≥0 when provided.
 - **MinimumAvailability** (`enum`, required) – Availability threshold (e.g., `announced`, `in-cinemas`, `released`); validate against configured set.
-- **MovieMetadataId** (`long`, derived) – Internal identifier derived from provided `tmdbId` when Radarr sends `0`; primary duplicate check key.
 - **LastSearchTime** (`string`, optional) – ISO 8601 UTC timestamp of most recent search; optional for persistence-only phase.
 - **TargetSystem** (`string`, optional) – Propagated system selector (Radarr/Sonarr/etc.) per constitution additional constraint; defaults to `"radarr"` for compatibility when omitted.
 
 ## Rama Depot Events
 - **Event Type**: `movie.saved`
-- **Payload**: `{id title title-slug path root-folder-path monitored quality-profile-id added tags add-options movie-file-id minimum-availability movie-metadata-id tmdb-id year last-search-time target-system}`
+- **Payload**: `{id title title-slug path root-folder-path monitored quality-profile-id added tags add-options movie-file-id minimum-availability tmdb-id year last-search-time target-system}`
 - **Metadata**: command id, request correlation id, received-at timestamp (ISO 8601 UTC).
 - **Validation**: Reject if required fields missing or duplicate detection fails; include error event `movie.save-rejected` with reason codes.
 
 ## Indexes & Materializations
 - **Primary Index**: `:movie/by-id` (Long → Movie Persistence Record).
-- **Uniqueness Index**: `:movie/by-metadata-id` (Long → Movie Persistence Record) enforcing single entry per metadata id.
+- **Uniqueness Index**: `:movie/by-tmdb-id` (Long → Movie Persistence Record) enforcing single entry per tmdb id.
 - **Path Index**: `:movie/by-path` (normalized string → Movie Persistence Record) enforcing unique storage path.
 - **Tag Index**: `:movie/by-tag` (tag string → set<Long>) enabling reverse lookup by tag.
 - **Target System Index**: `:movie/by-target-system` (string → set<Long>) to satisfy constitution constraint for downstream routing.
 
 ## Duplicate Detection Flow
-1. Lookup derived `MovieMetadataId` (fallback to `tmdbId` when unset by Radarr); if present, emit duplicate response without persisting.
+1. Lookup `tmdbId`; if present, emit duplicate response without persisting.
 2. Lookup normalized `Path`; if present, emit duplicate response without persisting.
 3. Reserve next Long `Id`, persist `movie.saved` event with normalized payload.
 4. Pstate materializes record and updates indexes atomically.
@@ -43,7 +42,7 @@
 - TitleSlug, when supplied, must match `(str tmdbId)` to satisfy Radarr's canonical URL expectations.
 
 ## Error Conditions
-- **duplicate-metadata**: Movie with same `MovieMetadataId` already exists.
+- **duplicate-metadata**: Movie with same `tmdbId` already exists.
 - **duplicate-path**: Movie with same normalized `Path` already exists.
 - **invalid-payload**: Required fields missing or types incorrect (surfaced as HTTP 400).
 - **persistence-failure**: Rama depot or pstate write rejected (bubble up infrastructure error with request correlation id).

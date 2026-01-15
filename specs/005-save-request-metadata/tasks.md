@@ -86,25 +86,25 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 ### Tests for User Story 4 (required)
 
-- [ ] T023 [P] [US4] Add HTTP create test verifying the create response includes the submitted metadata fields (same values as request payload) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [ ] T024 [P] [US4] Add HTTP create test for saves without metadata (ensure success and metadata remains empty/default) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [ ] T025 [P] [US4] Add HTTP create test for unknown metadata keys being ignored while known keys persist in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [ ] T026 [P] [US4] Add HTTP update test for partial metadata merge + `null` key removal in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [ ] T027 [P] [US4] Add HTTP test for invalid metadata types in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [ ] T028 [P] [US4] Add HTTP test for status normalization (case-insensitive) and invalid status rejection in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [ ] T029 [P] [US4] Add persistence test for invalid metadata rejection in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
+- [X] T023 [P] [US4] Add HTTP create test verifying the create response includes the submitted metadata fields (same values as request payload) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T024 [P] [US4] Add HTTP create test for saves without metadata (ensure success and metadata remains empty/default) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T025 [P] [US4] Add HTTP create test for unknown metadata keys being ignored while known keys persist in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T026 [P] [US4] Add HTTP update test for partial metadata merge + `null` key removal in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T027 [P] [US4] Add HTTP test for invalid metadata types in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T028 [P] [US4] Add HTTP test for status normalization (case-insensitive) and invalid status rejection in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T029 [P] [US4] Add persistence test for invalid metadata rejection in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Add MovieMetadata recognized key set and type validation helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj` (validate both pre- and post-normalization key sets; keys must match in both passes)
-- [ ] T031 [US4] Add case-insensitive status normalization helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj`
-- [ ] T032 [US4] Extend create/update request schemas to accept camelCase MovieMetadata fields in `bamf/components/movies/src/clj/bamf/movies/http.clj`
-- [ ] T033 [US4] Merge `metadata-by-movie-id` into inspection responses for list/get in `bamf/components/movies/src/clj/bamf/movies/inspection.clj`
-- [ ] T034 Run `clojure -X:test` after schema/inspection changes (T030–T033).
-- [ ] T035 [US4] Merge stored metadata into create responses in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
-- [ ] T036 [P] [US4] Add Telemere instrumentation to HTTP create/update handlers in `bamf/components/movies/src/clj/bamf/movies/http.clj` (include correlation identifiers)
-- [ ] T037 [US4] Add metadata validation error messages that name offending fields in `bamf/components/movies/src/clj/bamf/movies/model.clj`
-- [ ] T038 Run `clojure -X:test` after US4 implementation task (T037).
+- [X] T030 [US4] Add MovieMetadata recognized key set and type validation helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj` (validate both pre- and post-normalization key sets; keys must match in both passes)
+- [X] T031 [US4] Add case-insensitive status normalization helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj`
+- [X] T032 [US4] Extend create/update request schemas to accept camelCase MovieMetadata fields in `bamf/components/movies/src/clj/bamf/movies/http.clj`
+- [X] T033 [US4] Merge `metadata-by-movie-id` into inspection responses for list/get in `bamf/components/movies/src/clj/bamf/movies/inspection.clj`
+- [X] T034 Run `clojure -X:test` after schema/inspection changes (T030–T033).
+- [X] T035 [US4] Merge stored metadata into create responses in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
+- [X] T036 [P] [US4] Add Telemere instrumentation to HTTP create/update handlers in `bamf/components/movies/src/clj/bamf/movies/http.clj` (include correlation identifiers)
+- [X] T037 [US4] Add metadata validation error messages that name offending fields in `bamf/components/movies/src/clj/bamf/movies/model.clj`
+- [X] T038 Run `clojure -X:test` after US4 implementation task (T037).
 
 **Checkpoint**: All user stories independently testable with HTTP validation coverage.
 
@@ -112,9 +112,8 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T039 [P] Verify metadata contract matches implementation in `bamf/specs/005-save-request-metadata/contracts/openapi.yaml`
-- [ ] T040 [P] Update verification notes and fixture references in `bamf/specs/005-save-request-metadata/quickstart.md`
-- [ ] T041 [P] Document observability scope (print-event logs only; no metrics/traces for this feature) in `bamf/specs/005-save-request-metadata/quickstart.md`
+- [X] T039 [P] Update verification notes and fixture references in `bamf/specs/005-save-request-metadata/quickstart.md`
+- [X] T040 [P] Document observability scope (print-event logs only; no metrics/traces for this feature) in `bamf/specs/005-save-request-metadata/quickstart.md`
 
 ---
 

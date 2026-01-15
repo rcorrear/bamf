@@ -36,10 +36,6 @@
           "type": "integer",
           "minimum": 1
         },
-        "movieMetadataId": {
-          "type": "integer",
-          "minimum": 0
-        },
         "movieFileId": {
           "type": "integer",
           "minimum": 0
@@ -93,7 +89,6 @@
       "qualityProfileId": 1,
       "path": "/movies/Dune (2021)",
       "monitored": true,
-      "movieMetadataId": 12345,
       "movieFileId": 0,
       "minimumAvailability": "released",
       "tags": [
@@ -149,9 +144,6 @@
             "type": "string"
           },
           "tmdbId": {
-            "type": "integer"
-          },
-          "movieMetadataId": {
             "type": "integer"
           },
           "tags": {
