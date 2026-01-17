@@ -10,8 +10,6 @@
 .cpcache
 .devenv
 .lsp/.cache
-.nrepl-port
-.nrepl.edn
 .opencode/*
 TODO.org
 clj-kondo.exports
