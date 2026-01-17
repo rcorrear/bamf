@@ -30,20 +30,19 @@
       (helpers/print-event :info :movie/save {:id *new-movie-id})
       (helpers/print-event :debug :movie/save :creating-movie)
       (<<shadowif *tags vector? (set *tags))
-      (identity {:added                (java.time.Instant/now)
-                 :imdb-id              *imdb-id
-                 :last-search-time     nil
-                 :minimum-availability *minimum-availability
-                 :monitored            *monitored
-                 :movie-file-id        *movie-file-id
-                 :path                 *path
-                 :quality-profile-id   *quality-profile-id
-                 :root-folder-path     *root-folder-path
-                 :tags                 *tags
-                 :title                *title
-                 :title-slug           *title-slug
-                 :tmdb-id              *tmdb-id
-                 :year                 *year}
+      (identity {:added              (java.time.Instant/now)
+                 :imdb-id            *imdb-id
+                 :last-search-time   nil
+                 :monitored          *monitored
+                 :movie-file-id      *movie-file-id
+                 :path               *path
+                 :quality-profile-id *quality-profile-id
+                 :root-folder-path   *root-folder-path
+                 :tags               *tags
+                 :title              *title
+                 :title-slug         *title-slug
+                 :tmdb-id            *tmdb-id
+                 :year               *year}
                 :>
                 *movie-row)
       (helpers/log-map-value-types *movie-row)
@@ -66,6 +65,7 @@
                       :ratings              *ratings
                       :recommendations      *recommendations
                       :runtime              *runtime
+                      :minimum-availability *minimum-availability
                       :secondary-year       *secondary-year
                       :sort-title           *sort-title
                       :status               *status
