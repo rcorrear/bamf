@@ -97,14 +97,6 @@
       (get-in request [:reitit.core/match :data movie-env-key])
       (throw (IllegalStateException. "Movies HTTP route missing :movies/env binding"))))
 
-(defn- correlation-ids
-  [request]
-  (let [headers (or (:headers request) {})]
-    (cond-> {}
-      (get headers "x-request-id")     (assoc :request-id (get headers "x-request-id"))
-      (get headers "x-correlation-id") (assoc :correlation-id (get headers "x-correlation-id"))
-      (get headers "traceparent")      (assoc :traceparent (get headers "traceparent")))))
-
 (defn- external-field-name
   [field]
   (cond (string? field)  field
@@ -172,15 +164,13 @@
   [request]
   (let [payload (safe-payload request)
         env     (request-env request)
-        corr    (correlation-ids request)
         result  (persistence/save! env payload)]
     (t/log! :debug
             {:reason  :movies/http-create
              :details (cond-> {:payload-keys (-> payload
                                                  keys
                                                  sort
-                                                 vec)}
-                        (seq corr) (assoc :correlation corr))})
+                                                 vec)})})
     (case (:status result)
       :stored    (stored->response result)
       :duplicate (duplicate->response result)
@@ -203,7 +193,6 @@
         path-id    (get-in request [:path-params :id])
         move-files (or (get-in request [:parameters :query :move-files]) (get-in request [:query-params :move-files]))
         env        (request-env request)
-        corr       (correlation-ids request)
         result     (persistence/update! env
                                         (cond-> (assoc payload :id (or (:id payload) path-id))
                                           (some? move-files) (assoc :move-files move-files)))]
@@ -213,8 +202,7 @@
                                :payload-keys (-> payload
                                                  keys
                                                  sort
-                                                 vec)}
-                        (seq corr) (assoc :correlation corr))})
+                                                 vec)})})
     (case (:status result)
       :updated   (updated->response result)
       :duplicate (duplicate->response result)

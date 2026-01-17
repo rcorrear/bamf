@@ -5,22 +5,18 @@
             [taoensso.telemere :as t]))
 
 (defn- fetch-movie
-  [env monitored-ids movie-id]
+  [env movie-id]
   (when-let [movie (pstate/movie-by-id env movie-id)]
-    (let [monitored (if monitored-ids
-                      (boolean (or (:monitored movie) (contains? monitored-ids movie-id)))
-                      (:monitored movie))
-          metadata  (model/serialize-metadata (pstate/metadata-by-movie-id env movie-id))]
+    (let [metadata (model/serialize-metadata (pstate/metadata-by-movie-id env movie-id))]
       (-> movie
           (assoc :id movie-id)
-          (cond-> metadata (merge metadata))
-          (cond-> (or monitored-ids (some? (:monitored movie))) (assoc :monitored (boolean monitored)))))))
+          (cond-> metadata (merge metadata))))))
 
 (defn- fetch-movies
-  [env ids monitored-ids]
+  [env ids]
   (->> (or ids [])
        (sort)
-       (keep #(fetch-movie env monitored-ids %))
+       (keep #(fetch-movie env %))
        vec))
 
 (defn get-movie
@@ -42,12 +38,4 @@
         condition (cond tmdb-id (when-let [id (pstate/movie-id-by-tmdb-id env tmdb-id)] [id])
                         :else   (pstate/movie-ids-by-target-system env "radarr"))]
     (t/log! :debug {:reason :movies/list-movies :details {:tmdb-id tmdb-id :condition-keys condition}})
-    (let [monitored-ids (try (pstate/movie-ids-by-monitored env) (catch Exception _ nil))]
-      {:status :ok :movies (fetch-movies env condition monitored-ids)})))
-
-(comment
-  (require '[bamf.system.interface :as sys])
-  (def rs (sys/runtime-state))
-  (def env (:movies/env rs))
-  (pstate/movie-ids-by-target-system env "radarr")
-  (list-movies env {:tmdb-id "66126"}))
+    {:status :ok :movies (fetch-movies env condition)}))
