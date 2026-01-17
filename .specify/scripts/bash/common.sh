@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # Common functions and variables for all scripts
 
-# Check if we have git available
+# has_git checks whether Git is installed and the current directory is inside a Git repository.
 has_git() {
 	command -v git >/dev/null 2>&1 && git rev-parse --show-toplevel >/dev/null 2>&1
 }
 
-# Check if we have jj available and are in a jj repo
+# has_jj returns success when `jj` is installed and the current directory is inside a jj repository.
 has_jj() {
 	command -v jj >/dev/null 2>&1 && jj root >/dev/null 2>&1
 }
 
+# get_vcs_type identifies the version control system in use and echoes "jj" if a JJ repository is active, "git" if a Git repository is active, or "none" otherwise.
 get_vcs_type() {
 	if has_jj; then
 		echo "jj"
@@ -25,7 +26,9 @@ get_vcs_type() {
 	echo "none"
 }
 
-# Get repository root, with fallback for non-vcs repositories
+# get_repo_root prints the repository root path based on the detected VCS or a fallback derived from the script's location.
+# If a JJ repository is detected it outputs `jj root`; if a Git repository is detected it outputs the Git top-level directory;
+# otherwise it prints the directory three levels above the script's location as a non-VCS fallback.
 get_repo_root() {
 	local vcs_type
 	vcs_type=$(get_vcs_type)
@@ -41,7 +44,7 @@ get_repo_root() {
 	fi
 }
 
-# Get current branch/bookmark, with fallback for non-vcs repositories
+# get_jj_current_bookmark prints the current JJ bookmark name representing the active feature, preferring a bookmark that begins with a three-digit numeric prefix (e.g., `001-...`); if no such bookmark exists it prints the first bookmark found, and prints nothing if no bookmarks are available.
 get_jj_current_bookmark() {
 	local bookmarks raw_bookmarks
 	raw_bookmarks=$(jj bookmark list --revisions @ 2>/dev/null || true)
@@ -66,6 +69,7 @@ get_jj_current_bookmark() {
 	printf '%s\n' "$bookmarks" | awk 'NF {print; exit}'
 }
 
+# get_current_branch determines the current feature branch or identifier by returning, in order: the SPECIFY_FEATURE env value (if set), the current JJ bookmark (if in a JJ repo), the current Git branch (if in a Git repo), the latest numeric-prefixed directory under `specs/`, and otherwise "main".
 get_current_branch() {
 	# First check if SPECIFY_FEATURE environment variable is set
 	if [[ -n ${SPECIFY_FEATURE:-} ]]; then
@@ -122,6 +126,7 @@ get_current_branch() {
 	echo "main" # Final fallback
 }
 
+# check_feature_branch checks whether a branch name follows the required three-digit feature prefix (e.g., 001-feature-name); it prints an error or warning as appropriate and exits non-zero for invalid feature names.
 check_feature_branch() {
 	local branch="$1"
 	local vcs_type="$2"
@@ -197,6 +202,8 @@ find_feature_dir_by_prefix() {
 	fi
 }
 
+# get_feature_paths prints a block of environment-style variable assignments describing the current feature context.
+# It emits the following variables: REPO_ROOT, CURRENT_BRANCH, VCS_TYPE, HAS_GIT, FEATURE_DIR, FEATURE_SPEC, IMPL_PLAN, TASKS, RESEARCH, DATA_MODEL, QUICKSTART, and CONTRACTS_DIR.
 get_feature_paths() {
 	local repo_root=$(get_repo_root)
 	local current_branch=$(get_current_branch)
