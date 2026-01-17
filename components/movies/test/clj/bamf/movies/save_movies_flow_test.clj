@@ -25,7 +25,8 @@
 (def ^:private metadata-keys
   [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
    :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
-   :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection])
+   :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection
+   :minimum-availability])
 
 (defn- metadata-from
   [movie]

@@ -26,7 +26,6 @@
       (is (contains? errors "title is required"))
       (is (contains? errors "monitored is required"))
       (is (contains? errors "qualityProfileId is required"))
-      (is (contains? errors "minimumAvailability is required"))
       (is (contains? errors "tmdbId is required"))))
   (testing "titleSlug must match tmdbId"
     (is (= ["titleSlug must match tmdbId"]

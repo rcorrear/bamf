@@ -6,8 +6,6 @@
   (:import (java.time OffsetDateTime)
            (java.time.format DateTimeParseException)))
 
-(def allowed-availability #{"announced" "inCinemas" "released" "tba" "deleted"})
-
 (def ^:private metadata-status-tokens ["deleted" "tba" "announced" "inCinemas" "released"])
 
 (def ^:private metadata-status-token-by-input
@@ -24,11 +22,14 @@
 
 (def ^:private metadata-status-message (str "status " metadata-status-requirement))
 
+(def ^:private minimum-availability-requirement (format "must be one of %s" (str/join ", " metadata-status-tokens)))
+
 (def metadata-fields
   "MovieMetadata field keys in kebab-case."
   #{:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
     :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
-    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection})
+    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection
+    :minimum-availability})
 
 (def ^:private metadata-fields-camel
   (->> metadata-fields
@@ -70,14 +71,22 @@
         (string? value)  (when-let [token (metadata-status-token value)] (get metadata-status-by-token token))
         :else            nil))
 
+(defn normalize-minimum-availability
+  "Normalize minimum-availability values to canonical string tokens."
+  [value]
+  (cond (nil? value)    nil
+        (string? value) (metadata-status-token value)
+        :else           nil))
+
 (defn- normalize-metadata-value
   [k v]
   (case k
-    :status         (normalize-metadata-status v)
-    :year           (some-> v
-                            int)
-    :secondary-year (some-> v
-                            int)
+    :status               (normalize-metadata-status v)
+    :minimum-availability (normalize-minimum-availability v)
+    :year                 (some-> v
+                                  int)
+    :secondary-year       (some-> v
+                                  int)
     v))
 
 (defn normalize-metadata
@@ -89,13 +98,16 @@
   "Prepare metadata values for HTTP responses (string tokens, no nils)."
   [metadata]
   (let [metadata (reduce-kv (fn [acc k v]
-                              (let [value (if (= k :status) (metadata-status-token v) v)]
+                              (let [value (cond (= k :status)               (metadata-status-token v)
+                                                (= k :minimum-availability) (normalize-minimum-availability v)
+                                                :else                       v)]
                                 (if (nil? value) acc (assoc acc k value))))
                             {}
                             (or metadata {}))]
     (when (seq metadata) metadata)))
 
 (defn- metadata-status? [value] (boolean (normalize-metadata-status value)))
+(defn- minimum-availability? [value] (boolean (normalize-minimum-availability value)))
 
 (declare external-field-name)
 
@@ -112,6 +124,7 @@
    :clean-original-title {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :original-language    {:pred #(or (nil? %) (map? %)) :message "must be an object"}
    :status               {:pred #(or (nil? %) (metadata-status? %)) :message metadata-status-requirement}
+   :minimum-availability {:pred #(or (nil? %) (minimum-availability? %)) :message minimum-availability-requirement}
    :last-info-sync       {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :runtime              {:pred #(or (nil? %) (integer? %)) :message "must be an integer"}
    :in-cinemas           {:pred #(or (nil? %) (string? %)) :message "must be a string"}
@@ -202,10 +215,6 @@
    [:quality-profile-id {:optional false :error/message (missing-field-error :quality-profile-id)}
     [:and [:fn {:error/message (missing-field-error :quality-profile-id)} #(not (nil? %))]
      [:fn {:error/message (positive-int-error :quality-profile-id)} #(or (nil? %) (positive-integer? %))]]]
-   [:minimum-availability {:optional false :error/message (missing-field-error :minimum-availability)}
-    [:and [:fn {:error/message (missing-field-error :minimum-availability)} #(not (nil? %))]
-     [:fn {:error/message (format "minimumAvailability must be one of %s" allowed-availability)}
-      #(or (nil? %) (allowed-availability %))]]]
    [:status {:optional true :error/message metadata-status-message}
     [:fn {:error/message metadata-status-message} #(or (nil? %) (metadata-status? %))]]
    [:tmdb-id {:optional false :error/message (missing-field-error :tmdb-id)}
@@ -340,7 +349,7 @@
         (assoc :year
                (some-> (:year movie)
                        int))
-        (assoc :minimum-availability (:minimum-availability movie))
+        (assoc :minimum-availability (normalize-minimum-availability (:minimum-availability movie)))
         (assoc :status (:status movie))
         (assoc :added added)
         (assoc :last-search-time last-search)

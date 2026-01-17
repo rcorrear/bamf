@@ -9,20 +9,19 @@
 (def $$movies-ids-by-target-system nil)
 
 (def movie-row-schema
-  (fixed-keys-schema {:added                java.time.Instant
-                      :imdb-id              String
-                      :last-search-time     java.time.Instant
-                      :minimum-availability String
-                      :monitored            Boolean
-                      :movie-file-id        Long
-                      :path                 String
-                      :quality-profile-id   Long
-                      :root-folder-path     String
-                      :tags                 (set-schema String)
-                      :title                String
-                      :title-slug           String
-                      :tmdb-id              Long
-                      :year                 Integer}))
+  (fixed-keys-schema {:added              java.time.Instant
+                      :imdb-id            String
+                      :last-search-time   java.time.Instant
+                      :monitored          Boolean
+                      :movie-file-id      Long
+                      :path               String
+                      :quality-profile-id Long
+                      :root-folder-path   String
+                      :tags               (set-schema String)
+                      :title              String
+                      :title-slug         String
+                      :tmdb-id            Long
+                      :year               Integer}))
 
 (def movies-pstate-schema (map-schema Long movie-row-schema))
 (def metadata-row-schema (map-schema clojure.lang.Keyword Object))
