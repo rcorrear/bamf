@@ -118,7 +118,8 @@ trap cleanup EXIT INT TERM
 
 #==============================================================================
 # Validation Functions
-#==============================================================================
+# validate_environment Verifies required environment state for updating agent files.
+# It ensures a current feature/branch is selected and that the plan.md file exists (exiting with an error if either is missing), and warns if the agent template file is absent.
 
 validate_environment() {
 	# Check if we have a current branch/feature (git or non-git)
@@ -248,6 +249,7 @@ get_project_structure() {
 	fi
 }
 
+# get_commands_for_language prints a recommended shell command sequence for running tests and linters for the specified programming language.
 get_commands_for_language() {
 	local lang="$1"
 
@@ -362,6 +364,8 @@ create_new_agent_file() {
 	return 0
 }
 
+# update_existing_agent_file updates an existing agent context file by inserting new technology entries into the "## Active Technologies" section, adding a new entry to "## Recent Changes" (while retaining up to two existing change lines), and updating the "**Last updated**" date to the provided current_date.
+# target_file is the path to the agent context file to update; current_date should be in YYYY-MM-DD format.
 update_existing_agent_file() {
 	local target_file="$1"
 	local current_date="$2"
@@ -578,7 +582,8 @@ update_agent_file() {
 
 #==============================================================================
 # Agent Selection and Processing
-#==============================================================================
+# update_specific_agent updates the context file for the specified agent type by invoking update_agent_file with the corresponding target file and human-friendly agent name.
+# The single parameter is the agent type (e.g., claude, gemini, copilot, cursor-agent, qwen, opencode, codex, windsurf, kilocode, auggie, roo, codebuddy, qoder, amp, shai, q, bob); unrecognized types cause the function to log an error and exit with status 1.
 
 update_specific_agent() {
 	local agent_type="$1"
@@ -643,6 +648,7 @@ update_specific_agent() {
 	esac
 }
 
+# update_all_existing_agents checks for known agent context files in the repository and updates each one found; if none are present, it creates a default Claude agent file.
 update_all_existing_agents() {
 	local found_agent=false
 
@@ -728,6 +734,7 @@ update_all_existing_agents() {
 		update_agent_file "$CLAUDE_FILE" "Claude Code"
 	fi
 }
+# print_summary prints a brief summary of added language, framework, and database (when present) and displays the supported agent usage string.
 print_summary() {
 	echo
 	log_info "Summary of changes:"

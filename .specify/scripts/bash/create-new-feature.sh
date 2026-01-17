@@ -72,7 +72,7 @@ SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 VCS_TYPE=$(get_vcs_type)
 
-# Function to get highest number from specs directory
+# get_highest_from_specs returns the highest leading numeric prefix from subdirectory names in the given specs directory (argument: specs_dir), or 0 if none.
 get_highest_from_specs() {
 	local specs_dir="$1"
 	local highest=0
@@ -92,7 +92,7 @@ get_highest_from_specs() {
 	echo "$highest"
 }
 
-# Function to get highest number from git branches
+# get_highest_from_branches finds the highest three-digit numeric prefix among local and remote git branch names and echoes that number (defaults to 0).
 get_highest_from_branches() {
 	local highest=0
 
@@ -118,7 +118,7 @@ get_highest_from_branches() {
 	echo "$highest"
 }
 
-# Function to get highest number from jj bookmarks
+# get_highest_from_bookmarks scans jj bookmarks, extracts leading three-digit numeric prefixes from bookmark names (stripping any '@' suffix and trimming annotations), and echoes the highest numeric value found or `0` if none.
 get_highest_from_bookmarks() {
 	local highest=0
 	local bookmarks
@@ -141,7 +141,7 @@ get_highest_from_bookmarks() {
 	echo "$highest"
 }
 
-# Function to check existing branches (local and remote) and return next available number
+# check_existing_branches prints the next available numeric feature identifier by scanning VCS branches/bookmarks and the given specs directory.
 check_existing_branches() {
 	local specs_dir="$1"
 	local highest_branch=0
@@ -169,7 +169,7 @@ check_existing_branches() {
 	echo $((max_num + 1))
 }
 
-# Function to clean and format a branch name
+# clean_branch_name cleans and formats a branch name string by lowercasing it, replacing non-alphanumeric characters with hyphens, collapsing consecutive hyphens, and trimming leading or trailing hyphens.
 clean_branch_name() {
 	local name="$1"
 	echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\+/-/g' | sed 's/^-//' | sed 's/-$//'
@@ -187,7 +187,7 @@ cd "$REPO_ROOT"
 SPECS_DIR="$REPO_ROOT/specs"
 mkdir -p "$SPECS_DIR"
 
-# Function to generate branch name with stop word filtering and length filtering
+# generate_branch_name generates a lowercase, hyphen-separated branch suffix from a description by removing common stop words and short words (preserving uppercase acronyms), using up to three meaningful words (four if exactly four exist), and falling back to a cleaned truncated form when no meaningful words are found.
 generate_branch_name() {
 	local description="$1"
 
