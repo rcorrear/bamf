@@ -1,6 +1,6 @@
 # bamf Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2025-12-31
+Auto-generated from all feature plans. Last updated: 2026-01-16
 
 ## Active Technologies
 - Clojure 1.12.0 with Polylith workspace layout

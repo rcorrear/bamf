@@ -28,6 +28,6 @@
 - Run `clojure -X:test`.
 
 6) Observability  
-- Telemere print-event logs: `hashing-by-movie-id`, `saving-metadata` (with correlation IDs).  
+- Telemere print-event logs: `hashing-by-movie-id`, `saving-metadata`.  
 - Metrics: none for this feature.  
 - Traces: none for this feature.

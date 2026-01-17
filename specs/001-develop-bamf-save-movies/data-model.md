@@ -42,7 +42,7 @@
 - TitleSlug, when supplied, must match `(str tmdbId)` to satisfy Radarr's canonical URL expectations.
 
 ## Error Conditions
-- **duplicate-metadata**: Movie with same `tmdbId` already exists.
+- **duplicate-tmdb-id**: Movie with same `tmdbId` already exists.
 - **duplicate-path**: Movie with same normalized `Path` already exists.
 - **invalid-payload**: Required fields missing or types incorrect (surfaced as HTTP 400).
 - **persistence-failure**: Rama depot or pstate write rejected (bubble up infrastructure error with request correlation id).
