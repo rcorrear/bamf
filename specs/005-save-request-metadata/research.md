@@ -12,13 +12,13 @@ Decision: Request shape uses Radarr payload keys (no extraData block)
 Rationale: The save request already includes MovieMetadata fields at the top level; accept those keys directly and store them in `metadata-by-movie-id`.  
 Alternatives considered: Add a dedicated `extraData` block - rejected to avoid deviating from the existing payload shape.
 
-Decision: Accept camelCase request keys and validate before/after normalization  
-Rationale: Radarr payloads use camelCase, so validation runs on the raw request keys and again after normalization; keys must match the recognized set in both passes.  
+Decision: Accept camelCase request keys and validate both camelCase and kebab-case forms  
+Rationale: Radarr payloads use camelCase, and Ring middleware decamelizes to kebab-case keywords; validation runs twice (camelCase pre-normalization, kebab-case post-keywordization) with exact matches in each pass.  
 Alternatives considered: Require kebab-case payloads - rejected to preserve Radarr compatibility.
 
 Decision: Validation rules and mapping  
-Rationale: Enforce the recognized metadata key set and accept value types as provided by the Radarr payload (strings, numbers, lists, or maps for images/ratings/collection/originalLanguage). Ignore unknown metadata keys. Map collection and originalLanguage values per the data model. Map status strings case-insensitively to the enum. Treat `null` metadata values as explicit removals.  
-Alternatives considered: Accept unknown keys; allow `null` values to pass through - rejected to keep validation strict and avoid storing unusable fields.
+Rationale: Enforce the recognized metadata key set and accept value types as provided by the Radarr payload (strings, numbers, lists, or maps for images/ratings/collection/originalLanguage). Ignore unknown metadata keys. Map collection and originalLanguage values per the data model. Validate `status` and `minimumAvailability` as exact-match tokens (no enum mapping). Treat `null` metadata values as explicit removals.  
+Alternatives considered: Reject unknown keys at the schema layer; allow `null` values to pass through - rejected to preserve compatibility and avoid storing unusable fields.
 
 Decision: Update semantics and size limits  
 Rationale: Only PUT updates may change metadata; provided keys replace, unspecified keys remain. No size limit is enforced this iteration to avoid premature constraints.  

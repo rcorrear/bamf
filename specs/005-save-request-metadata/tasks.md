@@ -7,7 +7,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US4)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -79,32 +79,32 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 ---
 
-## Phase 5: User Story 4 - HTTP validation and handling (Priority: P3)
+## Phase 5: User Story 3 - HTTP validation and handling (Priority: P3)
 
 **Goal**: HTTP requests accept/validate metadata fields, invalid payloads return clear errors, and responses include stored metadata while omitting missing keys.
 **Independent Test**: POST or PUT metadata; responses include stored metadata; invalid metadata yields 422 with offending field names and no persistence.
 
-### Tests for User Story 4 (required)
+### Tests for User Story 3 (required)
 
-- [X] T023 [P] [US4] Add HTTP create test verifying the create response includes the submitted metadata fields (same values as request payload) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [X] T024 [P] [US4] Add HTTP create test for saves without metadata (ensure success and metadata remains empty/default) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [X] T025 [P] [US4] Add HTTP create test for unknown metadata keys being ignored while known keys persist in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [X] T026 [P] [US4] Add HTTP update test for partial metadata merge + `null` key removal in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [X] T027 [P] [US4] Add HTTP test for invalid metadata types in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [X] T028 [P] [US4] Add HTTP test for status normalization (case-insensitive) and invalid status rejection in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
-- [X] T029 [P] [US4] Add persistence test for invalid metadata rejection in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
+- [X] T023 [P] [US3] Add HTTP create test verifying the create response includes the submitted metadata fields (same values as request payload) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T024 [P] [US3] Add HTTP create test for saves without metadata (ensure success and metadata remains empty/default) in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T025 [P] [US3] Add HTTP create test for unknown metadata keys being ignored while known keys persist in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T026 [P] [US3] Add HTTP update test for partial metadata merge + `null` key removal in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T027 [P] [US3] Add HTTP test for invalid metadata types in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T028 [P] [US3] Add HTTP test for exact-match status/minimumAvailability validation and invalid status rejection in `bamf/components/movies/test/clj/bamf/movies/http_test.clj`
+- [X] T029 [P] [US3] Add persistence test for invalid metadata rejection in `bamf/components/movies/test/clj/bamf/movies/persistence_test.clj`
 
-### Implementation for User Story 4
+### Implementation for User Story 3
 
-- [X] T030 [US4] Add MovieMetadata recognized key set and type validation helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj` (validate both pre- and post-normalization key sets; keys must match in both passes)
-- [X] T031 [US4] Add case-insensitive status normalization helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj`
-- [X] T032 [US4] Extend create/update request schemas to accept camelCase MovieMetadata fields in `bamf/components/movies/src/clj/bamf/movies/http.clj`
-- [X] T033 [US4] Merge `metadata-by-movie-id` into inspection responses for list/get in `bamf/components/movies/src/clj/bamf/movies/inspection.clj`
+- [X] T030 [US3] Add MovieMetadata recognized key set and type validation helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj` (validate both camelCase and kebab-case keys; keys must match in both passes)
+- [X] T031 [US3] Add exact-match status/minimumAvailability validation helpers in `bamf/components/movies/src/clj/bamf/movies/model.clj`
+- [X] T032 [US3] Extend create/update request schemas to accept camelCase MovieMetadata fields and allow unknown keys in `bamf/components/movies/src/clj/bamf/movies/http.clj`
+- [X] T033 [US3] Merge `metadata-by-movie-id` into inspection responses for list/get in `bamf/components/movies/src/clj/bamf/movies/inspection.clj`
 - [X] T034 Run `clojure -X:test` after schema/inspection changes (T030–T033).
-- [X] T035 [US4] Merge stored metadata into create responses in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
-- [X] T036 [P] [US4] Add Telemere instrumentation to HTTP create/update handlers in `bamf/components/movies/src/clj/bamf/movies/http.clj` (include correlation identifiers)
-- [X] T037 [US4] Add metadata validation error messages that name offending fields in `bamf/components/movies/src/clj/bamf/movies/model.clj`
-- [X] T038 Run `clojure -X:test` after US4 implementation task (T037).
+- [X] T035 [US3] Merge stored metadata into create responses in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
+- [X] T036 [P] [US3] Add Telemere instrumentation to HTTP create/update handlers in `bamf/components/movies/src/clj/bamf/movies/http.clj` (include correlation identifiers)
+- [X] T037 [US3] Add metadata validation error messages that name offending fields in `bamf/components/movies/src/clj/bamf/movies/model.clj`
+- [X] T038 Run `clojure -X:test` after US3 implementation task (T037).
 
 **Checkpoint**: All user stories independently testable with HTTP validation coverage.
 
@@ -127,13 +127,13 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 
 - **US1 (P1)**: Starts after Foundational; no dependencies on other stories
 - **US2 (P2)**: Starts after Foundational; can run in parallel with US1
-- **US4 (P3)**: Starts after Foundational; can run in parallel with US1/US2
+- **US3 (P3)**: Starts after Foundational; can run in parallel with US1/US2
 
 ### Dependency Graph (Stories)
 
 Foundational → US1
 Foundational → US2
-Foundational → US4
+Foundational → US3
 
 ---
 
@@ -141,7 +141,7 @@ Foundational → US4
 
 - Setup tasks (T001) can run in parallel.
 - Test tasks within each story can run in parallel (different files).
-- After Foundational, US1/US2/US4 can proceed in parallel if staffed.
+- After Foundational, US1/US2/US3 can proceed in parallel if staffed.
 
 ---
 
@@ -160,7 +160,7 @@ T014 persistence update test in persistence_test.clj
 T015 depot client update payload test in rama/client/depot_test.clj
 ```
 
-## Parallel Example: User Story 4
+## Parallel Example: User Story 3
 
 ```text
 T023 HTTP create test in http_test.clj
@@ -184,7 +184,7 @@ T027 HTTP invalid metadata test in http_test.clj
 1. Setup + Foundational
 2. US1 → validate
 3. US2 → validate
-4. US4 → validate
+4. US3 → validate
 5. Polish
 
 ---

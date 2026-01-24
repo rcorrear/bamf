@@ -61,12 +61,13 @@
 (deftest create-movie-translates-stored-response
   (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :target-system "radarr"}}
                     (fn [invocation env]
-                      (let [response (http/create-movie {:body-params {:title "Foo"} :movies/env env})]
+                      (let [payload  {:title "Foo" :minimum-availability "released"}
+                            response (http/create-movie {:body-params payload :movies/env env})]
                         (is (= 201 (:status response)))
                         (is (= {:id 1 :size-on-disk 0} (select-keys (:body response) [:id :size-on-disk])))
                         (is (not (contains? (:body response) :last-search-time)))
-                        (is (nil? (get-in response [:body :target-system]))))
-                      (is (= {:env env :payload {:title "Foo"}} @invocation)))))
+                        (is (nil? (get-in response [:body :target-system])))
+                        (is (= {:env env :payload payload} @invocation))))))
 
 (deftest create-movie-includes-metadata
   (let [metadata {:genres ["Drama"] :status "released" :overview "A test"}]

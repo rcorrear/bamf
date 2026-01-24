@@ -46,6 +46,8 @@ inputs.devenv.lib.mkShell {
           my.jdk25
           my.polylith
 
+          pkgs.babashka
+          pkgs.bbin
           pkgs.clj-kondo
           pkgs.clojure-lsp
           pkgs.httpie

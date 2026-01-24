@@ -23,8 +23,8 @@
 
 - Q: When a save/update results in no metadata, how should `metadata-by-movie-id` be stored? → A: Delete/omit the entry entirely (no row).
 - Q: When persisting metadata, should storage be sparse or include all keys? → A: Store a sparse map with only provided non-null keys.
-- Q: After normalization, how should status be stored and serialized? → A: Store a namespaced keyword internally and serialize to canonical string tokens for HTTP compatibility.
-- Q: What canonical status strings should HTTP return? → A: `deleted`, `tba`, `announced`, `inCinemas`, `released`.
+- Q: After normalization, how should status be stored and serialized? → A: Store and return the exact status string token; no enum mapping.
+- Q: What canonical status strings should HTTP return? → A: `deleted`, `tba`, `announced`, `inCinemas`, `released` (exact match required).
 - Q: What HTTP status should validation failures return? → A: 422 Unprocessable Entity.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -60,7 +60,7 @@ A client updates an existing record via PUT with updated MovieMetadata fields an
 
 ---
 
-### User Story 4 - HTTP validation and handling for metadata (Priority: P3)
+### User Story 3 - HTTP validation and handling for metadata (Priority: P3)
 
 A client submits save or update requests containing metadata and expects HTTP validation plus response handling to reflect stored metadata and reject invalid payloads with actionable errors.
 
@@ -94,12 +94,12 @@ A client submits save or update requests containing metadata and expects HTTP va
 - **FR-006**: The system MUST update metadata only on PUT requests by replacing values for keys supplied in the latest request while leaving unspecified keys unchanged.
 - **FR-007**: The system MUST ignore unknown metadata keys safely while continuing to process and store recognized metadata fields.
 - **FR-008**: The system MUST provide a consistent mapping between incoming MovieMetadata fields and stored metadata names (1:1 with Radarr payload keys; collection values map from collection.tmdbId/title).
-- **FR-009**: The system MUST map incoming status to the defined status enum (Deleted=-1, TBA=0, Announced=1, InCinemas=2, Released=3) in a case-insensitive way (for example, `tba`, `announced`, `inCinemas`, `released`) and reject saves with unsupported status values; status is stored internally as a namespaced keyword and serialized to canonical string tokens in HTTP responses (`deleted`, `tba`, `announced`, `inCinemas`, `released`).
+- **FR-009**: The system MUST accept only exact-match values for `status` and `minimumAvailability` and reject unsupported values; `status` must be one of `deleted`, `tba`, `announced`, `inCinemas`, `released` with exact casing and is stored/returned as the same token.
 - **FR-009a**: The system MUST return HTTP 422 for metadata validation failures.
 - **FR-010**: The system MUST treat metadata keys set to `null` as explicit removals and delete those keys from stored metadata.
 - **FR-011**: The system MUST NOT modify metadata on duplicate or repeated POST create requests; metadata changes are accepted only via PUT updates.
-- **FR-012**: The system MUST require exact key matches for metadata fields; no aliases or case-insensitive variants are accepted.
-- **FR-013**: The system MUST accept camelCase request keys for metadata fields and validate them in the HTTP create/update schemas before persistence.
+- **FR-012**: The system MUST require exact key matches for metadata fields; no aliases or case-insensitive variants are accepted (camelCase on input, kebab-case after Ring keywordization).
+- **FR-013**: The system MUST accept camelCase request keys for metadata fields and validate them in the HTTP create/update schemas before persistence; schemas must allow unknown keys so they can be ignored per FR-007.
 - **FR-014**: When metadata is empty after processing (no keys provided or all keys removed), the system MUST delete/omit the `metadata-by-movie-id` entry; missing entries are treated as empty metadata for reads and responses.
 - **FR-015**: The system MUST store metadata as a sparse map containing only provided non-null keys; omitted keys are not stored.
 
@@ -122,7 +122,7 @@ All metadata keys are optional, but when present must match the expected request
 | `originalTitle`      | `string`        |                                                 |
 | `cleanOriginalTitle` | `string`        |                                                 |
 | `originalLanguage`   | `object`        | `{id: integer, name: string}`.                  |
-| `status`             | `string`        | Normalized to enum (FR-009).                    |
+| `status`             | `string`        | Exact-match token (FR-009).                     |
 | `lastInfoSync`       | `string`        | ISO-8601 date-time.                             |
 | `runtime`            | `integer`       |                                                 |
 | `inCinemas`          | `string`        | ISO-8601 date-time.                             |
@@ -148,12 +148,12 @@ All metadata keys are optional, but when present must match the expected request
 ### Assumptions
 
 - Clients supply metadata fields as top-level keys in the save payload; nested objects are allowed for collection, originalLanguage, images, and ratings.
-- Incoming request keys are camelCase. Validation runs both before and after case folding/normalization, and keys must match the recognized key set in both passes.
+- Incoming request keys are camelCase. Ring middleware decamelizes to kebab-case keywords; run two validations: one against camelCase keys pre-normalization and one against kebab-case keys post-keywordization. Each pass must match the recognized key set exactly.
 - Existing save flows already identify the target record for updates; this feature only affects metadata handling.
 - Recognized key and type validation aligns with current service limits used for other request fields (no metadata size limit enforced for now).
 - The recognized metadata key set is fixed for this iteration: MovieMetadata columns listed in FR-003.
 - Existing P-States already map non-metadata movie fields (for example, alternate titles, keywords, availability, quality profiles); this feature will leave those untouched.
-- Status strings in save requests map directly to the enum values (Deleted=-1, TBA=0, Announced=1, InCinemas=2, Released=3) irrespective of casing (for example, `tba`, `announced`, `inCinemas`, `released`); invalid status values are treated as validation errors.
+- Status strings in save requests must match the allowed tokens exactly (`deleted`, `tba`, `announced`, `inCinemas`, `released`); invalid values are treated as validation errors. `minimumAvailability` values are also exact-match validated.
 - Metadata changes are only accepted via PUT requests; repeated POST create requests are treated as duplicates and must not mutate stored metadata.
 - Stored metadata rows are sparse and include only provided non-null keys.
 
