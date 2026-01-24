@@ -1,0 +1,3531 @@
+{
+  "baseUrl": "http://radarr.pig-duckbill.ts.net:7878",
+  "defaultsProbe": {
+    "results": {
+      "certification": {
+        "observed": "R",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:19Z",
+          "alternateTitles": [
+            {
+              "id": 12175,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12176,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12177,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12178,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 932,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/932/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/932/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "cleanOriginalTitle": {
+        "observed": null,
+        "presentInPayload": false,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:08Z",
+          "alternateTitles": [
+            {
+              "id": 12127,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12128,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12129,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12130,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 920,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/920/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/920/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "cleanTitle": {
+        "observed": "1917",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:07Z",
+          "alternateTitles": [
+            {
+              "id": 12119,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12120,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12121,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12122,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 918,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/918/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/918/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "collection": {
+        "observed": null,
+        "presentInPayload": false,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:24Z",
+          "alternateTitles": [
+            {
+              "id": 12195,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12196,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12197,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12198,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 938,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/938/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/938/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "digitalRelease": {
+        "observed": "2020-03-10T00:00:00Z",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:15Z",
+          "alternateTitles": [
+            {
+              "id": 12155,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12156,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12157,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12158,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 927,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/927/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/927/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "genres": {
+        "observed": [
+          "War",
+          "History",
+          "Drama",
+          "Action",
+          "Adventure"
+        ],
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:05Z",
+          "alternateTitles": [
+            {
+              "id": 12111,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12112,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12113,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12114,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 916,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/916/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/916/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "images": {
+        "observed": [
+          {
+            "coverType": "poster",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+            "url": "/MediaCover/915/poster.jpg"
+          },
+          {
+            "coverType": "fanart",
+            "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+            "url": "/MediaCover/915/fanart.jpg"
+          }
+        ],
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:04Z",
+          "alternateTitles": [
+            {
+              "id": 12107,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12108,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12109,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12110,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 915,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/915/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/915/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "inCinemas": {
+        "observed": "2019-12-25T00:00:00Z",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:13Z",
+          "alternateTitles": [
+            {
+              "id": 12147,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12148,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12149,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12150,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 925,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/925/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/925/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "lastInfoSync": {
+        "observed": null,
+        "presentInPayload": false,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:11Z",
+          "alternateTitles": [
+            {
+              "id": 12139,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12140,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12141,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12142,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 923,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/923/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/923/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "minimumAvailability": {
+        "observed": "released",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:25Z",
+          "alternateTitles": [
+            {
+              "id": 12199,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12200,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12201,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12202,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 939,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/939/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/939/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "originalLanguage": {
+        "observed": {
+          "id": 1,
+          "name": "English"
+        },
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:09Z",
+          "alternateTitles": [
+            {
+              "id": 12131,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12132,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12133,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12134,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 921,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/921/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/921/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "originalTitle": {
+        "observed": "1917",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:07Z",
+          "alternateTitles": [
+            {
+              "id": 12123,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12124,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12125,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12126,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 919,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/919/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/919/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "overview": {
+        "observed": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:22Z",
+          "alternateTitles": [],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 935,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/935/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/935/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "physicalRelease": {
+        "observed": "2020-03-24T00:00:00Z",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:14Z",
+          "alternateTitles": [
+            {
+              "id": 12151,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12152,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12153,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12154,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 926,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/926/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/926/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "popularity": {
+        "observed": 8.3821,
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:24Z",
+          "alternateTitles": [
+            {
+              "id": 12191,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12192,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12193,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12194,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 937,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/937/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/937/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "ratings": {
+        "observed": {
+          "imdb": {
+            "type": "user",
+            "value": 8.2,
+            "votes": 762786
+          },
+          "metacritic": {
+            "type": "user",
+            "value": 78,
+            "votes": 0
+          },
+          "rottenTomatoes": {
+            "type": "user",
+            "value": 88,
+            "votes": 0
+          },
+          "tmdb": {
+            "type": "user",
+            "value": 8,
+            "votes": 13303
+          },
+          "trakt": {
+            "type": "user",
+            "value": 8.13551,
+            "votes": 30035
+          }
+        },
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:17Z",
+          "alternateTitles": [
+            {
+              "id": 12167,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12168,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12169,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12170,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 930,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/930/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/930/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "recommendations": {
+        "observed": null,
+        "presentInPayload": false,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:18Z",
+          "alternateTitles": [
+            {
+              "id": 12171,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12172,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12173,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12174,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 931,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/931/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/931/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "runtime": {
+        "observed": 119,
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:12Z",
+          "alternateTitles": [
+            {
+              "id": 12143,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12144,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12145,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12146,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 924,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/924/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/924/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "secondaryYear": {
+        "observed": null,
+        "presentInPayload": false,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:16Z",
+          "alternateTitles": [
+            {
+              "id": 12163,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12164,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12165,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12166,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 929,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/929/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/929/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "sortTitle": {
+        "observed": "1917",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:06Z",
+          "alternateTitles": [
+            {
+              "id": 12115,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12116,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12117,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12118,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 917,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/917/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/917/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "status": {
+        "observed": "released",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:10Z",
+          "alternateTitles": [
+            {
+              "id": 12135,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12136,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12137,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12138,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 922,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/922/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/922/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "studio": {
+        "observed": "DreamWorks Pictures",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:21Z",
+          "alternateTitles": [
+            {
+              "id": 12183,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12184,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12185,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12186,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 934,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/934/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/934/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "website": {
+        "observed": "https://www.1917.movie/",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:22Z",
+          "alternateTitles": [
+            {
+              "id": 12187,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12188,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12189,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12190,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 936,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/936/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/936/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "year": {
+        "observed": 2019,
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:16Z",
+          "alternateTitles": [
+            {
+              "id": 12159,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12160,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12161,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12162,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 928,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/928/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/928/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      },
+      "youTubeTrailerId": {
+        "observed": "gZjQROMAh_s",
+        "presentInPayload": true,
+        "response": {
+          "addOptions": {
+            "addMethod": "manual",
+            "ignoreEpisodesWithFiles": false,
+            "ignoreEpisodesWithoutFiles": false,
+            "monitor": "movieOnly",
+            "searchForMovie": false
+          },
+          "added": "2026-02-28T01:49:20Z",
+          "alternateTitles": [
+            {
+              "id": 12179,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\uc77c\uad6c\uc77c\uce60"
+            },
+            {
+              "id": 12180,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "\u4e00\u4e5d\u4e00\u4e03"
+            },
+            {
+              "id": 12181,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "1917\uff1a\u9006\u6218\u6551\u5175"
+            },
+            {
+              "id": 12182,
+              "movieMetadataId": 896,
+              "sourceType": "tmdb",
+              "title": "One Nine One Seven"
+            }
+          ],
+          "certification": "R",
+          "cleanTitle": "1917",
+          "digitalRelease": "2020-03-10T00:00:00Z",
+          "folderName": "/media/video/movies/1917 (2019)",
+          "genres": [
+            "War",
+            "History",
+            "Drama",
+            "Action",
+            "Adventure"
+          ],
+          "hasFile": false,
+          "id": 933,
+          "images": [
+            {
+              "coverType": "poster",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+              "url": "/MediaCover/933/poster.jpg"
+            },
+            {
+              "coverType": "fanart",
+              "remoteUrl": "https://image.tmdb.org/t/p/original/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+              "url": "/MediaCover/933/fanart.jpg"
+            }
+          ],
+          "imdbId": "tt8579674",
+          "inCinemas": "2019-12-25T00:00:00Z",
+          "isAvailable": true,
+          "keywords": [
+            "1910s",
+            "british army",
+            "no man's land",
+            "race against time",
+            "real time",
+            "soldier",
+            "trench warfare",
+            "trenches",
+            "world war i"
+          ],
+          "minimumAvailability": "released",
+          "monitored": true,
+          "movieFileId": 0,
+          "originalLanguage": {
+            "id": 1,
+            "name": "English"
+          },
+          "originalTitle": "1917",
+          "overview": "At the height of the First World War, two young British soldiers must cross enemy territory and deliver a message that will stop a deadly attack on hundreds of soldiers.",
+          "path": "/media/video/movies/1917 (2019)",
+          "physicalRelease": "2020-03-24T00:00:00Z",
+          "popularity": 8.3821,
+          "qualityProfileId": 4,
+          "ratings": {
+            "imdb": {
+              "type": "user",
+              "value": 8.2,
+              "votes": 762786
+            },
+            "metacritic": {
+              "type": "user",
+              "value": 78,
+              "votes": 0
+            },
+            "rottenTomatoes": {
+              "type": "user",
+              "value": 88,
+              "votes": 0
+            },
+            "tmdb": {
+              "type": "user",
+              "value": 8,
+              "votes": 13303
+            },
+            "trakt": {
+              "type": "user",
+              "value": 8.13551,
+              "votes": 30035
+            }
+          },
+          "releaseDate": "2020-03-10T00:00:00Z",
+          "rootFolderPath": "/media/video/movies",
+          "runtime": 119,
+          "secondaryYearSourceId": 0,
+          "sizeOnDisk": 0,
+          "sortTitle": "1917",
+          "statistics": {
+            "movieFileCount": 0,
+            "releaseGroups": [],
+            "sizeOnDisk": 0
+          },
+          "status": "released",
+          "studio": "DreamWorks Pictures",
+          "tags": [],
+          "title": "1917",
+          "titleSlug": "530915",
+          "tmdbId": 530915,
+          "website": "https://www.1917.movie/",
+          "year": 2019,
+          "youTubeTrailerId": "gZjQROMAh_s"
+        },
+        "status": 201
+      }
+    }
+  },
+  "finishedAt": "2026-02-28T01:49:26Z",
+  "startedAt": "2026-02-28T01:49:04Z",
+  "updateProbe": null
+}
