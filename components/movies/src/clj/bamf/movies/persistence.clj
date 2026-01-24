@@ -20,12 +20,12 @@
 
 (def ^:private mutable-update-fields
   "Fields callers may mutate via PUT. Keep this aligned with the Rama update op and the HTTP schema."
-  #{:last-search-time :monitored :path :quality-profile-id :root-folder-path :tags})
+  #{:last-search-time :minimum-availability :monitored :path :quality-profile-id :root-folder-path :tags})
 
 (def ^:private depot-update-fields
   "Fields required when applying updates. Keep the depot payload minimal to avoid
   pushing nullable or unnecessary data. id is used by the Rama module to locate the row."
-  #{:id :monitored :path :quality-profile-id :root-folder-path :tags})
+  #{:id :minimum-availability :monitored :path :quality-profile-id :root-folder-path :tags})
 
 (def ^:private missing-id-error "id must be a positive integer")
 (def ^:private missing-minimum-availability-error "minimumAvailability is required")
@@ -107,9 +107,8 @@
   [env movie]
   (let [metadata        (model/extract-metadata movie)
         metadata-errors (model/validate-metadata metadata)
-        minimum-error   (when (nil? (:minimum-availability movie)) missing-minimum-availability-error)
         errors          (model/validate movie)
-        all-errors      (->> (concat errors metadata-errors (when minimum-error [minimum-error]))
+        all-errors      (->> (concat errors metadata-errors)
                              (remove nil?)
                              distinct
                              vec)]

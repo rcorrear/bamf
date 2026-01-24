@@ -7,29 +7,18 @@
            (java.time.format DateTimeParseException)))
 
 (def ^:private metadata-status-tokens ["deleted" "tba" "announced" "inCinemas" "released"])
-
-(def ^:private metadata-status-token-by-input
-  (into {} (map (fn [token] [(str/lower-case token) token]) metadata-status-tokens)))
-
-(def ^:private metadata-status-namespace "bamf.movies.metadata-status")
-
-(def ^:private metadata-status-by-token
-  (into {} (map (fn [token] [token (keyword metadata-status-namespace token)]) metadata-status-tokens)))
-
-(def ^:private metadata-status-token-by-keyword (into {} (map (fn [[token kw]] [kw token]) metadata-status-by-token)))
+(def ^:private metadata-status-token-set (set metadata-status-tokens))
 
 (def ^:private metadata-status-requirement (format "must be one of %s" (str/join ", " metadata-status-tokens)))
 
-(def ^:private metadata-status-message (str "status " metadata-status-requirement))
-
 (def ^:private minimum-availability-requirement (format "must be one of %s" (str/join ", " metadata-status-tokens)))
+(def ^:private minimum-availability-message (str "minimumAvailability " minimum-availability-requirement))
 
 (def metadata-fields
   "MovieMetadata field keys in kebab-case."
   #{:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
     :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
-    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection
-    :minimum-availability})
+    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection})
 
 (def ^:private metadata-fields-camel
   (->> metadata-fields
@@ -53,36 +42,23 @@
              {}
              (or movie {})))
 
-(defn- metadata-status-token
-  [value]
-  (cond (nil? value)     nil
-        (keyword? value) (get metadata-status-token-by-keyword value)
-        (string? value)  (some-> value
-                                 str/trim
-                                 str/lower-case
-                                 metadata-status-token-by-input)
-        :else            nil))
+(defn- metadata-status-token [value] (when (string? value) (when (contains? metadata-status-token-set value) value)))
 
 (defn normalize-metadata-status
-  "Normalize status values to namespaced keywords for internal storage."
+  "Validate status values and return exact-match tokens."
   [value]
-  (cond (nil? value)     nil
-        (keyword? value) (when (contains? metadata-status-token-by-keyword value) value)
-        (string? value)  (when-let [token (metadata-status-token value)] (get metadata-status-by-token token))
-        :else            nil))
+  (metadata-status-token value))
 
 (defn normalize-minimum-availability
-  "Normalize minimum-availability values to canonical string tokens."
+  "Validate minimum-availability values and return exact-match tokens."
   [value]
-  (cond (nil? value)    nil
-        (string? value) (metadata-status-token value)
-        :else           nil))
+  (when (string? value) (when (contains? metadata-status-token-set value) value)))
 
 (defn- normalize-metadata-value
   [k v]
   (case k
-    :status               (normalize-metadata-status v)
-    :minimum-availability (normalize-minimum-availability v)
+    :status               (or (normalize-metadata-status v) "released")
+    :minimum-availability (or (normalize-minimum-availability v) "released")
     :year                 (some-> v
                                   int)
     :secondary-year       (some-> v
@@ -106,7 +82,7 @@
                             (or metadata {}))]
     (when (seq metadata) metadata)))
 
-(defn- metadata-status? [value] (boolean (normalize-metadata-status value)))
+(defn- metadata-status? [value] (boolean (metadata-status-token value)))
 (defn- minimum-availability? [value] (boolean (normalize-minimum-availability value)))
 
 (declare external-field-name)
@@ -124,7 +100,6 @@
    :clean-original-title {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :original-language    {:pred #(or (nil? %) (map? %)) :message "must be an object"}
    :status               {:pred #(or (nil? %) (metadata-status? %)) :message metadata-status-requirement}
-   :minimum-availability {:pred #(or (nil? %) (minimum-availability? %)) :message minimum-availability-requirement}
    :last-info-sync       {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :runtime              {:pred #(or (nil? %) (integer? %)) :message "must be an integer"}
    :in-cinemas           {:pred #(or (nil? %) (string? %)) :message "must be a string"}
@@ -215,8 +190,8 @@
    [:quality-profile-id {:optional false :error/message (missing-field-error :quality-profile-id)}
     [:and [:fn {:error/message (missing-field-error :quality-profile-id)} #(not (nil? %))]
      [:fn {:error/message (positive-int-error :quality-profile-id)} #(or (nil? %) (positive-integer? %))]]]
-   [:status {:optional true :error/message metadata-status-message}
-    [:fn {:error/message metadata-status-message} #(or (nil? %) (metadata-status? %))]]
+   [:minimum-availability {:optional true :error/message minimum-availability-message}
+    [:fn {:error/message minimum-availability-message} #(or (nil? %) (minimum-availability? %))]]
    [:tmdb-id {:optional false :error/message (missing-field-error :tmdb-id)}
     [:and [:fn {:error/message (missing-field-error :tmdb-id)} #(not (nil? %))]
      [:fn {:error/message (positive-int-error :tmdb-id)} #(or (nil? %) (positive-integer? %))]]]
@@ -349,8 +324,7 @@
         (assoc :year
                (some-> (:year movie)
                        int))
-        (assoc :minimum-availability (normalize-minimum-availability (:minimum-availability movie)))
-        (assoc :status (:status movie))
+        (assoc :minimum-availability (or (normalize-minimum-availability (:minimum-availability movie)) "released"))
         (assoc :added added)
         (assoc :last-search-time last-search)
         (assoc :in-cinemas in-cinemas)
