@@ -1,11 +1,11 @@
 # Implementation Plan: Save request metadata
 
-**Branch**: `[005-save-request-metadata]` | **Date**: 2026-01-13 | **Spec**: `/home/rcorrear/Projects/clojure/bamf/specs/005-save-request-metadata/spec.md`
+**Branch**: `[005-save-request-metadata]` | **Date**: 2026-01-13 | **Spec**: `specs/005-save-request-metadata/spec.md`
 **Input**: Feature specification from `/specs/005-save-request-metadata/spec.md`
 
 ## Summary
 
-Persist MovieMetadata from save requests into the `metadata-by-movie-id` Rama PState with PUT-only updates and `null` removals, while keeping HTTP behavior unchanged until US4 delivers request validation and response merging. Emit Telemere logs for metadata operations and run `clojure -X:test` after behavior-changing steps.
+Persist MovieMetadata from save requests into the `metadata-by-movie-id` Rama PState with PUT-only updates and `null` removals, while keeping HTTP behavior unchanged until US3 delivers request validation and response merging. Emit Telemere logs for metadata operations and run `clojure -X:test` after behavior-changing steps.
 
 ## Technical Context
 

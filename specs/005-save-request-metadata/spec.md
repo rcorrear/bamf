@@ -23,8 +23,8 @@
 
 - Q: When a save/update results in no metadata, how should `metadata-by-movie-id` be stored? → A: Delete/omit the entry entirely (no row).
 - Q: When persisting metadata, should storage be sparse or include all keys? → A: Store a sparse map with only provided non-null keys.
-- Q: After normalization, how should status be stored and serialized? → A: Store a namespaced keyword internally and serialize to canonical string tokens for HTTP compatibility.
-- Q: What canonical status strings should HTTP return? → A: `deleted`, `tba`, `announced`, `inCinemas`, `released`.
+- Q: After normalization, how should status be stored and serialized? → A: Store and return the exact status string token; no enum mapping.
+- Q: What canonical status strings should HTTP return? → A: `deleted`, `tba`, `announced`, `inCinemas`, `released` (exact match required).
 - Q: What HTTP status should validation failures return? → A: 422 Unprocessable Entity.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -60,7 +60,7 @@ A client updates an existing record via PUT with updated MovieMetadata fields an
 
 ---
 
-### User Story 4 - HTTP validation and handling for metadata (Priority: P3)
+### User Story 3 - HTTP validation and handling for metadata (Priority: P3)
 
 A client submits save or update requests containing metadata and expects HTTP validation plus response handling to reflect stored metadata and reject invalid payloads with actionable errors.
 
@@ -94,14 +94,17 @@ A client submits save or update requests containing metadata and expects HTTP va
 - **FR-006**: The system MUST update metadata only on PUT requests by replacing values for keys supplied in the latest request while leaving unspecified keys unchanged.
 - **FR-007**: The system MUST ignore unknown metadata keys safely while continuing to process and store recognized metadata fields.
 - **FR-008**: The system MUST provide a consistent mapping between incoming MovieMetadata fields and stored metadata names (1:1 with Radarr payload keys; collection values map from collection.tmdbId/title).
-- **FR-009**: The system MUST map incoming status to the defined status enum (Deleted=-1, TBA=0, Announced=1, InCinemas=2, Released=3) in a case-insensitive way (for example, `tba`, `announced`, `inCinemas`, `released`) and reject saves with unsupported status values; status is stored internally as a namespaced keyword and serialized to canonical string tokens in HTTP responses (`deleted`, `tba`, `announced`, `inCinemas`, `released`).
-- **FR-009a**: The system MUST return HTTP 422 for metadata validation failures.
+- **FR-009**: The system MUST accept only exact-match values for the core fields `status` and `minimumAvailability` and reject unsupported values. Both fields must be one of `deleted`, `tba`, `announced`, `inCinemas`, `released` with exact casing and are stored/returned as the same token. These are core movie fields stored in the movie row, not metadata.
+- **FR-009a**: The system MUST return HTTP 422 for metadata or core field validation failures.
 - **FR-010**: The system MUST treat metadata keys set to `null` as explicit removals and delete those keys from stored metadata.
 - **FR-011**: The system MUST NOT modify metadata on duplicate or repeated POST create requests; metadata changes are accepted only via PUT updates.
-- **FR-012**: The system MUST require exact key matches for metadata fields; no aliases or case-insensitive variants are accepted.
-- **FR-013**: The system MUST accept camelCase request keys for metadata fields and validate them in the HTTP create/update schemas before persistence.
+- **FR-012**: The system MUST require exact key matches for metadata fields; no aliases or case-insensitive variants are accepted (camelCase on input, kebab-case after Ring keywordization).
+- **FR-013**: The system MUST accept camelCase request keys for metadata fields and validate them in the HTTP create/update schemas before persistence; schemas must allow unknown keys so they can be ignored per FR-007.
 - **FR-014**: When metadata is empty after processing (no keys provided or all keys removed), the system MUST delete/omit the `metadata-by-movie-id` entry; missing entries are treated as empty metadata for reads and responses.
 - **FR-015**: The system MUST store metadata as a sparse map containing only provided non-null keys; omitted keys are not stored.
+- **FR-016**: When `status` is omitted from POST requests, the system MUST default to `"released"`. When omitted from PUT requests, existing values MUST be preserved.
+- **FR-017**: When `minimumAvailability` is omitted from POST requests, the system MUST default to `"released"`. When omitted from PUT requests, existing values MUST be preserved.
+- **FR-018** *(Future work)*: When metadata fields (certification, cleanTitle, digitalRelease, genres, images, inCinemas, originalLanguage, originalTitle, overview, physicalRelease, popularity, ratings, runtime, sortTitle, studio, website, year, youTubeTrailerId) are omitted from POST requests, the system will fetch and populate them from TMDB using the provided `tmdbId`. Currently, these fields remain `null` when omitted. Fields cleanOriginalTitle, collection, lastInfoSync, recommendations, and secondaryYear default to `null` when omitted.
 
 ### Non-Functional Requirements
 
@@ -113,32 +116,40 @@ A client submits save or update requests containing metadata and expects HTTP va
 
 All metadata keys are optional, but when present must match the expected request type. Structured fields are accepted as JSON objects/arrays and serialized for storage as needed.
 
-| Field                | Type            | Notes                                           |
-| :------------------- | :-------------- | :---------------------------------------------- |
-| `images`             | `array<object>` | `[{coverType, remoteUrl, url}]` as in fixtures. |
-| `genres`             | `array<string>` |                                                 |
-| `sortTitle`          | `string`        |                                                 |
-| `cleanTitle`         | `string`        |                                                 |
-| `originalTitle`      | `string`        |                                                 |
-| `cleanOriginalTitle` | `string`        |                                                 |
-| `originalLanguage`   | `object`        | `{id: integer, name: string}`.                  |
-| `status`             | `string`        | Normalized to enum (FR-009).                    |
-| `lastInfoSync`       | `string`        | ISO-8601 date-time.                             |
-| `runtime`            | `integer`       |                                                 |
-| `inCinemas`          | `string`        | ISO-8601 date-time.                             |
-| `physicalRelease`    | `string`        | ISO-8601 date-time.                             |
-| `digitalRelease`     | `string`        | ISO-8601 date-time.                             |
-| `year`               | `integer`       |                                                 |
-| `secondaryYear`      | `integer`       |                                                 |
-| `ratings`            | `object`        | Map of provider -> `{type, value, votes}`.      |
-| `recommendations`    | `string`        | Raw string (per API contract).                  |
-| `certification`      | `string`        |                                                 |
-| `youTubeTrailerId`   | `string`        |                                                 |
-| `studio`             | `string`        |                                                 |
-| `overview`           | `string`        |                                                 |
-| `website`            | `string`        |                                                 |
-| `popularity`         | `number`        |                                                 |
-| `collection`         | `object`        | `{tmdbId: integer, title: string}`.             |
+| Field                | Type            | POST Default Behavior | Notes                                           |
+| :------------------- | :-------------- | :-------------------- | :---------------------------------------------- |
+| `certification`      | `string`        | `null` (future: TMDB) |                                                 |
+| `cleanOriginalTitle` | `string`        | `null`                |                                                 |
+| `cleanTitle`         | `string`        | `null` (future: TMDB) |                                                 |
+| `collection`         | `object`        | `null`                | `{tmdbId: integer, title: string}`.             |
+| `digitalRelease`     | `string`        | `null` (future: TMDB) | ISO-8601 date-time.                             |
+| `genres`             | `array<string>` | `null` (future: TMDB) |                                                 |
+| `images`             | `array<object>` | `null` (future: TMDB) | `[{coverType, remoteUrl, url}]` as in fixtures. |
+| `inCinemas`          | `string`        | `null` (future: TMDB) | ISO-8601 date-time.                             |
+| `lastInfoSync`       | `string`        | `null`                | ISO-8601 date-time.                             |
+| `originalLanguage`   | `object`        | `null` (future: TMDB) | `{id: integer, name: string}`.                  |
+| `originalTitle`      | `string`        | `null` (future: TMDB) |                                                 |
+| `overview`           | `string`        | `null` (future: TMDB) |                                                 |
+| `physicalRelease`    | `string`        | `null` (future: TMDB) | ISO-8601 date-time.                             |
+| `popularity`         | `number`        | `null` (future: TMDB) |                                                 |
+| `ratings`            | `object`        | `null` (future: TMDB) | Map of provider -> `{type, value, votes}`.      |
+| `recommendations`    | `string`        | `null`                | Raw string (per API contract).                  |
+| `runtime`            | `integer`       | `null` (future: TMDB) |                                                 |
+| `secondaryYear`      | `integer`       | `null`                |                                                 |
+| `sortTitle`          | `string`        | `null` (future: TMDB) |                                                 |
+| `studio`             | `string`        | `null` (future: TMDB) |                                                 |
+| `website`            | `string`        | `null` (future: TMDB) |                                                 |
+| `year`               | `integer`       | `null` (future: TMDB) |                                                 |
+| `youTubeTrailerId`   | `string`        | `null` (future: TMDB) |                                                 |
+
+### Core Field Defaults
+
+Core fields stored in the movie row with exact-match token validation (FR-009).
+
+| Field                 | Type     | POST Default | Allowed Values                                     | Notes                                   |
+| :-------------------- | :------- | :----------- | :------------------------------------------------- | :-------------------------------------- |
+| `minimumAvailability` | `string` | `"released"` | `deleted`, `tba`, `announced`, `inCinemas`, `released` | Exact-match token (FR-009, FR-017). |
+| `status`              | `string` | `"released"` | `deleted`, `tba`, `announced`, `inCinemas`, `released` | Exact-match token (FR-009, FR-016). |
 
 ### Key Entities *(include if feature involves data)*
 
@@ -148,19 +159,20 @@ All metadata keys are optional, but when present must match the expected request
 ### Assumptions
 
 - Clients supply metadata fields as top-level keys in the save payload; nested objects are allowed for collection, originalLanguage, images, and ratings.
-- Incoming request keys are camelCase. Validation runs both before and after case folding/normalization, and keys must match the recognized key set in both passes.
+- Incoming request keys are camelCase. Ring middleware decamelizes to kebab-case keywords; run two validations: one against camelCase keys pre-normalization and one against kebab-case keys post-keywordization. Each pass must match the recognized key set exactly.
 - Existing save flows already identify the target record for updates; this feature only affects metadata handling.
 - Recognized key and type validation aligns with current service limits used for other request fields (no metadata size limit enforced for now).
 - The recognized metadata key set is fixed for this iteration: MovieMetadata columns listed in FR-003.
 - Existing P-States already map non-metadata movie fields (for example, alternate titles, keywords, availability, quality profiles); this feature will leave those untouched.
-- Status strings in save requests map directly to the enum values (Deleted=-1, TBA=0, Announced=1, InCinemas=2, Released=3) irrespective of casing (for example, `tba`, `announced`, `inCinemas`, `released`); invalid status values are treated as validation errors.
+- `status` and `minimumAvailability` are core movie fields stored in the movie row. Both fields must match the allowed tokens exactly (`deleted`, `tba`, `announced`, `inCinemas`, `released`); invalid values are treated as validation errors (FR-009).
 - Metadata changes are only accepted via PUT requests; repeated POST create requests are treated as duplicates and must not mutate stored metadata.
 - Stored metadata rows are sparse and include only provided non-null keys.
+- When fields are omitted from POST requests, Radarr exhibits the following behavior: core fields `status` and `minimumAvailability` default to `"released"` (FR-016, FR-017); 18 metadata fields (certification, cleanTitle, digitalRelease, genres, images, inCinemas, originalLanguage, originalTitle, overview, physicalRelease, popularity, ratings, runtime, sortTitle, studio, website, year, youTubeTrailerId) auto-populate from TMDB; 5 metadata fields (cleanOriginalTitle, collection, lastInfoSync, recommendations, secondaryYear) default to `null`. Our system currently implements core field defaults per FR-016 and FR-17. TMDB auto-population (FR-018) is planned for future implementation; omitted metadata fields currently default to `null`.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of saved records retrieved immediately after a successful save present metadata values that match the last submitted valid metadata (no silent drops).
-- **SC-002**: 95% of save attempts with invalid metadata return a specific validation message naming the problematic field without persisting any metadata.
+- **SC-001**: Saved records retrieved immediately after a successful save present metadata values that match the last submitted valid metadata (no silent drops).
+- **SC-002**: Save attempts with invalid metadata return a specific validation message naming the problematic field and no metadata is persisted.
 - **SC-003**: Saves submitted without metadata continue to succeed at or above the current success rate (target ≥99%) with no additional steps required by the client.
