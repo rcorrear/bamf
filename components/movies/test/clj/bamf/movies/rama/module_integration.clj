@@ -14,12 +14,12 @@
 (defn- movie-payload-from-resource
   [resource-name]
   (let [parsed        (casing/->kebab-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
-        core-keys     [:add-options :added :folder-name :imdb-id :monitored :movie-file-id :path :quality-profile-id
-                       :root-folder-path :tags :title :title-slug :tmdb-id :year]
+        core-keys     [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id :path
+                       :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year]
         metadata-keys [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language
                        :status :last-info-sync :runtime :in-cinemas :physical-release :digital-release :secondary-year
                        :ratings :recommendations :certification :you-tube-trailer-id :studio :overview :website
-                       :popularity :collection :minimum-availability]
+                       :popularity :collection]
         base          (merge (select-keys parsed core-keys) (select-keys parsed metadata-keys))
         normalized    (merge base (model/normalize-metadata (model/extract-metadata base)))]
     (delay (-> base
@@ -44,7 +44,7 @@
 (def ^:private metadata-keys
   [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
    :last-info-sync :runtime :in-cinemas :physical-release :digital-release :secondary-year :ratings :recommendations
-   :certification :you-tube-trailer-id :studio :overview :website :popularity :collection :year :minimum-availability])
+   :certification :you-tube-trailer-id :studio :overview :website :popularity :collection :year])
 
 (defn- with-module
   [f]

@@ -70,8 +70,8 @@
 (deftest save-includes-metadata-in-depot-payload
   (let [captured      (atom nil)
         env           {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}
-        metadata-keys [:images :genres :status :minimum-availability :ratings :collection :runtime :in-cinemas
-                       :physical-release :digital-release :overview :studio :website :popularity]]
+        metadata-keys [:images :genres :status :ratings :collection :runtime :in-cinemas :physical-release
+                       :digital-release :overview :studio :website :popularity]]
     (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
                   pstate/movie-by-id         (fn [& _] nil)
                   depot/put!                 (fn [{:keys [movie]}]
@@ -183,7 +183,8 @@
                                :tmdb-id          (:tmdb-id existing)}
             result            (persistence/update! {:movie-depot movie-depot} patch)
             expected-captured (select-keys (merge existing patch)
-                                           [:id :monitored :quality-profile-id :path :root-folder-path :tags])]
+                                           [:id :minimum-availability :monitored :quality-profile-id :path
+                                            :root-folder-path :tags])]
         (is (= :updated (:status result)))
         (is (= false (get-in result [:movie :monitored])))
         (is (= "2025-10-10T00:00:00Z" (get-in result [:movie :last-search-time])))
@@ -206,7 +207,9 @@
             expected       (-> (merge existing patch)
                                (model/normalize (:clock env))
                                (assoc :id (:id existing)))
-            expected-depot (select-keys expected [:id :monitored :quality-profile-id :path :root-folder-path :tags])]
+            expected-depot (select-keys expected
+                                        [:id :minimum-availability :monitored :quality-profile-id :path
+                                         :root-folder-path :tags])]
         (is (= expected-depot @captured))
         (is (= :updated (:status result)))
         (is (= (:path expected) (get-in result [:movie :path])))
@@ -214,11 +217,8 @@
 
 (deftest update-merges-metadata
   (let [existing          (canonical-existing)
-        existing-metadata (model/normalize-metadata {:status               "released"
-                                                     :minimum-availability "released"
-                                                     :genres               ["Drama"]
-                                                     :overview             "Old"
-                                                     :popularity           1.2})
+        existing-metadata (model/normalize-metadata
+                           {:status "released" :genres ["Drama"] :overview "Old" :popularity 1.2})
         captured          (atom nil)
         env               {:clock (constantly "2025-10-21T00:00:00Z") :movie-depot movie-depot}]
     (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))
@@ -231,14 +231,15 @@
                                :genres               ["Mystery"]
                                :overview             nil
                                :studio               "New Studio"
-                               :minimum-availability "InCINEMAS"}
+                               :minimum-availability "inCinemas"}
             result            (persistence/update! env patch)
             expected-metadata (-> existing-metadata
-                                  (assoc :genres ["Mystery"] :studio "New Studio" :minimum-availability "inCinemas")
+                                  (assoc :genres ["Mystery"] :studio "New Studio")
                                   (dissoc :overview))]
         (is (= :updated (:status result)))
         (is (= expected-metadata (:metadata @captured)))
         (is (= ["Mystery"] (:genres @captured)))
+        (is (= "inCinemas" (:minimum-availability @captured)))
         (is (nil? (:overview @captured)))
         (is (not (contains? (:metadata @captured) :overview)))))))
 
@@ -293,3 +294,30 @@
       (let [result (persistence/update! {} {:id (:id existing) :monitored false :tmdb-id (:tmdb-id existing)})]
         (is (= :error (:status result)))
         (is (= ["movie-depot handle not provided"] (:errors result)))))))
+
+(deftest save-defaults-minimum-availability-to-released
+  (let [captured (atom nil)
+        payload  (-> @sample-payload
+                     (dissoc :minimum-availability))
+        env      {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  depot/put!                 (fn [{:keys [movie]}]
+                                               (reset! captured movie)
+                                               {:status :stored :movie {:id 1}})]
+      (let [result (persistence/save! env payload)]
+        (is (= :stored (:status result)))
+        (is (= "released" (:minimum-availability @captured)))
+        (is (= "released" (get-in result [:movie :minimum-availability])))))))
+
+(deftest save-defaults-status-to-released
+  (let [captured (atom nil)
+        payload  @sample-payload
+        env      {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  depot/put!                 (fn [{:keys [movie]}]
+                                               (reset! captured movie)
+                                               {:status :stored :movie {:id 1}})]
+      (let [result (persistence/save! env payload)]
+        (is (= :stored (:status result)))
+        (is (= "released" (:status @captured)))
+        (is (= "released" (get-in result [:movie :status])))))))

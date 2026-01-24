@@ -61,12 +61,13 @@
 (deftest create-movie-translates-stored-response
   (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :target-system "radarr"}}
                     (fn [invocation env]
-                      (let [response (http/create-movie {:body-params {:title "Foo"} :movies/env env})]
+                      (let [payload  {:title "Foo" :minimum-availability "released"}
+                            response (http/create-movie {:body-params payload :movies/env env})]
                         (is (= 201 (:status response)))
                         (is (= {:id 1 :size-on-disk 0} (select-keys (:body response) [:id :size-on-disk])))
                         (is (not (contains? (:body response) :last-search-time)))
-                        (is (nil? (get-in response [:body :target-system]))))
-                      (is (= {:env env :payload {:title "Foo"}} @invocation)))))
+                        (is (nil? (get-in response [:body :target-system])))
+                        (is (= {:env env :payload payload} @invocation))))))
 
 (deftest create-movie-includes-metadata
   (let [metadata {:genres ["Drama"] :status "released" :overview "A test"}]
@@ -202,20 +203,23 @@
         (is (contains? errors "status must be one of deleted, tba, announced, inCinemas, released"))
         (is (zero? @writes))))))
 
-(deftest create-movie-normalizes-status
+(deftest create-movie-rejects-non-exact-status
   (let [env     {:movie-depot ::movie-depot}
         payload {:title                "Foo"
                  :tmdb-id              77
                  :quality-profile-id   1
                  :minimum-availability "released"
                  :monitored            true
-                 :status               "InCINEMAS"}]
+                 :status               "InCINEMAS"}
+        writes  (atom 0)]
     (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
                   pstate/movie-by-id         (fn [& _] nil)
-                  depot/put!                 (fn [& _] {:status :stored :movie {:id 42}})]
-      (let [response (http/create-movie {:body-params payload :movies/env env})]
-        (is (= 201 (:status response)))
-        (is (= "inCinemas" (get-in response [:body :status])))))))
+                  depot/put!                 (fn [& _] (swap! writes inc) {:status :stored :movie {:id 42}})]
+      (let [response (http/create-movie {:body-params payload :movies/env env})
+            errors   (set (get-in response [:body :errors]))]
+        (is (= 422 (:status response)))
+        (is (contains? errors "status must be one of deleted, tba, announced, inCinemas, released"))
+        (is (zero? @writes))))))
 
 (deftest create-movie-rejects-invalid-status
   (let [env     {:movie-depot ::movie-depot}
