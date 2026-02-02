@@ -37,12 +37,11 @@ specs/               # Feature plans and research notes
 4. Stop or restart the environment with `(user/stop)` / `(user/restart)`. Status helpers such as `(user/status)` and `(user/runtime-state)` mirror the Donut tooling in `components/system`.
 
 ### Running Tests
-- Full suite: `clojure -X:test`
-- Route-specific checks: `clojure -X:test :nses '[bamf.rest-api.routes-test bamf.rest-api.routes-integration-test]'`
-
-## HTTP API
-- **Movies** - `POST /api/v3/movie` accepts Radarr-style payloads, normalizes tags/timestamps, rejects duplicates (`tmdbId` or `path`), and returns the stored record. A placeholder `GET /api/v3/movie` endpoint exists while the listing query is implemented (`components/movies/src/clj/bamf/movies/http.clj`).
-- Component routes are registered via `get-http-api` on each component's interface namespace and composed by `bamf.rest-api.routes/aggregate`.
+- Full suite: `clojure -M:test`
+- Specific namespace: `clojure -M:test --focus bamf.rest-api.routes-test`
+- Specific test: `clojure -M:test --focus bamf.rest-api.routes-test/some-test`
+- Unit tests only: `clojure -M:test --focus :unit`
+- Integration tests only: `clojure -M:test --focus :integration`
 
 ## Configuration
 - Defaults live under `components/config/src/resources`. Configuration files are selected by environment (`config-local.edn`, `config-test.edn`, etc.).
