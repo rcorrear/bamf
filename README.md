@@ -1,8 +1,10 @@
-# BAMF
+# BAMF — Batch Automated Media Fetcher
 
 BAMF is an automated media fetcher for BitTorrent workflows. It watches Jackett or Prowlarr feeds for new releases and persists Radarr-compatible movie metadata so automation tooling knows what to download next.
 
 ![BAMF Logo](./docs/logo.png)
+
+> **Heads up** — This is a hobby project and a learning vehicle, not production software. It is heavily LLM-assisted (most of the code was generated with the help of AI coding tools) and very much a work in progress — many features are incomplete or missing entirely. The primary goal is to explore technologies that interest me: **Clojure**, **Polylith**, and **Rama**. Use at your own curiosity.
 
 ## What's Here Today
 - A composable REST surface built from Polylith components and aggregated at runtime with Reitit.
