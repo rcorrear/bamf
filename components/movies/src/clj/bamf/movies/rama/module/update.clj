@@ -1,20 +1,19 @@
 (ns bamf.movies.rama.module.update
   (:use [com.rpl.rama] [com.rpl.rama.path])
   (:require [bamf.movies.rama.module.helpers :as helpers]
-            [bamf.movies.rama.module.state :refer [$$movies $$movies-ids-by-monitored $$movies-ids-by-tag]]
+            [bamf.movies.rama.module.state :refer
+             [$$metadata-by-movie-id $$movies $$movies-ids-by-monitored $$movies-ids-by-tag]]
             [clojure.set :as set]
             [com.rpl.rama.ops :as ops]))
 
 (deframafn ^:private resolve-movie-update
-  [*existing-movie-row *incoming-last-search-time *incoming-minimum-availability *incoming-monitored *incoming-path
-   *incoming-quality-profile-id *incoming-root-folder-path]
+  [*existing-movie-row *incoming-last-search-time *incoming-monitored *incoming-path *incoming-quality-profile-id
+   *incoming-root-folder-path]
   (identity (get *existing-movie-row :added) :> *added)
   (identity (get *existing-movie-row :imdb-id) :> *imdb-id)
   (identity (get *existing-movie-row :last-search-time) :> *existing-last-search-time)
-  (identity (get *existing-movie-row :minimum-availability) :> *existing-minimum-availability)
   (identity (get *existing-movie-row :monitored) :> *existing-monitored)
   (identity (get *existing-movie-row :movie-file-id) :> *movie-file-id)
-  (identity (get *existing-movie-row :movie-metadata-id) :> *existing-movie-metadata-id)
   (identity (get *existing-movie-row :tmdb-id) :> *existing-tmdb-id)
   (identity (get *existing-movie-row :path) :> *maybe-path)
   (<<if (nil? *maybe-path) (identity "" :> *resolved-path) (else>) (identity *maybe-path :> *resolved-path))
@@ -40,15 +39,6 @@
                        :resolve-last-search
                        {:incoming *incoming-last-search-time}
                        {:parsed *parsed-last-search :existing *existing-last-search-time})
-  (<<if *incoming-minimum-availability
-    (identity *incoming-minimum-availability :> *resolved-minimum-availability)
-    (else>)
-    (identity *existing-minimum-availability :> *resolved-minimum-availability))
-  (helpers/print-event :debug
-                       :movie/update
-                       :resolve-minimum-availability
-                       {:incoming *incoming-minimum-availability}
-                       {:resolved *resolved-minimum-availability})
   (<<if *incoming-quality-profile-id
     (identity *incoming-quality-profile-id :> *resolved-quality-profile-id)
     (else>)
@@ -78,20 +68,18 @@
                        :resolve-monitored
                        {:incoming *incoming-monitored}
                        {:resolved *resolved-monitored})
-  (:> {:added                *added
-       :imdb-id              *imdb-id
-       :last-search-time     *resolved-last-search
-       :minimum-availability *resolved-minimum-availability
-       :monitored            *resolved-monitored
-       :movie-file-id        *movie-file-id
-       :movie-metadata-id    *existing-movie-metadata-id
-       :tmdb-id              *existing-tmdb-id
-       :path                 *resolved-path
-       :quality-profile-id   *resolved-quality-profile-id
-       :root-folder-path     *resolved-root-folder-path
-       :title                *title
-       :title-slug           *title-slug
-       :year                 *year}))
+  (:> {:added              *added
+       :imdb-id            *imdb-id
+       :last-search-time   *resolved-last-search
+       :monitored          *resolved-monitored
+       :movie-file-id      *movie-file-id
+       :path               *resolved-path
+       :quality-profile-id *resolved-quality-profile-id
+       :root-folder-path   *resolved-root-folder-path
+       :title              *title
+       :title-slug         *title-slug
+       :tmdb-id            *existing-tmdb-id
+       :year               *year}))
 
 (deframaop reconcile-tags
   [*id *existing-tags-set *resolved-tags]
@@ -112,22 +100,21 @@
       (local-transform> [(keypath *tag-to-add) NONE-ELEM (termval *id)] $$movies-ids-by-tag))))
 
 (deframaop movie-update
-  [{:keys [*id *last-search-time *minimum-availability *monitored *path *quality-profile-id *root-folder-path *tags]}]
-  (<<with-substitutions [$$movies                   (this-module-pobject-task-global "$$movies")
-                         $$movies-id-by-tmdb-id     (this-module-pobject-task-global "$$movies-id-by-tmdb-id")
-                         $$movies-id-by-metadata-id (this-module-pobject-task-global "$$movies-id-by-metadata-id")
-                         $$movies-ids-by-monitored  (this-module-pobject-task-global "$$movies-ids-by-monitored")
-                         $$movies-ids-by-tag        (this-module-pobject-task-global "$$movies-ids-by-tag")]
+  [{:keys [*id *last-search-time *metadata *monitored *path *quality-profile-id *root-folder-path *tags]}]
+  (<<with-substitutions [$$movies                  (this-module-pobject-task-global "$$movies")
+                         $$metadata-by-movie-id    (this-module-pobject-task-global "$$metadata-by-movie-id")
+                         $$movies-id-by-tmdb-id    (this-module-pobject-task-global "$$movies-id-by-tmdb-id")
+                         $$movies-ids-by-monitored (this-module-pobject-task-global "$$movies-ids-by-monitored")
+                         $$movies-ids-by-tag       (this-module-pobject-task-global "$$movies-ids-by-tag")]
     (helpers/print-event :debug
                          :movie/update :incoming
-                         :payload      {:id                   *id
-                                        :monitored            *monitored
-                                        :minimum-availability *minimum-availability
-                                        :path                 *path
-                                        :quality-profile-id   *quality-profile-id
-                                        :root-folder-path     *root-folder-path
-                                        :tags                 *tags
-                                        :last-search-time     *last-search-time})
+                         :payload      {:id                 *id
+                                        :monitored          *monitored
+                                        :path               *path
+                                        :quality-profile-id *quality-profile-id
+                                        :root-folder-path   *root-folder-path
+                                        :tags               *tags
+                                        :last-search-time   *last-search-time})
     (<<if (nil? *id)
       (helpers/print-event :warn :movie/update :missing-id :payload {:id *id})
       (ack-return> {:status :not-found :movie {:id *id}})
@@ -138,7 +125,6 @@
       (helpers/print-event :debug :movie/update :found-movie-row :movie *existing-movie-row)
       (<<if (not (nil? *existing-movie-row))
         (identity (get *existing-movie-row :tmdb-id) :> *existing-tmdb-id)
-        (identity (get *existing-movie-row :movie-metadata-id) :> *existing-metadata-id)
         (identity (get *existing-movie-row :tags) :> *existing-tags-set)
         (<<shadowif *existing-tags-set nil? #{})
         (identity *monitored :> *incoming-monitored)
@@ -146,7 +132,6 @@
         (<<shadowif *incoming-tags empty? nil)
         (resolve-movie-update *existing-movie-row
                               *last-search-time
-                              *minimum-availability
                               *incoming-monitored
                               *path
                               *quality-profile-id
@@ -160,11 +145,19 @@
         (identity (assoc *movie-row-base :tags *resolved-tags) :> *movie-row)
         (helpers/print-event :debug :movie/update :resolved-update {:id *id} *movie-row)
         (local-transform> [(keypath *id) (termval *movie-row)] $$movies)
+        (<<if (nil? *metadata)
+          (identity nil)
+          (else>)
+          (helpers/print-event :debug :movie/update :hashing-by-movie-id)
+          (|hash$$ $$metadata-by-movie-id *id)
+          (helpers/print-event :debug :movie/update :saving-metadata {:movie-id *id} *metadata)
+          (<<if (empty? *metadata)
+            (local-transform> [(keypath *id) (termval nil)] $$metadata-by-movie-id)
+            (else>)
+            (local-transform> [(keypath *id) (termval *metadata)] $$metadata-by-movie-id)))
         ;; ensure id indexes stay consistent
         (|hash$$ $$movies-id-by-tmdb-id *existing-tmdb-id)
         (local-transform> [(keypath *existing-tmdb-id) (termval *id)] $$movies-id-by-tmdb-id)
-        (|hash$$ $$movies-id-by-metadata-id *existing-metadata-id)
-        (local-transform> [(keypath *existing-metadata-id) (termval *id)] $$movies-id-by-metadata-id)
         (<<if (not (nil? *incoming-monitored))
           (|hash$$ $$movies-ids-by-monitored true)
           (local-select> (keypath true) $$movies-ids-by-monitored :> *monitored-set)

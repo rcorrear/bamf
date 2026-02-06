@@ -56,7 +56,7 @@
 ## Observability Checklist
 - Telemere should log `:movies/create-*` and `:movies/update-*` events with movie ids, reasons for validation failures, and depot status codes.
 - Rama depot stream must contain versioned `:movie.created` and `:movie.updated` events; inspect with Rama tooling if available. (Updates emit when invoked via component `update-movie!`; HTTP surface is create + read only.)
-- Duplicate submissions (same `movieMetadataId` or `path`) must yield HTTP 409 and log `:movies/create-duplicate`.
+- Duplicate submissions (same `tmdbId` or `path`) must yield HTTP 409 and log `:movies/create-duplicate`.
 - Missing Rama env (specifically `:ipc` or `:movie-depot`) raises explicit errors during persistence, preventing silent id reuse.
 
 ## Rollback Plan

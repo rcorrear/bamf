@@ -303,10 +303,6 @@
           "sourceType": {
             "$ref": "#/components/schemas/SourceType"
           },
-          "movieMetadataId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "title": {
             "type": "string",
             "nullable": true

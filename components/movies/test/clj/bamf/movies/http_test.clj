@@ -1,7 +1,12 @@
 (ns bamf.movies.http-test
-  (:require [bamf.movies.http :as http]
+  (:require [bamf.casing :as casing]
+            [bamf.movies.http :as http]
             [bamf.movies.inspection :as inspection]
             [bamf.movies.persistence :as persistence]
+            [bamf.movies.rama.client.depot :as depot]
+            [bamf.movies.rama.client.pstate :as pstate]
+            [clojure.data.json :as json]
+            [clojure.java.io :as io]
             [clojure.test :refer [deftest is]]))
 
 (deftest list-movies-pulls-from-inspection
@@ -56,13 +61,43 @@
 (deftest create-movie-translates-stored-response
   (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :target-system "radarr"}}
                     (fn [invocation env]
+                      (let [payload  {:title "Foo" :minimum-availability "released"}
+                            response (http/create-movie {:body-params payload :movies/env env})]
+                        (is (= 201 (:status response)))
+                        (is (= {:id 1 :size-on-disk 0} (select-keys (:body response) [:id :size-on-disk])))
+                        (is (not (contains? (:body response) :last-search-time)))
+                        (is (nil? (get-in response [:body :target-system])))
+                        (is (= {:env env :payload payload} @invocation))))))
+
+(deftest create-movie-includes-metadata
+  (let [metadata {:genres ["Drama"] :status "released" :overview "A test"}]
+    (with-save-result {:status :stored :movie (merge {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z"} metadata)}
+                      (fn [invocation env]
+                        (let [payload  (merge {:title "Foo"} metadata)
+                              response (http/create-movie {:body-params payload :movies/env env})]
+                          (is (= 201 (:status response)))
+                          (is (= ["Drama"] (get-in response [:body :genres])))
+                          (is (= "released" (get-in response [:body :status])))
+                          (is (= "A test" (get-in response [:body :overview])))
+                          (is (= payload (:payload @invocation))))))))
+
+(deftest create-movie-without-metadata
+  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z"}}
+                    (fn [_ env]
                       (let [response (http/create-movie {:body-params {:title "Foo"} :movies/env env})]
                         (is (= 201 (:status response)))
-                        (is (= {:id 1 :movie-metadata-id 77 :size-on-disk 0}
-                               (select-keys (:body response) [:id :movie-metadata-id :size-on-disk])))
-                        (is (not (contains? (:body response) :last-search-time)))
-                        (is (nil? (get-in response [:body :target-system]))))
-                      (is (= {:env env :payload {:title "Foo"}} @invocation)))))
+                        (is (not (contains? (:body response) :genres)))
+                        (is (not (contains? (:body response) :overview)))))))
+
+(deftest create-movie-ignores-unknown-metadata
+  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :genres ["Drama"]}}
+                    (fn [invocation env]
+                      (let [payload  {:title "Foo" :genres ["Drama"] :unknown-metadata "skip"}
+                            response (http/create-movie {:body-params payload :movies/env env})]
+                        (is (= 201 (:status response)))
+                        (is (= ["Drama"] (get-in response [:body :genres])))
+                        (is (not (contains? (:body response) :unknown-metadata)))
+                        (is (= payload (:payload @invocation)))))))
 
 (deftest create-movie-translates-duplicate-response
   (with-save-result {:status :duplicate :reason "duplicate" :field :tmdb-id :existing-id 42}
@@ -101,6 +136,17 @@
               (select-keys (:body response) [:id :monitored :last-search-time :size-on-disk]))))
      (is (= {:env env :payload {:monitored false :id 9 :move-files true}} @invocation)))))
 
+(deftest update-movie-merges-metadata
+  (with-update-result {:status :updated :movie {:id 9 :genres ["Mystery"] :studio "New Studio"}}
+                      (fn [invocation env]
+                        (let [payload  {:genres ["Mystery"] :overview nil :studio "New Studio"}
+                              response (http/update-movie {:body-params payload :path-params {:id 9} :movies/env env})]
+                          (is (= 200 (:status response)))
+                          (is (= ["Mystery"] (get-in response [:body :genres])))
+                          (is (= "New Studio" (get-in response [:body :studio])))
+                          (is (not (contains? (:body response) :overview)))
+                          (is (= {:env env :payload (assoc payload :id 9)} @invocation))))))
+
 (deftest update-movie-translates-not-found
   (with-update-result
    {:status :not-found :movie-id 44}
@@ -115,7 +161,7 @@
    (fn [_ env]
      (is (= {:status 409 :body {:error "duplicate" :field "tmdbId" :existing-id 42}}
             (http/update-movie
-             {:body {:movie-metadata-id 1} :path-params {:id 1} :movies/env env :query-params {:move-files true}}))))))
+             {:body {:monitored true} :path-params {:id 1} :movies/env env :query-params {:move-files true}}))))))
 
 (deftest update-movie-translates-invalid-response
   (with-update-result
@@ -139,3 +185,53 @@
                                         {:body {:monitored true} :path-params {:id 5} :movies/env env})]
                           (is (= 500 (:status response)))
                           (is (seq (get-in response [:body :errors])))))))
+
+(deftest create-movie-rejects-invalid-metadata
+  (let [payload (casing/->kebab-keys
+                 (json/read-str (slurp (io/resource "movie-save-request-invalid-metadata.json")) :key-fn keyword))
+        writes  (atom 0)
+        env     {:movie-depot ::movie-depot}]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  pstate/movie-by-id         (fn [& _] nil)
+                  depot/put!                 (fn [& _] (swap! writes inc) {:status :stored :movie {}})]
+      (let [response (http/create-movie {:body-params payload :movies/env env})
+            errors   (set (get-in response [:body :errors]))]
+        (is (= 422 (:status response)))
+        (is (contains? errors "images must be a list of objects"))
+        (is (contains? errors "genres must be a list of strings"))
+        (is (contains? errors "runtime must be an integer"))
+        (is (contains? errors "status must be one of deleted, tba, announced, inCinemas, released"))
+        (is (zero? @writes))))))
+
+(deftest create-movie-normalizes-status
+  (let [env     {:movie-depot ::movie-depot}
+        payload {:title                "Foo"
+                 :tmdb-id              77
+                 :quality-profile-id   1
+                 :minimum-availability "released"
+                 :monitored            true
+                 :status               "InCINEMAS"}]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  pstate/movie-by-id         (fn [& _] nil)
+                  depot/put!                 (fn [& _] {:status :stored :movie {:id 42}})]
+      (let [response (http/create-movie {:body-params payload :movies/env env})]
+        (is (= 201 (:status response)))
+        (is (= "inCinemas" (get-in response [:body :status])))))))
+
+(deftest create-movie-rejects-invalid-status
+  (let [env     {:movie-depot ::movie-depot}
+        payload {:title                "Foo"
+                 :tmdb-id              77
+                 :quality-profile-id   1
+                 :minimum-availability "released"
+                 :monitored            true
+                 :status               "notAStatus"}
+        writes  (atom 0)]
+    (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
+                  pstate/movie-by-id         (fn [& _] nil)
+                  depot/put!                 (fn [& _] (swap! writes inc) {:status :stored :movie {}})]
+      (let [response (http/create-movie {:body-params payload :movies/env env})
+            errors   (set (get-in response [:body :errors]))]
+        (is (= 422 (:status response)))
+        (is (contains? errors "status must be one of deleted, tba, announced, inCinemas, released"))
+        (is (zero? @writes))))))

@@ -23,8 +23,17 @@
    [:minimum-availability string?] [:status {:optional true} [:maybe string?]] [:monitored boolean?]
    [:has-file {:optional true} [:maybe boolean?]] [:is-available {:optional true} boolean?]
    [:quality-profile-id pos-int?] [:movie-file-id {:optional true} int?] [:runtime {:optional true} [:maybe int?]]
-   [:size-on-disk {:optional true} [:maybe int?]] [:year {:optional true} int?]
-   [:secondary-year {:optional true} [:maybe int?]] [:popularity {:optional true} number?]
+   [:size-on-disk {:optional true} [:maybe int?]] [:year {:optional true} [:maybe int?]]
+   [:secondary-year {:optional true} [:maybe int?]] [:popularity {:optional true} [:maybe number?]]
+   [:images {:optional true} [:maybe [:sequential map?]]] [:genres {:optional true} [:maybe [:sequential string?]]]
+   [:sort-title {:optional true} [:maybe string?]] [:clean-title {:optional true} [:maybe string?]]
+   [:clean-original-title {:optional true} [:maybe string?]] [:original-language {:optional true} [:maybe map?]]
+   [:last-info-sync {:optional true} [:maybe string?]] [:in-cinemas {:optional true} [:maybe string?]]
+   [:physical-release {:optional true} [:maybe string?]] [:digital-release {:optional true} [:maybe string?]]
+   [:ratings {:optional true} [:maybe map?]] [:recommendations {:optional true} [:maybe string?]]
+   [:certification {:optional true} [:maybe string?]] [:you-tube-trailer-id {:optional true} [:maybe string?]]
+   [:studio {:optional true} [:maybe string?]] [:overview {:optional true} [:maybe string?]]
+   [:website {:optional true} [:maybe string?]] [:collection {:optional true} [:maybe map?]]
    [:tags {:optional true} [:sequential [:or int? string?]]] [:add-options {:optional true} map?]])
 
 (def movie-create-request-camel
@@ -32,23 +41,42 @@
    [:rootFolderPath {:optional true} [:maybe string?]] [:monitored boolean?] [:qualityProfileId pos-int?]
    [:minimumAvailability string?] [:tmdbId pos-int?] [:titleSlug {:optional true} string?]
    [:imdbId {:optional true} string?] [:addOptions {:optional true} map?]
-   [:tags {:optional true} [:sequential [:or int? string?]]] [:year {:optional true} int?]
-   [:secondaryYear {:optional true} [:maybe int?]] [:status {:optional true} string?]
+   [:tags {:optional true} [:sequential [:or int? string?]]] [:year {:optional true} [:maybe int?]]
+   [:secondaryYear {:optional true} [:maybe int?]] [:status {:optional true} [:maybe string?]]
    [:hasFile {:optional true} [:maybe boolean?]] [:isAvailable {:optional true} boolean?]
-   [:movieFileId {:optional true} int?] [:runtime {:optional true} int?] [:sizeOnDisk {:optional true} [:maybe int?]]
-   [:popularity {:optional true} number?]])
+   [:movieFileId {:optional true} int?] [:runtime {:optional true} [:maybe int?]]
+   [:sizeOnDisk {:optional true} [:maybe int?]] [:popularity {:optional true} [:maybe number?]]
+   [:images {:optional true} [:maybe [:sequential map?]]] [:genres {:optional true} [:maybe [:sequential string?]]]
+   [:sortTitle {:optional true} [:maybe string?]] [:cleanTitle {:optional true} [:maybe string?]]
+   [:originalTitle {:optional true} [:maybe string?]] [:cleanOriginalTitle {:optional true} [:maybe string?]]
+   [:originalLanguage {:optional true} [:maybe map?]] [:lastInfoSync {:optional true} [:maybe string?]]
+   [:inCinemas {:optional true} [:maybe string?]] [:physicalRelease {:optional true} [:maybe string?]]
+   [:digitalRelease {:optional true} [:maybe string?]] [:ratings {:optional true} [:maybe map?]]
+   [:recommendations {:optional true} [:maybe string?]] [:certification {:optional true} [:maybe string?]]
+   [:youTubeTrailerId {:optional true} [:maybe string?]] [:studio {:optional true} [:maybe string?]]
+   [:overview {:optional true} [:maybe string?]] [:website {:optional true} [:maybe string?]]
+   [:collection {:optional true} [:maybe map?]]])
 
 (def movie-update-request-camel
   [:map {:closed false} [:monitored {:optional true} boolean?] [:qualityProfileId {:optional true} pos-int?]
-   [:minimumAvailability {:optional true} string?] [:movieMetadataId {:optional true} pos-int?]
-   [:lastSearchTime {:optional true} [:maybe string?]] [:title {:optional true} string?]
-   [:path {:optional true} [:maybe string?]] [:rootFolderPath {:optional true} [:maybe string?]]
-   [:titleSlug {:optional true} string?] [:imdbId {:optional true} string?]
-   [:tags {:optional true} [:sequential [:or int? string?]]] [:year {:optional true} int?]
-   [:secondaryYear {:optional true} [:maybe int?]] [:status {:optional true} string?]
-   [:hasFile {:optional true} [:maybe boolean?]] [:isAvailable {:optional true} boolean?]
-   [:movieFileId {:optional true} int?] [:runtime {:optional true} int?] [:sizeOnDisk {:optional true} [:maybe int?]]
-   [:popularity {:optional true} number?]])
+   [:minimumAvailability {:optional true} string?] [:lastSearchTime {:optional true} [:maybe string?]]
+   [:title {:optional true} string?] [:path {:optional true} [:maybe string?]]
+   [:rootFolderPath {:optional true} [:maybe string?]] [:titleSlug {:optional true} string?]
+   [:imdbId {:optional true} string?] [:tags {:optional true} [:sequential [:or int? string?]]]
+   [:year {:optional true} [:maybe int?]] [:secondaryYear {:optional true} [:maybe int?]]
+   [:status {:optional true} [:maybe string?]] [:hasFile {:optional true} [:maybe boolean?]]
+   [:isAvailable {:optional true} boolean?] [:movieFileId {:optional true} int?]
+   [:runtime {:optional true} [:maybe int?]] [:sizeOnDisk {:optional true} [:maybe int?]]
+   [:popularity {:optional true} [:maybe number?]] [:images {:optional true} [:maybe [:sequential map?]]]
+   [:genres {:optional true} [:maybe [:sequential string?]]] [:sortTitle {:optional true} [:maybe string?]]
+   [:cleanTitle {:optional true} [:maybe string?]] [:originalTitle {:optional true} [:maybe string?]]
+   [:cleanOriginalTitle {:optional true} [:maybe string?]] [:originalLanguage {:optional true} [:maybe map?]]
+   [:lastInfoSync {:optional true} [:maybe string?]] [:inCinemas {:optional true} [:maybe string?]]
+   [:physicalRelease {:optional true} [:maybe string?]] [:digitalRelease {:optional true} [:maybe string?]]
+   [:ratings {:optional true} [:maybe map?]] [:recommendations {:optional true} [:maybe string?]]
+   [:certification {:optional true} [:maybe string?]] [:youTubeTrailerId {:optional true} [:maybe string?]]
+   [:studio {:optional true} [:maybe string?]] [:overview {:optional true} [:maybe string?]]
+   [:website {:optional true} [:maybe string?]] [:collection {:optional true} [:maybe map?]]])
 
 (def duplicate-body [:map [:error string?] [:field string?] [:existing-id pos-int?]])
 
@@ -81,9 +109,8 @@
   [movie]
   (let [movie (or movie {})]
     (-> movie
-        (update :movie-metadata-id #(or % (:tmdb-id movie)))
         (update :size-on-disk #(if (some? %) % 0))
-        (dissoc :target-system))))
+        (dissoc :metadata :target-system))))
 
 (defn- response-movies [movies] (mapv response-movie (or movies [])))
 
@@ -138,6 +165,12 @@
   (let [payload (safe-payload request)
         env     (request-env request)
         result  (persistence/save! env payload)]
+    (t/log! :debug
+            {:reason  :movies/http-create
+             :details (cond-> {:payload-keys (-> payload
+                                                 keys
+                                                 sort
+                                                 vec)})})
     (case (:status result)
       :stored    (stored->response result)
       :duplicate (duplicate->response result)
@@ -163,6 +196,13 @@
         result     (persistence/update! env
                                         (cond-> (assoc payload :id (or (:id payload) path-id))
                                           (some? move-files) (assoc :move-files move-files)))]
+    (t/log! :debug
+            {:reason  :movies/http-update
+             :details (cond-> {:movie-id     path-id
+                               :payload-keys (-> payload
+                                                 keys
+                                                 sort
+                                                 vec)})})
     (case (:status result)
       :updated   (updated->response result)
       :duplicate (duplicate->response result)

@@ -2,13 +2,17 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=clojure,direnv,emacs,intellij+iml,linux,macos,vim,windows
 
 ### Custom ###
-.calva/output-window/output.calva-repl
-.clj-kondo/.cache/
-.clojure-mcp/
+.calva/*
+.clj-kondo/.cache/*
+.clojure-mcp/*
+.code/*
+.codex/*
 .cpcache
 .devenv
 .lsp/.cache
+.opencode/*
 TODO.org
+clj-kondo.exports
 junit.xml
 target/
 

@@ -26,7 +26,6 @@
       (is (contains? errors "title is required"))
       (is (contains? errors "monitored is required"))
       (is (contains? errors "qualityProfileId is required"))
-      (is (contains? errors "minimumAvailability is required"))
       (is (contains? errors "tmdbId is required"))))
   (testing "titleSlug must match tmdbId"
     (is (= ["titleSlug must match tmdbId"]
@@ -55,7 +54,6 @@
       (is (= "2024-01-01T00:00:00Z" (:added normalized)))
       (is (nil? (:last-search-time normalized)))
       (is (= 42 (:tmdb-id normalized)))
-      (is (= 42 (:movie-metadata-id normalized)))
       (is (= "/media/movies/Dune" (:path normalized)))
       (is (= "radarr" (:target-system normalized)))
       (is (= #{"scifi" "7"} (set (:tags normalized))))

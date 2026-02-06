@@ -39,7 +39,7 @@ Dependency injection through `donut-party.system` MUST be used when components c
 
 ### P4. Telemetry-Backed Operations
 Every externally visible action MUST emit structured telemetry using Telemere so lifecycle, performance, and failure modes remain observable.
-Instrumentation MUST accompany new events, HTTP endpoints, background jobs, and persistence handlers, including correlation identifiers for end-to-end tracing.
+Instrumentation MUST accompany new events, HTTP endpoints, background jobs, and persistence handlers.
 Logging MUST remain comprehensive enough to debug asynchronous workflows in production without replaying events manually.
 
 ### P5. Tested, Repeatable Delivery
@@ -58,7 +58,7 @@ Global test coverage MUST stay at or above 80%; no commit may reduce coverage be
 - HTTP APIs MUST accept JSON, produce JSON, and remain contract-compatible with the Radarr and Sonarr V3 OpenAPI specifications.
 - Request payloads MUST be validated with Malli schemas before invoking persistence or business logic.
 - Persistence designs MUST catalog the events they emit, the Rama p-states they touch, and replay expectations.
-- Observability work MUST specify metrics, logs, and traces added, along with owners for dashboard updates.
+- Observability work MUST specify metrics, logs, and/or traces added.
 - Documentation updates (README, quickstarts, contracts) MUST accompany behavior that alters external expectations.
 
 ## Governance
