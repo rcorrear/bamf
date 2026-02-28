@@ -5,7 +5,7 @@ Rationale: Store MovieMetadata separately in Rama (keyed by movie id) to keep th
 Alternatives considered: Store in the movie row PState; nest under a `metadata` sub-map - rejected to keep storage isolated while preserving API compatibility.
 
 Decision: Metadata fields correspond to MovieMetadata columns (excluding core movie identifiers)  
-Rationale: Persist only the MovieMetadata columns: images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, status, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection. Core movie fields (tmdbId, imdbId, title) remain part of the movie record, not metadata.  
+Rationale: Persist only the MovieMetadata columns: images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection. Core movie fields (tmdbId, imdbId, title, status, minimumAvailability) remain part of the movie record, not metadata.  
 Alternatives considered: Persist custom keys (sourceSystem/externalId/etc.) or include core identifiers - rejected because they do not map to MovieMetadata or belong to the movie row.
 
 Decision: Request shape uses Radarr payload keys (no extraData block)  
@@ -42,15 +42,14 @@ Decision: Match Radarr's POST default behavior for metadata fields
 Rationale: Probe testing against Radarr API revealed specific default behaviors when fields are omitted from POST `/api/v3/movie` requests. To maintain API compatibility, our system should replicate this behavior.
 
 **Probe Findings:**
-- `status` defaults to `"released"` when omitted (not from TMDB)
-- `minimumAvailability` defaults to `"released"` when omitted (not from TMDB)
+- `status` and `minimumAvailability` are core movie fields that default to `"released"` when omitted (not from TMDB, not metadata)
 - 18 metadata fields auto-populate from TMDB when omitted (certification, cleanTitle, digitalRelease, genres, images, inCinemas, originalLanguage, originalTitle, overview, physicalRelease, popularity, ratings, runtime, sortTitle, studio, website, year, youTubeTrailerId)
-- 5 fields default to `null` when omitted (cleanOriginalTitle, collection, lastInfoSync, recommendations, secondaryYear)
+- 5 metadata fields default to `null` when omitted (cleanOriginalTitle, collection, lastInfoSync, recommendations, secondaryYear)
 
 **Implementation Impact:**
-- Current implementation incorrectly requires `minimumAvailability` on POST (returns 422 when omitted)
-- Should apply defaults for `status` and `minimumAvailability` per FR-016 and FR-017
-- Should integrate TMDB fetching per FR-018 to match Radarr behavior exactly
+- `status` and `minimumAvailability` are core fields stored in the movie row, not in metadata
+- Core field defaults for `status` and `minimumAvailability` applied per FR-016 and FR-017
+- TMDB fetching per FR-018 is future work
 
 Alternatives considered: Allow all fields to be truly optional without defaults - rejected to maintain Radarr API compatibility.
 

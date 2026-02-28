@@ -20,15 +20,14 @@
 
 (def ^:private mutable-update-fields
   "Fields callers may mutate via PUT. Keep this aligned with the Rama update op and the HTTP schema."
-  #{:last-search-time :minimum-availability :monitored :path :quality-profile-id :root-folder-path :tags})
+  #{:last-search-time :minimum-availability :monitored :path :quality-profile-id :root-folder-path :status :tags})
 
 (def ^:private depot-update-fields
   "Fields required when applying updates. Keep the depot payload minimal to avoid
   pushing nullable or unnecessary data. id is used by the Rama module to locate the row."
-  #{:id :minimum-availability :monitored :path :quality-profile-id :root-folder-path :tags})
+  #{:id :minimum-availability :monitored :path :quality-profile-id :root-folder-path :status :tags})
 
 (def ^:private missing-id-error "id must be a positive integer")
-(def ^:private missing-minimum-availability-error "minimumAvailability is required")
 
 (defn- parse-long*
   [value]
@@ -152,7 +151,6 @@
                                        "Movie persisted successfully")
                                {:status status :movie response}))))
 
-
 (defn- update-patch
   "Return the subset of fields callers are allowed to mutate, or nil when none are present."
   [existing movie]
@@ -169,12 +167,12 @@
 
 (defn- merge-metadata
   [existing patch]
-  (let [existing (or existing {})
-        removals (->> patch
-                      (filter (comp nil? val))
-                      (map key))
-        updates  (into {} (remove (comp nil? val) patch))
-        merged   (merge (apply dissoc existing removals) updates)]
+  (let [existing-map (or existing {})
+        removals     (->> patch
+                          (filter (comp nil? val))
+                          (map key))
+        updates      (into {} (remove (comp nil? val) patch))
+        merged       (merge (apply dissoc existing-map removals) updates)]
     (if (seq merged) merged {})))
 
 (defn- merge-response-metadata
@@ -219,31 +217,32 @@
 (defn- apply-update
   "Validate, check conflicts, and persist an update for an existing movie."
   [env movie-id existing movie]
-  (let [patch          (update-patch existing movie)
-        metadata-patch (metadata-patch movie)]
-    (cond (and (nil? patch) (nil? metadata-patch))
+  (let [patch            (update-patch existing movie)
+        metadata-changes (metadata-patch movie)]
+    (cond (and (nil? patch) (nil? metadata-changes))
           (do (t/log! {:level :info :reason :movies/update-noop :details {:movie-id movie-id}}
                       "Ignoring movie update: no mutable changes provided")
               {:status :updated :movie (merge-response-metadata existing (pstate/metadata-by-movie-id env movie-id))})
           :else
-          (let [metadata-errors        (when metadata-patch (model/validate-metadata metadata-patch))
+          (let [metadata-errors        (when metadata-changes (model/validate-metadata metadata-changes))
                 patch                  (or patch {})
                 {:keys [errors movie]} (prepare-update movie-id existing patch (clock env))
                 all-errors             (->> (concat errors metadata-errors)
                                             (remove nil?)
                                             distinct
                                             vec)
-                existing-metadata      (when metadata-patch (pstate/metadata-by-movie-id env movie-id))
-                normalized-metadata    (when metadata-patch (model/normalize-metadata metadata-patch))
-                metadata-update        (when metadata-patch (merge-metadata existing-metadata normalized-metadata))]
+                existing-metadata      (when metadata-changes (pstate/metadata-by-movie-id env movie-id))
+                normalized-metadata    (when metadata-changes (model/normalize-metadata metadata-changes))
+                metadata-update        (when metadata-changes (merge-metadata existing-metadata normalized-metadata))]
             (cond (seq all-errors) (do (t/log! {:level   :warn
                                                 :reason  :movies/update-invalid
                                                 :details {:movie-id movie-id :errors all-errors}}
                                                "Rejecting movie update: validation failed")
                                        {:status :invalid :errors all-errors})
                   :else            (let [result (persist-update env movie-id movie normalized-metadata metadata-update)
-                                         response-metadata
-                                         (if metadata-patch metadata-update (pstate/metadata-by-movie-id env movie-id))]
+                                         response-metadata (if metadata-changes
+                                                             metadata-update
+                                                             (pstate/metadata-by-movie-id env movie-id))]
                                      (update result :movie merge-response-metadata response-metadata)))))))
 
 (defn save!

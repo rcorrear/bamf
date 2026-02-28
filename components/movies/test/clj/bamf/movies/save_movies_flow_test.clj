@@ -22,14 +22,9 @@
 (def sample-response
   (casing/->kebab-keys (json/read-str (slurp (io/resource "movie-save-response.json")) :key-fn keyword)))
 
-(def ^:private metadata-keys
-  [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
-   :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
-   :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection])
-
 (defn- metadata-from
   [movie]
-  (->> (select-keys movie metadata-keys)
+  (->> (select-keys movie model/metadata-fields)
        (remove (comp nil? val))
        (into {})))
 

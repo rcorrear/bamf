@@ -20,7 +20,7 @@
    [:title string?] [:original-title {:optional true} [:maybe string?]] [:title-slug {:optional true} string?]
    [:path {:optional true} [:maybe string?]] [:root-folder-path {:optional true} [:maybe string?]]
    [:folder {:optional true} [:maybe string?]] [:folder-name {:optional true} [:maybe string?]]
-   [:minimum-availability string?] [:status {:optional true} [:maybe string?]] [:monitored boolean?]
+   [:minimum-availability string?] [:status string?] [:monitored boolean?]
    [:has-file {:optional true} [:maybe boolean?]] [:is-available {:optional true} boolean?]
    [:quality-profile-id pos-int?] [:movie-file-id {:optional true} int?] [:runtime {:optional true} [:maybe int?]]
    [:size-on-disk {:optional true} [:maybe int?]] [:year {:optional true} [:maybe int?]]
@@ -39,10 +39,10 @@
 (def movie-create-request-camel
   [:map {:closed false} [:title string?] [:path {:optional true} [:maybe string?]]
    [:rootFolderPath {:optional true} [:maybe string?]] [:monitored boolean?] [:qualityProfileId pos-int?]
-   [:minimumAvailability string?] [:tmdbId pos-int?] [:titleSlug {:optional true} string?]
+   [:minimumAvailability {:optional true} string?] [:tmdbId pos-int?] [:titleSlug {:optional true} string?]
    [:imdbId {:optional true} string?] [:addOptions {:optional true} map?]
    [:tags {:optional true} [:sequential [:or int? string?]]] [:year {:optional true} [:maybe int?]]
-   [:secondaryYear {:optional true} [:maybe int?]] [:status {:optional true} [:maybe string?]]
+   [:secondaryYear {:optional true} [:maybe int?]] [:status {:optional true} string?]
    [:hasFile {:optional true} [:maybe boolean?]] [:isAvailable {:optional true} boolean?]
    [:movieFileId {:optional true} int?] [:runtime {:optional true} [:maybe int?]]
    [:sizeOnDisk {:optional true} [:maybe int?]] [:popularity {:optional true} [:maybe number?]]
@@ -64,7 +64,7 @@
    [:rootFolderPath {:optional true} [:maybe string?]] [:titleSlug {:optional true} string?]
    [:imdbId {:optional true} string?] [:tags {:optional true} [:sequential [:or int? string?]]]
    [:year {:optional true} [:maybe int?]] [:secondaryYear {:optional true} [:maybe int?]]
-   [:status {:optional true} [:maybe string?]] [:hasFile {:optional true} [:maybe boolean?]]
+   [:status {:optional true} string?] [:hasFile {:optional true} [:maybe boolean?]]
    [:isAvailable {:optional true} boolean?] [:movieFileId {:optional true} int?]
    [:runtime {:optional true} [:maybe int?]] [:sizeOnDisk {:optional true} [:maybe int?]]
    [:popularity {:optional true} [:maybe number?]] [:images {:optional true} [:maybe [:sequential map?]]]
@@ -167,10 +167,10 @@
         result  (persistence/save! env payload)]
     (t/log! :debug
             {:reason  :movies/http-create
-             :details (cond-> {:payload-keys (-> payload
-                                                 keys
-                                                 sort
-                                                 vec)})})
+             :details {:payload-keys (-> payload
+                                         keys
+                                         sort
+                                         vec)}})
     (case (:status result)
       :stored    (stored->response result)
       :duplicate (duplicate->response result)
@@ -198,11 +198,11 @@
                                           (some? move-files) (assoc :move-files move-files)))]
     (t/log! :debug
             {:reason  :movies/http-update
-             :details (cond-> {:movie-id     path-id
-                               :payload-keys (-> payload
-                                                 keys
-                                                 sort
-                                                 vec)})})
+             :details {:movie-id     path-id
+                       :payload-keys (-> payload
+                                         keys
+                                         sort
+                                         vec)}})
     (case (:status result)
       :updated   (updated->response result)
       :duplicate (duplicate->response result)

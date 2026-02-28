@@ -10,7 +10,7 @@
 ### Session 2026-01-07
 
 - Q: Where are metadata fields stored in the saved record? → A: Persist metadata in the separate Rama PState `metadata-by-movie-id` keyed by movie id; the HTTP request/response still exposes metadata merged into the movie record.
-- Q: Which metadata keys are stored from extra data? → A: Store fields that correspond to MovieMetadata columns: images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, status, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection (tmdbId/title).
+- Q: Which metadata keys are stored from extra data? → A: Store fields that correspond to MovieMetadata columns: images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection (tmdbId/title). Core fields `status` and `minimumAvailability` are stored in the movie row, not in metadata.
 - Q: What is the metadata size limit? → A: No explicit size limit is defined for this iteration; oversized payload handling is out of scope.
 - Q: Do extra data keys need to match metadata names exactly? → A: Yes, keys must match the MovieMetadata field names (Radarr payload keys) exactly.
 
@@ -23,15 +23,15 @@
 
 - Q: When a save/update results in no metadata, how should `metadata-by-movie-id` be stored? → A: Delete/omit the entry entirely (no row).
 - Q: When persisting metadata, should storage be sparse or include all keys? → A: Store a sparse map with only provided non-null keys.
-- Q: After normalization, how should status be stored and serialized? → A: Store and return the exact status string token; no enum mapping.
-- Q: What canonical status strings should HTTP return? → A: `deleted`, `tba`, `announced`, `inCinemas`, `released` (exact match required).
+- Q: After normalization, how should status be stored and serialized? → A: `status` is a core movie field stored in the movie row. Store and return the exact status string token; no enum mapping.
+- Q: What canonical status strings should HTTP return? → A: `deleted`, `tba`, `announced`, `inCinemas`, `released` (exact match required). Both `status` and `minimumAvailability` are core fields validated the same way.
 - Q: What HTTP status should validation failures return? → A: 422 Unprocessable Entity.
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Save request captures metadata (Priority: P1)
 
-Client submits a save request that includes MovieMetadata fields (for example, images, genres, status, ratings) and expects them to be captured and visible immediately after save.
+Client submits a save request that includes MovieMetadata fields (for example, images, genres, ratings) and core fields (status, minimumAvailability) and expects them to be captured and visible immediately after save.
 
 **Why this priority**: It preserves provenance and unlocks downstream reporting and auditing.
 
@@ -39,7 +39,7 @@ Client submits a save request that includes MovieMetadata fields (for example, i
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid save request with metadata fields including images, genres, and status, **When** the save is processed, **Then** the saved record includes those fields.
+1. **Given** a valid save request with metadata fields including images and genres, and core fields including status, **When** the save is processed, **Then** the saved record includes those fields.
 2. **Given** a valid save request without metadata fields, **When** the save is processed, **Then** the record saves successfully and metadata remains empty/default without errors.
 
 ---
@@ -66,12 +66,12 @@ A client submits save or update requests containing metadata and expects HTTP va
 
 **Why this priority**: It keeps the HTTP API consistent and safe once metadata persistence is in place, without disturbing current behavior until this story is delivered.
 
-**Independent Test**: Send malformed metadata (wrong types or unsupported status), observe a validation response that blocks persistence and cites the offending field.
+**Independent Test**: Send malformed metadata (wrong types) or unsupported core field values (invalid status), observe a validation response that blocks persistence and cites the offending field.
 
 **Acceptance Scenarios**:
 
 1. **Given** a valid save request with metadata fields, **When** the request is processed, **Then** the create/update response includes the submitted metadata values and list/get responses include stored metadata keys (omitting keys that are not stored).
-2. **Given** metadata contains disallowed value types or unsupported status values, **When** the save is attempted, **Then** the request is rejected with a message naming the invalid fields and no partial metadata is stored.
+2. **Given** metadata contains disallowed value types or core fields contain unsupported values (e.g., invalid status), **When** the save is attempted, **Then** the request is rejected with a message naming the invalid fields and no partial data is stored.
 3. **Given** metadata contains unknown keys, **When** the save is processed, **Then** unknown keys are ignored while recognized keys are validated and persisted.
 
 ### Edge Cases
@@ -88,7 +88,7 @@ A client submits save or update requests containing metadata and expects HTTP va
 - **FR-001**: The system MUST accept optional metadata fields in the save request payload corresponding to MovieMetadata columns and expose them in HTTP responses merged into the movie record.
 - **FR-001a**: The system MUST omit metadata keys from HTTP responses when they are not stored (never provided or explicitly removed).
 - **FR-002**: The system MUST persist submitted metadata fields in the separate Rama PState `metadata-by-movie-id` (movie-id → metadata row) and return them in the save confirmation or response and subsequent retrievals.
-- **FR-003**: The system MUST validate metadata shape for recognized keys before saving, enforcing a valid key set (MovieMetadata fields: images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, status, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection) and value types (string, number, list, or map as used by the Radarr payload). Unknown keys are ignored per FR-007.
+- **FR-003**: The system MUST validate metadata shape for recognized keys before saving, enforcing a valid key set (MovieMetadata fields: images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection) and value types (string, number, list, or map as used by the Radarr payload). Unknown keys are ignored per FR-007. `status` and `minimumAvailability` are core movie fields, not metadata.
 - **FR-004**: The system MUST reject a save request with a clear message when metadata violates validation rules, leaving the record and metadata unchanged.
 - **FR-005**: The system MUST allow saves without metadata to proceed.
 - **FR-006**: The system MUST update metadata only on PUT requests by replacing values for keys supplied in the latest request while leaving unspecified keys unchanged.
@@ -153,8 +153,8 @@ Core fields stored in the movie row with exact-match token validation (FR-009).
 
 ### Key Entities *(include if feature involves data)*
 
-- **Save Request**: Client-submitted payload containing core record data plus optional MovieMetadata fields (for example, images, genres, ratings, status, and collection).
-- **Saved Record**: Stored object that retains core data plus MovieMetadata fields (stored in `metadata-by-movie-id` and merged into HTTP responses); metadata is retrievable in responses and listings.
+- **Save Request**: Client-submitted payload containing core record data (including `status` and `minimumAvailability`) plus optional MovieMetadata fields (for example, images, genres, ratings, and collection).
+- **Saved Record**: Stored object that retains core data (including `status` and `minimumAvailability` in the movie row) plus MovieMetadata fields (stored in `metadata-by-movie-id` and merged into HTTP responses); metadata is retrievable in responses and listings.
 
 ### Assumptions
 
@@ -167,7 +167,7 @@ Core fields stored in the movie row with exact-match token validation (FR-009).
 - `status` and `minimumAvailability` are core movie fields stored in the movie row. Both fields must match the allowed tokens exactly (`deleted`, `tba`, `announced`, `inCinemas`, `released`); invalid values are treated as validation errors (FR-009).
 - Metadata changes are only accepted via PUT requests; repeated POST create requests are treated as duplicates and must not mutate stored metadata.
 - Stored metadata rows are sparse and include only provided non-null keys.
-- When fields are omitted from POST requests, Radarr exhibits the following behavior: core fields `status` and `minimumAvailability` default to `"released"` (FR-016, FR-017); 18 metadata fields (certification, cleanTitle, digitalRelease, genres, images, inCinemas, originalLanguage, originalTitle, overview, physicalRelease, popularity, ratings, runtime, sortTitle, studio, website, year, youTubeTrailerId) auto-populate from TMDB; 5 metadata fields (cleanOriginalTitle, collection, lastInfoSync, recommendations, secondaryYear) default to `null`. Our system currently implements core field defaults per FR-016 and FR-17. TMDB auto-population (FR-018) is planned for future implementation; omitted metadata fields currently default to `null`.
+- When fields are omitted from POST requests, Radarr exhibits the following behavior: core fields `status` and `minimumAvailability` default to `"released"` (FR-016, FR-017); 18 metadata fields (certification, cleanTitle, digitalRelease, genres, images, inCinemas, originalLanguage, originalTitle, overview, physicalRelease, popularity, ratings, runtime, sortTitle, studio, website, year, youTubeTrailerId) auto-populate from TMDB; 5 metadata fields (cleanOriginalTitle, collection, lastInfoSync, recommendations, secondaryYear) default to `null`. Our system currently implements core field defaults per FR-016 and FR-017. TMDB auto-population (FR-018) is planned for future implementation; omitted metadata fields currently default to `null`.
 
 ## Success Criteria *(mandatory)*
 

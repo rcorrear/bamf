@@ -102,7 +102,7 @@ Use existing fixtures `components/movies/test/resources/movie-save-request.json`
 - [X] T033 [US3] Merge `metadata-by-movie-id` into inspection responses for list/get in `bamf/components/movies/src/clj/bamf/movies/inspection.clj`
 - [X] T034 Run `clojure -X:test` after schema/inspection changes (T030–T033).
 - [X] T035 [US3] Merge stored metadata into create responses in `bamf/components/movies/src/clj/bamf/movies/persistence.clj`
-- [X] T036 [P] [US3] Add Telemere instrumentation to HTTP create/update handlers in `bamf/components/movies/src/clj/bamf/movies/http.clj` (include correlation identifiers)
+- [X] T036 [P] [US3] Add Telemere instrumentation to HTTP create/update handlers in `bamf/components/movies/src/clj/bamf/movies/http.clj`
 - [X] T037 [US3] Add metadata validation error messages that name offending fields in `bamf/components/movies/src/clj/bamf/movies/model.clj`
 - [X] T038 Run `clojure -X:test` after US3 implementation task (T037).
 
