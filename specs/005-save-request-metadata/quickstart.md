@@ -13,10 +13,10 @@
 
 3) Add HTTP validation and response handling (US3)  
 - Accept MovieMetadata fields at the top level of the save request (Radarr payload keys).  
-- Enforce exact key matches for the MovieMetadata recognized key set (images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, status, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection).  
+- Enforce exact key matches for the MovieMetadata recognized key set (images, genres, sortTitle, cleanTitle, originalTitle, cleanOriginalTitle, originalLanguage, lastInfoSync, runtime, inCinemas, physicalRelease, digitalRelease, year, secondaryYear, ratings, recommendations, certification, youTubeTrailerId, studio, overview, website, popularity, collection). `status` and `minimumAvailability` are core fields, not metadata.  
 - Validate camelCase metadata fields in the HTTP create/update schemas and accept kebab-case after Ring keywordization; schemas must allow unknown keys so they can be ignored.  
 - Ignore unknown metadata keys; map collection and originalLanguage values per the data model.  
-- Validate `status` and `minimumAvailability` as exact-match tokens (no enum mapping).  
+- Validate core fields `status` and `minimumAvailability` as exact-match tokens (no enum mapping); these are core movie fields stored in the movie row, not metadata.  
 - Merge stored metadata into create/update responses and list/get inspection responses; omit keys that are not stored.
 
 4) Keep non-metadata flows untouched  

@@ -13,15 +13,11 @@
 
 (defn- movie-payload-from-resource
   [resource-name]
-  (let [parsed        (casing/->kebab-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
-        core-keys     [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id :path
-                       :quality-profile-id :root-folder-path :tags :title :title-slug :tmdb-id :year]
-        metadata-keys [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language
-                       :status :last-info-sync :runtime :in-cinemas :physical-release :digital-release :secondary-year
-                       :ratings :recommendations :certification :you-tube-trailer-id :studio :overview :website
-                       :popularity :collection]
-        base          (merge (select-keys parsed core-keys) (select-keys parsed metadata-keys))
-        normalized    (merge base (model/normalize-metadata (model/extract-metadata base)))]
+  (let [parsed     (casing/->kebab-keys (json/read-str (slurp (io/resource resource-name)) :key-fn keyword))
+        core-keys  [:add-options :added :folder-name :imdb-id :minimum-availability :monitored :movie-file-id :path
+                    :quality-profile-id :root-folder-path :status :tags :title :title-slug :tmdb-id]
+        base       (merge (select-keys parsed core-keys) (select-keys parsed model/metadata-fields))
+        normalized (merge base (model/normalize-metadata (model/extract-metadata base)))]
     (delay (-> base
                (merge normalized)
                (assoc :path             (or (:path base) (:folder-name base) "/media/video/movies/sample")
@@ -40,11 +36,6 @@
   (delay (let [parsed (casing/->kebab-keys
                        (json/read-str (slurp (io/resource "movie-save-request.json")) :key-fn keyword))]
            (model/normalize (assoc parsed :target-system "radarr") (constantly "2025-12-14T03:09:54Z")))))
-
-(def ^:private metadata-keys
-  [:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
-   :last-info-sync :runtime :in-cinemas :physical-release :digital-release :secondary-year :ratings :recommendations
-   :certification :you-tube-trailer-id :studio :overview :website :popularity :collection :year])
 
 (defn- with-module
   [f]
@@ -84,7 +75,7 @@
                        movie-id          (or (get-in ack-movie [:movie :id])
                                              (pstate/movie-id-by-tmdb-id rama-env (:tmdb-id payload)))
                        stored            (pstate/metadata-by-movie-id rama-env movie-id)
-                       expected          (->> (select-keys payload metadata-keys)
+                       expected          (->> (select-keys payload model/metadata-fields)
                                               (remove (comp nil? val))
                                               (into {}))]
                    (is (pos? movie-id))
@@ -106,9 +97,9 @@
            expected          (-> existing
                                  (assoc :genres ["Mystery"])
                                  (dissoc :overview))
-           update-payload    (-> @response-movie-row
-                                 (assoc :id movie-id :metadata expected)
-                                 (merge patch))]
+           ;; Module reads metadata from :metadata map (see movie-update destructuring in update.clj),
+           ;; not from root-level keys, so we only assoc :metadata with the expected merged result
+           update-payload    (assoc @response-movie-row :id movie-id :metadata expected)]
        (is (pos? movie-id))
        (is (seq existing))
        (foreign-append! movie-saves-depot (common/movie-updated-event update-payload) :ack)

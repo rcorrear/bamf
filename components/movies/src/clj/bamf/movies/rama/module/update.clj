@@ -8,11 +8,12 @@
 
 (deframafn ^:private resolve-movie-update
   [*existing-movie-row *incoming-last-search-time *incoming-minimum-availability *incoming-monitored *incoming-path
-   *incoming-quality-profile-id *incoming-root-folder-path]
+   *incoming-quality-profile-id *incoming-root-folder-path *incoming-status]
   (identity (get *existing-movie-row :added) :> *added)
   (identity (get *existing-movie-row :imdb-id) :> *imdb-id)
   (identity (get *existing-movie-row :last-search-time) :> *existing-last-search-time)
   (identity (get *existing-movie-row :minimum-availability) :> *existing-minimum-availability)
+  (identity (get *existing-movie-row :status) :> *existing-status)
   (identity (get *existing-movie-row :monitored) :> *existing-monitored)
   (identity (get *existing-movie-row :movie-file-id) :> *movie-file-id)
   (identity (get *existing-movie-row :tmdb-id) :> *existing-tmdb-id)
@@ -26,7 +27,6 @@
     (identity *maybe-root :> *resolved-root-folder-path))
   (identity (get *existing-movie-row :title) :> *title)
   (identity (get *existing-movie-row :title-slug) :> *title-slug)
-  (identity (get *existing-movie-row :year) :> *year)
   (<<if *incoming-last-search-time
     (identity (helpers/->instant *incoming-last-search-time) :> *parsed-last-search)
     (else>)
@@ -78,6 +78,11 @@
                        :resolve-monitored
                        {:incoming *incoming-monitored}
                        {:resolved *resolved-monitored})
+  (<<if *incoming-status
+    (identity *incoming-status :> *resolved-status)
+    (else>)
+    (identity *existing-status :> *resolved-status))
+  (helpers/print-event :debug :movie/update :resolve-status {:incoming *incoming-status} {:resolved *resolved-status})
   (:> {:added                *added
        :imdb-id              *imdb-id
        :last-search-time     *resolved-last-search
@@ -87,10 +92,10 @@
        :path                 *resolved-path
        :quality-profile-id   *resolved-quality-profile-id
        :root-folder-path     *resolved-root-folder-path
+       :status               *resolved-status
        :title                *title
        :title-slug           *title-slug
-       :tmdb-id              *existing-tmdb-id
-       :year                 *year}))
+       :tmdb-id              *existing-tmdb-id}))
 
 (deframaop reconcile-tags
   [*id *existing-tags-set *resolved-tags]
@@ -112,7 +117,7 @@
 
 (deframaop movie-update
   [{:keys [*id *last-search-time *metadata *minimum-availability *monitored *path *quality-profile-id *root-folder-path
-           *tags]}]
+           *status *tags]}]
   (<<with-substitutions [$$movies                  (this-module-pobject-task-global "$$movies")
                          $$metadata-by-movie-id    (this-module-pobject-task-global "$$metadata-by-movie-id")
                          $$movies-id-by-tmdb-id    (this-module-pobject-task-global "$$movies-id-by-tmdb-id")
@@ -126,6 +131,7 @@
                                         :path                 *path
                                         :quality-profile-id   *quality-profile-id
                                         :root-folder-path     *root-folder-path
+                                        :status               *status
                                         :tags                 *tags
                                         :last-search-time     *last-search-time})
     (<<if (nil? *id)
@@ -150,6 +156,7 @@
                               *path
                               *quality-profile-id
                               *root-folder-path
+                              *status
                               :>
                               *movie-row-base)
         (<<if (nil? *incoming-tags)
@@ -165,6 +172,8 @@
           (helpers/print-event :debug :movie/update :hashing-by-movie-id)
           (|hash$$ $$metadata-by-movie-id *id)
           (helpers/print-event :debug :movie/update :saving-metadata {:movie-id *id} *metadata)
+          ;; Intentional asymmetry: empty map {} clears metadata (writes nil to delete),
+          ;; non-empty map stores as-is. This allows explicit metadata clearing via PUT.
           (<<if (empty? *metadata)
             (local-transform> [(keypath *id) (termval nil)] $$metadata-by-movie-id)
             (else>)

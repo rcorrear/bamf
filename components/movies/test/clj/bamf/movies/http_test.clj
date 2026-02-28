@@ -59,15 +59,16 @@
       (f invocation env))))
 
 (deftest create-movie-translates-stored-response
-  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :target-system "radarr"}}
-                    (fn [invocation env]
-                      (let [payload  {:title "Foo" :minimum-availability "released"}
-                            response (http/create-movie {:body-params payload :movies/env env})]
-                        (is (= 201 (:status response)))
-                        (is (= {:id 1 :size-on-disk 0} (select-keys (:body response) [:id :size-on-disk])))
-                        (is (not (contains? (:body response) :last-search-time)))
-                        (is (nil? (get-in response [:body :target-system])))
-                        (is (= {:env env :payload payload} @invocation))))))
+  (with-save-result
+   {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :status "released" :target-system "radarr"}}
+   (fn [invocation env]
+     (let [payload  {:title "Foo" :minimum-availability "released"}
+           response (http/create-movie {:body-params payload :movies/env env})]
+       (is (= 201 (:status response)))
+       (is (= {:id 1 :size-on-disk 0} (select-keys (:body response) [:id :size-on-disk])))
+       (is (not (contains? (:body response) :last-search-time)))
+       (is (nil? (get-in response [:body :target-system])))
+       (is (= {:env env :payload payload} @invocation))))))
 
 (deftest create-movie-includes-metadata
   (let [metadata {:genres ["Drama"] :status "released" :overview "A test"}]
@@ -82,7 +83,7 @@
                           (is (= payload (:payload @invocation))))))))
 
 (deftest create-movie-without-metadata
-  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z"}}
+  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :added "2024-01-01T00:00:00Z" :status "released"}}
                     (fn [_ env]
                       (let [response (http/create-movie {:body-params {:title "Foo"} :movies/env env})]
                         (is (= 201 (:status response)))
@@ -90,7 +91,7 @@
                         (is (not (contains? (:body response) :overview)))))))
 
 (deftest create-movie-ignores-unknown-metadata
-  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :genres ["Drama"]}}
+  (with-save-result {:status :stored :movie {:id 1 :tmdb-id 77 :status "released" :genres ["Drama"]}}
                     (fn [invocation env]
                       (let [payload  {:title "Foo" :genres ["Drama"] :unknown-metadata "skip"}
                             response (http/create-movie {:body-params payload :movies/env env})]
@@ -126,7 +127,8 @@
 
 (deftest update-movie-translates-updated-response
   (with-update-result
-   {:status :updated :movie {:id 9 :monitored false :last-search-time "2024-01-02T00:00:00Z" :size-on-disk nil}}
+   {:status :updated
+    :movie  {:id 9 :status "released" :monitored false :last-search-time "2024-01-02T00:00:00Z" :size-on-disk nil}}
    (fn [invocation env]
      (let [response
            (http/update-movie
@@ -137,7 +139,7 @@
      (is (= {:env env :payload {:monitored false :id 9 :move-files true}} @invocation)))))
 
 (deftest update-movie-merges-metadata
-  (with-update-result {:status :updated :movie {:id 9 :genres ["Mystery"] :studio "New Studio"}}
+  (with-update-result {:status :updated :movie {:id 9 :status "released" :genres ["Mystery"] :studio "New Studio"}}
                       (fn [invocation env]
                         (let [payload  {:genres ["Mystery"] :overview nil :studio "New Studio"}
                               response (http/update-movie {:body-params payload :path-params {:id 9} :movies/env env})]

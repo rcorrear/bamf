@@ -24,8 +24,6 @@
              :nrepl {;; this allows nrepl to interrupt runaway repl evals
                      :jvm-opts  ["-Djdk.attach.allowAttachSelf"]
                      :main-opts ["-m" "nrepl.cmdline" "--port" "7888"]}
-             :poly  {:extra-deps {polylith/clj-poly {:mvn/version "0.2.22"}}
-                     :main-opts  ["-m" "polylith.clj.core.poly-cli.core"]}
              :test  {:exec-fn     kaocha.runner/exec-fn
                      :extra-deps  {;; bases
                                    bamf/rest-api         {:local/root "bases/rest-api"}

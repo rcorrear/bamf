@@ -39,11 +39,11 @@
                  :path                 *path
                  :quality-profile-id   *quality-profile-id
                  :root-folder-path     *root-folder-path
+                 :status               *status
                  :tags                 *tags
                  :title                *title
                  :title-slug           *title-slug
-                 :tmdb-id              *tmdb-id
-                 :year                 *year}
+                 :tmdb-id              *tmdb-id}
                 :>
                 *movie-row)
       (helpers/log-map-value-types *movie-row)
@@ -68,7 +68,6 @@
                       :runtime              *runtime
                       :secondary-year       *secondary-year
                       :sort-title           *sort-title
-                      :status               *status
                       :studio               *studio
                       :website              *website
                       :year                 *year

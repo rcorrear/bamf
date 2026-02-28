@@ -18,11 +18,11 @@
                       :path                 String
                       :quality-profile-id   Long
                       :root-folder-path     String
+                      :status               String
                       :tags                 (set-schema String)
                       :title                String
                       :title-slug           String
-                      :tmdb-id              Long
-                      :year                 Integer}))
+                      :tmdb-id              Long}))
 
 (def movies-pstate-schema (map-schema Long movie-row-schema))
 (def metadata-row-schema (map-schema clojure.lang.Keyword Object))
@@ -35,8 +35,8 @@
 
 (defn declare-movies-pstate!
   [topology]
-  (declare-pstate topology $$movies movies-pstate-schema)
-  (declare-pstate topology $$metadata-by-movie-id metadata-by-movie-id-schema))
+  (declare-pstate topology $$metadata-by-movie-id metadata-by-movie-id-schema)
+  (declare-pstate topology $$movies movies-pstate-schema))
 
 (defn declare-index-pstates!
   [topology]

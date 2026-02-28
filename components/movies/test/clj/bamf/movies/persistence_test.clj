@@ -70,8 +70,8 @@
 (deftest save-includes-metadata-in-depot-payload
   (let [captured      (atom nil)
         env           {:clock (constantly "2025-09-21T17:00:00Z") :movie-depot movie-depot}
-        metadata-keys [:images :genres :status :ratings :collection :runtime :in-cinemas :physical-release
-                       :digital-release :overview :studio :website :popularity]]
+        metadata-keys [:images :genres :ratings :collection :runtime :in-cinemas :physical-release :digital-release
+                       :overview :studio :website :popularity]]
     (with-redefs [pstate/movie-id-by-tmdb-id (fn [& _] nil)
                   pstate/movie-by-id         (fn [& _] nil)
                   depot/put!                 (fn [{:keys [movie]}]
@@ -184,7 +184,7 @@
             result            (persistence/update! {:movie-depot movie-depot} patch)
             expected-captured (select-keys (merge existing patch)
                                            [:id :minimum-availability :monitored :quality-profile-id :path
-                                            :root-folder-path :tags])]
+                                            :root-folder-path :status :tags])]
         (is (= :updated (:status result)))
         (is (= false (get-in result [:movie :monitored])))
         (is (= "2025-10-10T00:00:00Z" (get-in result [:movie :last-search-time])))
@@ -209,7 +209,7 @@
                                (assoc :id (:id existing)))
             expected-depot (select-keys expected
                                         [:id :minimum-availability :monitored :quality-profile-id :path
-                                         :root-folder-path :tags])]
+                                         :root-folder-path :status :tags])]
         (is (= expected-depot @captured))
         (is (= :updated (:status result)))
         (is (= (:path expected) (get-in result [:movie :path])))
@@ -217,8 +217,7 @@
 
 (deftest update-merges-metadata
   (let [existing          (canonical-existing)
-        existing-metadata (model/normalize-metadata
-                           {:status "released" :genres ["Drama"] :overview "Old" :popularity 1.2})
+        existing-metadata (model/normalize-metadata {:genres ["Drama"] :overview "Old" :popularity 1.2})
         captured          (atom nil)
         env               {:clock (constantly "2025-10-21T00:00:00Z") :movie-depot movie-depot}]
     (with-redefs [pstate/movie-by-id          (fn [_env id & _] (when (= (:id existing) id) existing))

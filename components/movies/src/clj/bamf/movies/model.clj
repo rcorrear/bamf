@@ -6,19 +6,21 @@
   (:import (java.time OffsetDateTime)
            (java.time.format DateTimeParseException)))
 
-(def ^:private metadata-status-tokens ["deleted" "tba" "announced" "inCinemas" "released"])
-(def ^:private metadata-status-token-set (set metadata-status-tokens))
+(def ^:private status-tokens ["deleted" "tba" "announced" "inCinemas" "released"])
+(def ^:private status-token-set (set status-tokens))
 
-(def ^:private metadata-status-requirement (format "must be one of %s" (str/join ", " metadata-status-tokens)))
+(def ^:private status-requirement (format "must be one of %s" (str/join ", " status-tokens)))
 
-(def ^:private minimum-availability-requirement (format "must be one of %s" (str/join ", " metadata-status-tokens)))
+(def ^:private status-message (str "status " status-requirement))
+
+(def ^:private minimum-availability-requirement (format "must be one of %s" (str/join ", " status-tokens)))
 (def ^:private minimum-availability-message (str "minimumAvailability " minimum-availability-requirement))
 
 (def metadata-fields
   "MovieMetadata field keys in kebab-case."
-  #{:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :status
-    :last-info-sync :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings
-    :recommendations :certification :you-tube-trailer-id :studio :overview :website :popularity :collection})
+  #{:images :genres :sort-title :clean-title :original-title :clean-original-title :original-language :last-info-sync
+    :runtime :in-cinemas :physical-release :digital-release :year :secondary-year :ratings :recommendations
+    :certification :you-tube-trailer-id :studio :overview :website :popularity :collection})
 
 (def ^:private metadata-fields-camel
   (->> metadata-fields
@@ -42,27 +44,23 @@
              {}
              (or movie {})))
 
-(defn- metadata-status-token [value] (when (string? value) (when (contains? metadata-status-token-set value) value)))
+(defn- status-token [value] (when (string? value) (when (contains? status-token-set value) value)))
 
-(defn normalize-metadata-status
-  "Validate status values and return exact-match tokens."
-  [value]
-  (metadata-status-token value))
+(defn normalize-status "Validate status values and return exact-match tokens." [value] (status-token value))
 
 (defn normalize-minimum-availability
   "Validate minimum-availability values and return exact-match tokens."
   [value]
-  (when (string? value) (when (contains? metadata-status-token-set value) value)))
+  (when (string? value) (when (contains? status-token-set value) value)))
 
 (defn- normalize-metadata-value
   [k v]
   (case k
-    :status               (or (normalize-metadata-status v) "released")
     :minimum-availability (or (normalize-minimum-availability v) "released")
     :year                 (some-> v
-                                  int)
+                                  long)
     :secondary-year       (some-> v
-                                  int)
+                                  long)
     v))
 
 (defn normalize-metadata
@@ -74,15 +72,14 @@
   "Prepare metadata values for HTTP responses (string tokens, no nils)."
   [metadata]
   (let [metadata (reduce-kv (fn [acc k v]
-                              (let [value (cond (= k :status)               (metadata-status-token v)
-                                                (= k :minimum-availability) (normalize-minimum-availability v)
+                              (let [value (cond (= k :minimum-availability) (normalize-minimum-availability v)
                                                 :else                       v)]
                                 (if (nil? value) acc (assoc acc k value))))
                             {}
                             (or metadata {}))]
     (when (seq metadata) metadata)))
 
-(defn- metadata-status? [value] (boolean (metadata-status-token value)))
+(defn- valid-status? [value] (boolean (status-token value)))
 (defn- minimum-availability? [value] (boolean (normalize-minimum-availability value)))
 
 (declare external-field-name)
@@ -99,7 +96,6 @@
    :original-title       {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :clean-original-title {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :original-language    {:pred #(or (nil? %) (map? %)) :message "must be an object"}
-   :status               {:pred #(or (nil? %) (metadata-status? %)) :message metadata-status-requirement}
    :last-info-sync       {:pred #(or (nil? %) (string? %)) :message "must be a string"}
    :runtime              {:pred #(or (nil? %) (integer? %)) :message "must be an integer"}
    :in-cinemas           {:pred #(or (nil? %) (string? %)) :message "must be a string"}
@@ -192,6 +188,8 @@
      [:fn {:error/message (positive-int-error :quality-profile-id)} #(or (nil? %) (positive-integer? %))]]]
    [:minimum-availability {:optional true :error/message minimum-availability-message}
     [:fn {:error/message minimum-availability-message} #(or (nil? %) (minimum-availability? %))]]
+   [:status {:optional true :error/message status-message}
+    [:fn {:error/message status-message} #(or (nil? %) (valid-status? %))]]
    [:tmdb-id {:optional false :error/message (missing-field-error :tmdb-id)}
     [:and [:fn {:error/message (missing-field-error :tmdb-id)} #(not (nil? %))]
      [:fn {:error/message (positive-int-error :tmdb-id)} #(or (nil? %) (positive-integer? %))]]]
@@ -314,7 +312,7 @@
                    0))
         (assoc :secondary-year
                (some-> (:secondary-year movie)
-                       int))
+                       long))
         (assoc :id
                (some-> (:id movie)
                        long))
@@ -323,8 +321,9 @@
                        long))
         (assoc :year
                (some-> (:year movie)
-                       int))
+                       long))
         (assoc :minimum-availability (or (normalize-minimum-availability (:minimum-availability movie)) "released"))
+        (assoc :status (or (normalize-status (:status movie)) "released"))
         (assoc :added added)
         (assoc :last-search-time last-search)
         (assoc :in-cinemas in-cinemas)

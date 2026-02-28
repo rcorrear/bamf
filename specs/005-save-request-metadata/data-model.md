@@ -3,7 +3,7 @@
 ## Entities
 
 ### Save Request
-- **Core movie fields**: existing movie payload fields (id, tmdbId, imdbId, title variants, monitored, qualityProfileId, availability, minimumAvailability, etc.)
+- **Core movie fields**: existing movie payload fields (id, tmdbId, imdbId, title variants, monitored, qualityProfileId, availability, minimumAvailability, status, etc.)
 - **MovieMetadata fields** (top-level keys matching Radarr payload):
   - `certification` (string)
   - `cleanOriginalTitle` (string)
@@ -40,10 +40,11 @@
 - POST duplicates must not mutate existing metadata
 
 ### Persistence (Rama)
-- **movies** PState: core movie fields only (existing storage)
+- **movies** PState: core movie fields including `status` and `minimumAvailability` (stored in the movie row)
 - **metadata-by-movie-id** PState: MovieMetadata fields keyed by movie id (movie-id → metadata row), stored separately from the movie row and joined for HTTP responses
 
-### Status Validation
+### Core Field Validation
+- `status` and `minimumAvailability` are core movie fields stored in the movie row
 - Allowed tokens (exact match): `deleted`, `tba`, `announced`, `inCinemas`, `released`
 - Default value when omitted on POST: `"released"`
 
@@ -57,7 +58,7 @@ When fields are omitted from POST requests:
 - Save Request → Saved Record (1:1 upsert by movie identity); metadata merged into the stored record on successful saves.
 
 ## Validation Rules
-- Recognized metadata key set enforced with exact key matching (MovieMetadata fields above)
+- Recognized metadata key set enforced with exact key matching (MovieMetadata fields above); `status` and `minimumAvailability` are validated as core fields, not metadata
 - Value types follow Radarr payload shapes (strings, numbers, lists, or maps)
 - Metadata keys explicitly set to `null` are removed from stored metadata
 - Unknown metadata keys are ignored
