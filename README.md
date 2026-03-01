@@ -1,8 +1,10 @@
-# BAMF
+# BAMF — Batch Automated Media Fetcher
 
 BAMF is an automated media fetcher for BitTorrent workflows. It watches Jackett or Prowlarr feeds for new releases and persists Radarr-compatible movie metadata so automation tooling knows what to download next.
 
 ![BAMF Logo](./docs/logo.png)
+
+> **Heads up** — This is a hobby project and a learning vehicle, not production software. It is heavily LLM-assisted (most of the code was generated with the help of AI coding tools) and very much a work in progress — many features are incomplete or missing entirely. The primary goal is to explore technologies that interest me: **Clojure**, **Polylith**, and **Rama**. Use at your own curiosity.
 
 ## What's Here Today
 - A composable REST surface built from Polylith components and aggregated at runtime with Reitit.
@@ -35,12 +37,11 @@ specs/               # Feature plans and research notes
 4. Stop or restart the environment with `(user/stop)` / `(user/restart)`. Status helpers such as `(user/status)` and `(user/runtime-state)` mirror the Donut tooling in `components/system`.
 
 ### Running Tests
-- Full suite: `clojure -X:test`
-- Route-specific checks: `clojure -X:test :nses '[bamf.rest-api.routes-test bamf.rest-api.routes-integration-test]'`
-
-## HTTP API
-- **Movies** - `POST /api/v3/movie` accepts Radarr-style payloads, normalizes tags/timestamps, rejects duplicates (`tmdbId` or `path`), and returns the stored record. A placeholder `GET /api/v3/movie` endpoint exists while the listing query is implemented (`components/movies/src/clj/bamf/movies/http.clj`).
-- Component routes are registered via `get-http-api` on each component's interface namespace and composed by `bamf.rest-api.routes/aggregate`.
+- Full suite: `clojure -M:test`
+- Specific namespace: `clojure -M:test --focus bamf.rest-api.routes-test`
+- Specific test: `clojure -M:test --focus bamf.rest-api.routes-test/some-test`
+- Unit tests only: `clojure -M:test --focus :unit`
+- Integration tests only: `clojure -M:test --focus :integration`
 
 ## Configuration
 - Defaults live under `components/config/src/resources`. Configuration files are selected by environment (`config-local.edn`, `config-test.edn`, etc.).
