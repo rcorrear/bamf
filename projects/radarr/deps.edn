@@ -6,6 +6,8 @@
              bamf/casing           {:local/root "../../components/casing"}
              bamf/config           {:local/root "../../components/config"}
              bamf/movies           {:local/root "../../components/movies"}
+             bamf/rama-client      {:local/root "../../components/rama-client"}
+             bamf/rama-server      {:local/root "../../components/rama-server"}
              bamf/system           {:local/root "../../components/system"}
              ;; development dependencies
              com.rpl/rama          {:mvn/version "1.1.0"}

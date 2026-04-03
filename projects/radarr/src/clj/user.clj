@@ -4,8 +4,7 @@
 
 (set! *warn-on-reflection* true)
 
-(defmethod system/start :radarr
-  ([runtime] (system/ensure-ns-loaded 'radarr.dev.system) (system/start (assoc runtime :system :go))))
+(defn start [] (system/start {:environment :local :dev-ns 'radarr.dev.system}))
 
 (defn stop [] (system/stop))
 
@@ -18,7 +17,7 @@
 (defn config [] (system/config))
 
 (comment
-  (system/start {:environment :local :system :radarr})
+  (start)
   (stop)
   (restart)
   (status)

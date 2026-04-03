@@ -5,10 +5,7 @@
 
 (set! *warn-on-reflection* true)
 
-(defmethod system/start :bamf
-  ([runtime] (system/ensure-ns-loaded 'bamf.dev.system) (system/start (assoc runtime :system :go))))
-
-(defn start [] (system/start {:environment :local :system :bamf}))
+(defn start [] (system/start {:environment :local :dev-ns 'bamf.dev.system}))
 
 (defn stop [] (system/stop))
 

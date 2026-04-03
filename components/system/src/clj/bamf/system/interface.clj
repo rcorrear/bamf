@@ -33,18 +33,16 @@
 
 (defn config [] (:config (::ds/instances state/system)))
 
-(defmulti start (fn [system & _] (:system system)))
-
-(defmethod start :go
-  [runtime]
+(defn start
+  [{:keys [dev-ns environment] :as runtime}]
+  (when dev-ns (ensure-ns-loaded dev-ns))
   (reset! current-runtime runtime)
-  (let [environment (:environment runtime)]
-    (try (dsr/start environment)
-         (t/log! {:level :info :reason :system/start-success} "ready-to-rock-and-roll")
-         :ready-to-rock-and-roll
-         (catch ExceptionInfo e
-           (t/log! {:level :error :reason :system/start-failed :details (ex-data e)} "system start failed")
-           (throw e)))))
+  (try (dsr/start environment)
+       (t/log! {:level :info :reason :system/start-success} "ready-to-rock-and-roll")
+       :ready-to-rock-and-roll
+       (catch ExceptionInfo e
+         (t/log! {:level :error :reason :system/start-failed :details (ex-data e)} "system start failed")
+         (throw e))))
 
 (comment
   (add-watch current-runtime

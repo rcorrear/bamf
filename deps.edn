@@ -7,6 +7,8 @@
                                      bamf/casing                {:local/root "components/casing"}
                                      bamf/config                {:local/root "components/config"}
                                      bamf/movies                {:local/root "components/movies"}
+                                     bamf/rama-client           {:local/root "components/rama-client"}
+                                     bamf/rama-server           {:local/root "components/rama-server"}
                                      bamf/system                {:local/root "components/system"}
                                      ;; development dependencies
                                      com.rpl/rama               {:mvn/version "1.1.0"}
@@ -31,16 +33,22 @@
                                    bamf/casing           {:local/root "components/casing"}
                                    bamf/config           {:local/root "components/config"}
                                    bamf/movies           {:local/root "components/movies"}
+                                   bamf/rama-client      {:local/root "components/rama-client"}
+                                   bamf/rama-server      {:local/root "components/rama-server"}
                                    bamf/system           {:local/root "components/system"}
                                    ;; development dependencies
                                    lambdaisland/kaocha   {:mvn/version "1.91.1392"}
                                    com.taoensso/telemere {:mvn/version "1.0.0"}
                                    party.donut/system    {:mvn/version "1.0.257"}}
-                     :extra-paths ["bases/rest-api/test/clj" "bases/rest-api/test/resources"
-                                   "components/casing/test/clj" "components/casing/test/resources"
-                                   "components/config/test/clj" "components/config/test/resources"
-                                   "components/movies/test/clj" "components/movies/test/resources"
-                                   "components/system/test/clj" "components/system/test/resources"]
+                     :extra-paths ["development/src/clj" "development/src/resources" "projects/radarr/src/clj"
+                                   "projects/radarr/src/resources" "bases/rest-api/test/clj"
+                                   "bases/rest-api/test/resources" "components/casing/test/clj"
+                                   "components/casing/test/resources" "components/config/test/clj"
+                                   "components/config/test/resources" "components/movies/test/clj"
+                                   "components/movies/test/resources" "components/rama-client/test/clj"
+                                   "components/rama-client/test/resources" "components/rama-server/test/clj"
+                                   "components/rama-server/test/resources" "components/system/test/clj"
+                                   "components/system/test/resources"]
                      :main-opts   ["-m" "kaocha.runner"]}}
  :deps      {org.clojure/clojure {:mvn/version "1.12.0"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}

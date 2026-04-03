@@ -6,12 +6,16 @@
   :tests          [{:id           :unit
                     :ns-patterns  ["-test$"]
                     :source-paths ["bases/rest-api/src/clj" "components/casing/src/clj" "components/config/src/clj"
-                                   "components/movies/src/clj" "components/system/src/clj"]
+                                   "components/movies/src/clj" "components/rama-client/src/clj"
+                                   "components/rama-server/src/clj" "components/system/src/clj"]
                     :test-paths   ["bases/rest-api/test/clj" "components/casing/test/clj" "components/config/test/clj"
-                                   "components/movies/test/clj" "components/system/test/clj"]}
+                                   "components/movies/test/clj" "components/rama-client/test/clj"
+                                   "components/rama-server/test/clj" "components/system/test/clj"]}
                    {:id           :integration
                     :ns-patterns  ["-integration$"]
                     :source-paths ["bases/rest-api/src/clj" "components/casing/src/clj" "components/config/src/clj"
-                                   "components/movies/src/clj" "components/system/src/clj"]
+                                   "components/movies/src/clj" "components/rama-client/src/clj"
+                                   "components/rama-server/src/clj" "components/system/src/clj"]
                     :test-paths   ["bases/rest-api/test/clj" "components/casing/test/clj" "components/config/test/clj"
-                                   "components/movies/test/clj" "components/system/test/clj"]}]}
+                                   "components/movies/test/clj" "components/rama-client/test/clj"
+                                   "components/rama-server/test/clj" "components/system/test/clj"]}]}
