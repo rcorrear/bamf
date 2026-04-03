@@ -26,7 +26,13 @@ inputs.devenv.lib.mkShell {
           shfmt.enable = true;
           statix.enable = true;
           trufflehog.enable = true;
-          yamllint.enable = true;
+          yamllint = {
+            enable = true;
+            excludes = [
+              "openspec/config.yaml"
+              "openspec/changes/.*/\\.openspec\\.yaml"
+            ];
+          };
           zizmor.enable = true;
           zprint = {
             enable = true;

@@ -1,6 +1,8 @@
 (ns radarr.dev.system
   "Radarr-specific Donut system wiring that layers static REST API routes on top of the shared base."
   (:require [bamf.config.interface :as config]
+            [bamf.dev.system.movies :as system.movies]
+            [bamf.dev.system.rama :as system.rama]
             [bamf.movies.interface :as movies]
             [bamf.rest-api.api :as rest-api]
             [donut.system :as ds]
@@ -18,8 +20,11 @@
 (defmethod ds/named-system :base
   [_]
   {::ds/defs {:config        {}
-              :runtime-state {:movies/env      #::ds{:start (fn [_] (movies/start-runtime!))
-                                                     :stop  (fn [deps] (movies/stop-runtime! (::ds/instance deps)))}
+              :runtime-state {:rama            #::ds{:start (fn [_] (system.rama/start!))
+                                                     :stop  (fn [deps] (system.rama/stop! (::ds/instance deps)))}
+                              :movies/env      #::ds{:start (fn [deps] (system.movies/start! {:rama (::ds/rama deps)}))
+                                                     :stop  (fn [deps] (system.movies/stop! (::ds/instance deps)))
+                                                     :rama  (ds/ref [:runtime-state :rama])}
                               :rest-api/server #::ds{:start      (fn [deps]
                                                                    (let [system-config (::ds/config deps)
                                                                          movies-env    (:movies/env deps)

@@ -6,6 +6,7 @@
             [bamf.movies.rama.module.constants :refer [movies-etl-name]]
             [bamf.movies.rama.module.core :as mm]
             [bamf.movies.model :as model]
+            [bamf.rama.interface :as rama]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
             [clojure.test :refer [deftest is]]
@@ -41,16 +42,16 @@
   [f]
   (let [ipc (rtest/create-ipc)]
     (try (rtest/launch-module! ipc mm/MovieModule {:tasks 4 :threads 2})
-         (f ipc)
+         (f (rama/local-runtime ipc))
          (finally (try (.close ipc) (catch Exception _))))))
 
 (deftest save-movie
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
@@ -65,10 +66,10 @@
        (doseq [tag (:tags @sample-movie-row)] (is (contains? (pstate/movie-ids-by-tag rama-env tag) movie-id)))))))
 
 (deftest save-movie-persists-metadata
-  (with-module (fn [ipc]
+  (with-module (fn [rama-runtime]
                  (let [module-name       (get-module-name mm/MovieModule)
-                       rama-env          {:movies/env {:ipc ipc}}
-                       movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+                       rama-env          {:rama rama-runtime}
+                       movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
                        payload           @sample-movie-row
                        ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
                        ack-movie         (when ack-response (get ack-response movies-etl-name))
@@ -83,10 +84,10 @@
 
 (deftest update-movie-updates-metadata
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           rama-env          {:rama rama-runtime}
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            payload           @sample-movie-row
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
@@ -109,10 +110,10 @@
 
 (deftest save-movie-from-http-shaped-payload
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           rama-env          {:rama rama-runtime}
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            payload           (assoc @http-shaped-payload :tags ["movie"])
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
@@ -128,10 +129,10 @@
        (is (contains? (or (pstate/movie-ids-by-tag rama-env "movie") #{}) movie-id))))))
 
 (deftest create-coerces-vector-tags
-  (with-module (fn [ipc]
+  (with-module (fn [rama-runtime]
                  (let [module-name       (get-module-name mm/MovieModule)
-                       rama-env          {:movies/env {:ipc ipc}}
-                       movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+                       rama-env          {:rama rama-runtime}
+                       movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
                        payload           (-> @sample-movie-row
                                              (assoc :tmdb-id 99001 :tags ["alpha" "beta"]))
                        ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
@@ -145,10 +146,10 @@
                    (is (contains? (or (pstate/movie-ids-by-tag rama-env "beta") #{}) movie-id))))))
 
 (deftest create-accepts-set-tags
-  (with-module (fn [ipc]
+  (with-module (fn [rama-runtime]
                  (let [module-name       (get-module-name mm/MovieModule)
-                       rama-env          {:movies/env {:ipc ipc}}
-                       movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+                       rama-env          {:rama rama-runtime}
+                       movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
                        payload           (-> @sample-movie-row
                                              (assoc :tmdb-id 99002 :tags #{"gamma" "delta"}))
                        ack-response      (foreign-append! movie-saves-depot (common/movie-created-event payload) :ack)
@@ -163,11 +164,11 @@
 
 (deftest update-movie
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
@@ -201,11 +202,11 @@
 
 (deftest monitored-index-updates
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))]
@@ -223,11 +224,11 @@
 
 (deftest tags-index-updates-from-empty-to-non-empty
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
@@ -248,11 +249,11 @@
 
 (deftest tags-index-updates-from-empty-to-empty
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot (common/movie-created-event @sample-movie-row) :ack)
            ack-movie         (when ack-response (get ack-response movies-etl-name))
            movie-id          (or (get-in ack-movie [:movie :id]) (pstate/movie-id-by-tmdb-id rama-env tmdb-id))
@@ -269,11 +270,11 @@
 
 (deftest tags-index-updates-from-non-empty-to-non-empty
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot
                                               (assoc (common/movie-created-event @sample-movie-row) :tags #{"old-tag"})
                                               :ack)
@@ -296,11 +297,11 @@
 
 (deftest tags-index-updates-from-non-empty-to-empty
   (with-module
-   (fn [ipc]
+   (fn [rama-runtime]
      (let [module-name       (get-module-name mm/MovieModule)
-           rama-env          {:movies/env {:ipc ipc}}
+           rama-env          {:rama rama-runtime}
            tmdb-id           (:tmdb-id @sample-movie-row)
-           movie-saves-depot (foreign-depot ipc module-name common/movie-depot-name)
+           movie-saves-depot (rama/foreign-depot rama-runtime module-name common/movie-depot-name)
            ack-response      (foreign-append! movie-saves-depot
                                               (assoc (common/movie-created-event @sample-movie-row) :tags #{"old-tag"})
                                               :ack)

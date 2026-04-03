@@ -9,7 +9,7 @@
                   pstate/movie-by-id                (fn [_ id & _] {:title (str "Movie" id)})
                   pstate/metadata-by-movie-id       (fn [& _] nil)]
       (is (= {:status :ok :movies [{:id 2 :title "Movie2"} {:id 5 :title "Movie5"}]}
-             (inspection/list-movies {:movies/env {}} {}))))))
+             (inspection/list-movies {:rama ::rama} {}))))))
 
 (deftest list-tmdb-filter
   (testing "returns movie when tmdb-id provided"
@@ -17,4 +17,4 @@
                   pstate/movie-by-id          (fn [_ id & _] (when (= 9 id) {:title "Movie55"}))
                   pstate/metadata-by-movie-id (fn [& _] nil)]
       (is (= {:status :ok :movies [{:id 9 :title "Movie55"}]}
-             (inspection/list-movies {:movies/env {}} {:tmdb-id "55"}))))))
+             (inspection/list-movies {:rama ::rama} {:tmdb-id "55"}))))))

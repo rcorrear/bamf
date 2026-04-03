@@ -21,7 +21,7 @@
       (is (= [env movie] @captured)))))
 
 (deftest list-movies-delegates-to-inspection
-  (let [env      {:ipc ::ipc}
+  (let [env      {:rama ::rama}
         query    {:monitored true}
         captured (atom nil)]
     (with-redefs [inspection/list-movies (fn [env* query*] (reset! captured [env* query*]) ::listed)]
@@ -29,7 +29,7 @@
       (is (= [env query] @captured)))))
 
 (deftest get-movie-delegates-to-inspection
-  (let [env      {:ipc ::ipc}
+  (let [env      {:rama ::rama}
         captured (atom nil)]
     (with-redefs [inspection/get-movie (fn [env* id] (reset! captured [env* id]) ::fetched)]
       (is (= ::fetched (movies/get-movie env 9)))

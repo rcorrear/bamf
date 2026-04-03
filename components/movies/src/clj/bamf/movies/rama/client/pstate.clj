@@ -1,21 +1,18 @@
 (ns bamf.movies.rama.client.pstate
   (:require [bamf.movies.rama.common :as common]
-            [com.rpl.rama :as rama]
+            [bamf.rama.interface :as rama]
             [com.rpl.rama.path :refer [keypath]]
             [taoensso.telemere :as t]))
 
 (defn- to-set [value] (when value (into #{} value)))
 
-(defn- ensure-ipc
-  [env]
-  (let [ipc (or (:ipc env) (get-in env [:movies/env :ipc]) (get-in env [:runtime-state :movies/env :ipc]))]
-    (or ipc (throw (IllegalStateException. "Movies Rama env missing :ipc handle")))))
+(defn- ensure-rama [env] (or (:rama env) (throw (IllegalStateException. "Movies Rama env missing :rama runtime"))))
 
 (defn- select-one
   ([env pstate-name k] (select-one env pstate-name k nil))
   ([env pstate-name k options]
-   (let [ipc    (ensure-ipc env)
-         pstate (rama/foreign-pstate ipc common/module-name pstate-name)]
+   (let [rama-runtime (ensure-rama env)
+         pstate       (rama/foreign-pstate rama-runtime common/module-name pstate-name)]
      (if options
        (do (t/log! {:level :debug :reason :pstate/select-one}
                    (format "executing foreign-select-one %s %s %s" pstate-name k options))
